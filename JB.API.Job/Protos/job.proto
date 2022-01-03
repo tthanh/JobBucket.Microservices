@@ -1,0 +1,67 @@
+﻿syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package job;
+option csharp_namespace = "JB.gRPC.Job";
+
+message Job {
+	int32 id = 1;
+	string title = 2;
+	repeated string imageUrls = 3;
+	string description = 4;
+	int32 activeStatus = 5;
+	google.protobuf.Int32Value priority = 6;
+	repeated string addresses = 7;
+	repeated string cities = 8;
+	google.protobuf.Int32Value minSalary = 9;
+	google.protobuf.Int32Value maxSalary = 10;
+	string salaryCurrency = 11;
+	string salaryDuration = 12;
+	repeated JobSkill skills = 13;
+	repeated JobPosition positions = 14;
+	int32 applicationCount = 16;
+	int32 interestCount = 18;
+	repeated JobType types = 19;
+	repeated JobCategory categories = 20;
+	google.protobuf.boolean isVisaSponsorship = 21;
+	int32 employerId = 22;
+	user employer = 23;
+	google.protobuf.Timestamp createdDate = 24;
+	google.protobuf.Timestamp updatedDate = 25;
+	google.protobuf.Timestamp expireDate = 26;
+	string benefits = 27;
+	string experiences = 28;
+	string responsibilities = 29;
+	string requirements = 30;
+	string optionalRequirements = 31;
+	string cultures = 32;
+	string whyJoinUs = 33;
+	google.protobuf.Int32Value numberEmployeesToApplied = 34;
+	string jobForm = 35;
+	string gender = 36;
+	google.protobuf.Int32Value views = 37;
+	boolean isJobInterested = 38;
+	boolean isJobApplied = 39;
+	int32 organizationId = 40;
+	Organization organization = 41;
+}
+
+message JobCategory {
+	int32 id = 1;
+	string name = 2;
+}
+
+message JobPosition {
+	int32 id = 1;
+	string name = 2;
+}
+
+message JobSkill {
+	int32 id = 1;
+	string name = 2;
+}
+
+message JobType {
+	int32 id = 1;
+	string name = 2;
+}

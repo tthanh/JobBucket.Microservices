@@ -1,0 +1,18 @@
+﻿syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package job;
+option csharp_namespace = "JB.gRPC.Job";
+
+service Job {
+  rpc GetJob (JobRequest) returns (JobResponse);
+}
+
+message JobRequest {
+	int32 id = 1;
+}
+
+message JobResponse {
+  int32 id = 1;
+  string title = 2;
+}

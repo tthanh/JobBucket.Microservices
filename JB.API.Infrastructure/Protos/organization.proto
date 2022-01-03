@@ -1,0 +1,39 @@
+﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+package organization;
+
+option csharp_namespace = "JB.gRPC.Organization";
+
+service OrganizationRPC {
+  rpc Get (OrganizationRequest) returns (OrganizationResponse);
+}
+
+message OrganizationRequest {
+	repeated int32 id = 1;
+}
+
+message OrganizationResponse {
+	repeated Organization organizations = 1;
+}
+
+message Organization {
+	int32 id = 1;
+	string name = 2;
+	string bio = 3;
+	string country = 4;
+	string phoneNumber = 5;
+	string email = 6;
+	repeated string addresses = 7;
+	repeated string imageUrls = 8;
+	string avatarUrl = 9;
+	repeated int32 managerIds = 10;
+	repeated int32 employerIds = 12;
+	google.protobuf.Timestamp createdDate = 14;
+	google.protobuf.Timestamp updatedDate = 15;
+	float rating = 16;
+	float ratingBenefit = 17;
+	float ratingLearning = 18;
+	float ratingCulture = 19;
+	float ratingWorkspace = 20;
+}

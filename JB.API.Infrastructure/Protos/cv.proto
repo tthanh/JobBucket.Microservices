@@ -1,0 +1,67 @@
+﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "user.proto";
+
+package cv;
+
+option csharp_namespace = "JB.gRPC.CV";
+
+service CVRPC {
+  rpc Get (CVRequest) returns (CVResponse);
+}
+
+message CVRequest {
+	repeated int32 id = 1;
+}
+
+message CVResponse {
+	repeated CV cvs = 1;
+}
+
+message CV {
+	int32 id = 1;
+	string name = 2;
+	string cVName = 3;
+	string title = 4;
+	string avatarUrl = 5;
+	string gender = 6;
+	google.protobuf.Timestamp birthdate = 7;
+	string email = 8;
+	string phone = 9;
+	string address = 10;
+	string city = 11;
+	string country = 12;
+	string introduction = 13;
+	string website = 14;
+	string github = 15;
+	string reference = 16;
+	repeated CVSkill skills = 17;
+	repeated string activities = 18;
+	repeated string certifications = 19;
+	repeated string awards = 20;
+	int32 userId = 21;
+	user.User user = 22;
+	string cVTemplate = 23;
+	google.protobuf.Timestamp createdDate = 24;
+	google.protobuf.Timestamp updatedDate = 25;
+	repeated CVEducation educations = 26;
+	repeated CVExperience experiences = 27;
+}
+
+message CVSkill {
+	string skillName = 1;
+	int32 level = 2;
+}
+
+message CVEducation {
+	string school = 1;
+	string major = 2;
+	string status = 3;
+	string profession = 4;
+}
+
+message CVExperience {
+	string company = 1;
+	string position = 2;
+	string duration = 3;
+}

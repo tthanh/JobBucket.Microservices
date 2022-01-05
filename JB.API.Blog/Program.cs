@@ -1,4 +1,4 @@
-using JB.User.Services;
+using JB.Blog.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace JB.User
+namespace JB.Blog
 {
     public static class Program
     {

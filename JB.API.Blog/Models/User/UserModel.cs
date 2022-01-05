@@ -1,11 +1,11 @@
-﻿using JB.User.Models.Organization;
+﻿using JB.Blog.Models.Organization;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
-namespace JB.User.Models.User
+namespace JB.Blog.Models.User
 {
     public class UserModel : IdentityUser<int>, IUserModel
     {

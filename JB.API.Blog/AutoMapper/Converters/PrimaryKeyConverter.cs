@@ -3,7 +3,7 @@ using JB.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
-namespace JB.User.AutoMapper.Converters
+namespace JB.Blog.AutoMapper.Converters
 {
     public class PrimaryKeyConverter<T, Y> : ITypeConverter<int, T> where T : class, IEntityPrimaryKey where Y : DbContext
     {

@@ -1,7 +1,7 @@
 ﻿using JB.Infrastructure.Models;
-using JB.User.Models.Organization;
+using JB.Blog.Models.Organization;
 
-namespace JB.User.Models.User
+namespace JB.Blog.Models.User
 {
     public interface IUserModel : IEntityDate
     {

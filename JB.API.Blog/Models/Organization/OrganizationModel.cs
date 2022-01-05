@@ -1,10 +1,10 @@
-﻿using JB.Infrastructure.Models;
-using JB.User.Models.User;
+﻿using JB.Blog.Models.User;
+using JB.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace JB.User.Models.Organization
+namespace JB.Blog.Models.Organization
 {
     public class OrganizationModel : IEntityDate
     {

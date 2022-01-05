@@ -1,8 +1,8 @@
-﻿using JB.User.Models.CV;
+﻿using JB.Blog.Models.CV;
 using System;
 using JB.Infrastructure.Models;
 
-namespace JB.User.Models.User
+namespace JB.Blog.Models.User
 {
     public interface IUserProfileModel : IEntityDate
     {

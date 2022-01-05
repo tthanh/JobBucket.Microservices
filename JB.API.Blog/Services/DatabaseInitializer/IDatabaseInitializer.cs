@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace JB.User.Services
+namespace JB.Blog.Services
 {
     public interface IDatabaseInitializer
     {

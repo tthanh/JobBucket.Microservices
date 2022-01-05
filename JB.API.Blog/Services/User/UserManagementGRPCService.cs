@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using JB.User.Models.User;
+using JB.Blog.Models.User;
 
-namespace JB.User.Services
+namespace JB.Blog.Services
 {
     public class UserManagementGRPCService : IUserManagementService
     {

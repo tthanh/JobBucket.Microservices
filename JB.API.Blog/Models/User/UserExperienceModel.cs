@@ -1,4 +1,4 @@
-﻿namespace JB.User.Models.CV
+﻿namespace JB.Blog.Models.CV
 {
     public class UserExperienceModel
     {

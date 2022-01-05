@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using JB.User.Services;
+using JB.Blog.Services;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
@@ -17,12 +17,11 @@ using Nest;
 using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Models.Authentication;
-using JB.User.GraphQL.CV;
-using JB.User.GraphQL.Profile;
-using JB.User.AutoMapper;
-using JB.User.Data;
+using JB.Blog.AutoMapper;
+using JB.Blog.Data;
+using JB.Blog.GraphQL.Blog;
 
-namespace JB.User
+namespace JB.Blog
 {
     public class Startup
     {
@@ -55,8 +54,7 @@ namespace JB.User
                         optionsBuilder.MigrationsAssembly(typeof(Startup).Assembly.GetName().Name));
             });
 
-            services.AddDbContext<CVDbContext>(dbOptions);
-            services.AddDbContext<ProfileDbContext>(dbOptions);
+            services.AddDbContext<BlogDbContext>(dbOptions);
 
             services.AddScoped<IDatabaseInitializer, DatabaseInitializer>();
             #endregion
@@ -71,7 +69,7 @@ namespace JB.User
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = Configuration["Redis:Url"];
-                options.InstanceName = "JB.User.Redis";
+                options.InstanceName = "JB.Blog.Redis";
             });
             #endregion
 
@@ -98,12 +96,10 @@ namespace JB.User
 
             #region Services
             services.AddAutoMapper(
-                typeof(CVMapperProfile).Assembly,
-                typeof(ProfileMapperProfile).Assembly
+                typeof(BlogMapperProfile).Assembly
                 );
 
-            services.AddScoped<IUserProfileService, UserProfileService>();
-            services.AddScoped<ICVService, CVService>();
+            services.AddScoped<IBlogService, BlogService>();
             #endregion
 
             #region GraphQL
@@ -113,8 +109,7 @@ namespace JB.User
                 .AddMutationType()
                 .AddSubscriptionType();
 
-            services.AddGraphQLCV();
-            services.AddGraphQLProfile();
+            services.AddGraphQLBlog();
             #endregion
 
             #region gRPC services

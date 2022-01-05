@@ -1,37 +1,27 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using JB.User.Data;
-using JB.User.Models.User;
-using Microsoft.AspNetCore.Identity;
+﻿using System.Threading.Tasks;
+using JB.Blog.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using JB.Infrastructure.Helpers;
 
-namespace JB.User.Services
+namespace JB.Blog.Services
 {
     public class DatabaseInitializer : IDatabaseInitializer
     {
         private readonly IConfiguration _configuration;
-        private readonly CVDbContext _cVDbContext;
-        private readonly ProfileDbContext _profileDbContext;
+        private readonly BlogDbContext _blogDbContext;
 
         public DatabaseInitializer(
             IConfiguration configuration,
-            CVDbContext cVDbContext,
-            ProfileDbContext profileDbContext)
+            BlogDbContext blogDbContext)
         {
             _configuration = configuration;
-            
-            _cVDbContext = cVDbContext;
-            _profileDbContext = profileDbContext;
+            _blogDbContext = blogDbContext;
         }
 
         public async Task Initialize()
         {
             //create database schema if none exists
-            await _cVDbContext.Database.MigrateAsync();
-            await _profileDbContext.Database.MigrateAsync();
+            await _blogDbContext.Database.MigrateAsync();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using JB.API.Data;
+﻿using JB.Infrastructure.Data;
 using JB.Job.Models.Interview;
 using Microsoft.EntityFrameworkCore;
 

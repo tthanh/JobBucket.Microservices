@@ -9,10 +9,10 @@ namespace JB.Job.DTOs.Job
 {
     public class ListInterviewRequest : ListVM<InterviewModel>, ISearchRequest
     {
-        public int Status { get; set; }
-        public int JobId { get; set; }
-        public int InterviewerId { get; set; }
-        public int IntervieweeId { get; set; }
+        public int? Status { get; set; }
+        public int? JobId { get; set; }
+        public int? InterviewerId { get; set; }
+        public int? IntervieweeId { get; set; }
         public DateTime[] InterviewTime { get; set; }
         public DateTime[] CreatedDate { get; set; }
         public string Keyword { get; set; }

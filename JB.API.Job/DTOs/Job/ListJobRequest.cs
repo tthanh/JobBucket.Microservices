@@ -20,6 +20,7 @@ namespace JB.Job.DTOs.Job
         public DateTime[] ExpireDate { get; set; }
         public DateTime[] CreatedDate { get; set; }
         public int[] OrganizationId { get; set; }
+        public int[] EmployerId { get; set; }
         public string Keyword { get; set; }
         public bool? IsInterested { get; set; }
 
@@ -71,6 +72,11 @@ namespace JB.Job.DTOs.Job
             if (OrganizationId?.Length > 0)
             {
                 filter = filter.And(j => OrganizationId.Contains(j.OrganizationId));
+            }
+
+            if (EmployerId?.Length > 0)
+            {
+                filter = filter.And(j => EmployerId.Contains(j.EmployerId));
             }
 
             if (Cities?.Length > 0)

@@ -1,22 +1,23 @@
 ﻿using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
-using JB.Notification.Models.Organization;
-using JB.Notification.Models.User;
+using JB.Job.Models.Organization;
+using JB.Job.Models.User;
+
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace JB.Notification.Services
+namespace JB.Job.Services
 {
-    public class OrganizationgGPCService : IOrganizationService
+    public class OrganizationGRPCService : IOrganizationService
     {
-        private readonly ILogger<OrganizationgGPCService> _logger;
+        private readonly ILogger<OrganizationGRPCService> _logger;
         private readonly IUserClaimsModel _claims;
 
-        public OrganizationgGPCService(
-            ILogger<OrganizationgGPCService> logger,
+        public OrganizationGRPCService(
+            ILogger<OrganizationGRPCService> logger,
             IUserClaimsModel claims
             )
         {

@@ -4,10 +4,9 @@ using JB.Job.Data;
 using JB.Job.Models.Interview;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace JB.Job.Migrations.InterviewDb
+namespace JB.API.Migrations.InterviewDb
 {
     [DbContext(typeof(InterviewDbContext))]
     partial class InterviewDbContextModelSnapshot : ModelSnapshot
@@ -16,12 +15,12 @@ namespace JB.Job.Migrations.InterviewDb
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("interview")
+                .HasDefaultSchema("Interview")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.7")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            modelBuilder.Entity("JB.API.Job.Models.Interview.InterviewModel", b =>
+            modelBuilder.Entity("JB.API.Models.Interview.InterviewModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

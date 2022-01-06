@@ -102,6 +102,8 @@ namespace JB.User
                 typeof(ProfileMapperProfile).Assembly
                 );
 
+            services.AddScoped<IUserManagementService, UserManagementGRPCService>();
+            services.AddScoped<IOrganizationService, OrganizationgGRPCService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<ICVService, CVService>();
             #endregion
@@ -115,6 +117,16 @@ namespace JB.User
 
             services.AddGraphQLCV();
             services.AddGraphQLProfile();
+            #endregion
+
+            #region REST endpoints
+            services.AddCors(o => o.AddPolicy("LowCorsPolicy", builder =>
+            {
+                builder.SetIsOriginAllowed(origin => true)
+                       .AllowCredentials()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
             #endregion
 
             #region gRPC services

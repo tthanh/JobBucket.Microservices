@@ -111,7 +111,10 @@ namespace JB.Job
             services.AddScoped<IJobService, JobService>();
             services.AddScoped<ISearchService<JobModel>, JobElasticsearchService>();
             services.AddScoped<IInterviewService, InterviewService>();
-            services.AddScoped<IOrganizationService, OrganizationgGPCService>();
+            services.AddScoped<IOrganizationService, OrganizationGRPCService>();
+            services.AddScoped<IUserManagementService, UserManagementGRPCService>();
+            services.AddScoped<ICVService, CVGRPCService>();
+            services.AddScoped<INotificationService, NotificationGRPCService>();
             #endregion
 
             #region REST endpoints

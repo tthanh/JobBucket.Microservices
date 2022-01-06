@@ -31,6 +31,7 @@ namespace JB.Job.Models.Job
         public virtual ICollection<CategoryModel> Categories { get; set; }
         public bool? IsVisaSponsorship { get; set; }
         public int EmployerId { get; set; }
+        [NotMapped]
         public UserModel Employer { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
@@ -49,6 +50,7 @@ namespace JB.Job.Models.Job
         public bool IsJobInterested { get; set; }
         public bool IsJobApplied { get; set; }
         public int OrganizationId { get; set; }
+        [NotMapped]
         public OrganizationModel Organization { get; set; }
     }
 }

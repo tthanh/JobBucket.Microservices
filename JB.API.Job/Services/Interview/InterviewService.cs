@@ -60,9 +60,12 @@ namespace JB.Job.Services
             int userId = _claims?.Id ?? 0;
             do
             {
-                if (entity == null || entity.IntervieweeId <= 0 ||
-                    entity.InterviewerId <= 0 || entity.JobId <= 0 || 
-                    entity.IntervieweeCVId <= 0)
+                if (entity == null ||
+                    entity.IntervieweeId <= 0 ||
+                    entity.InterviewerId <= 0 ||
+                    entity.JobId <= 0
+                    //entity.IntervieweeCVId <= 0
+                    )
                 {
                     result.ErrorCode = ErrorCode.InvalidArgument;
                     break;
@@ -76,7 +79,7 @@ namespace JB.Job.Services
                 }
 
                 entity.OrganizationId = organizationId;
-                entity.Status = (int)  InterviewStatus.Open;
+                entity.Status = (int)InterviewStatus.Open;
                 try
                 {
 
@@ -229,7 +232,7 @@ namespace JB.Job.Services
                     interview.Organization = organization;
 
                     (var statusEmp, var emp) = await _userService.GetUser(interview.IntervieweeId);
-                    if(statusEmp.ErrorCode != ErrorCode.Success)
+                    if (statusEmp.ErrorCode != ErrorCode.Success)
                     {
                         result.ErrorCode = ErrorCode.UserNotExist;
                         break;
@@ -245,7 +248,7 @@ namespace JB.Job.Services
                     interview.Interviewer = emper;
 
                     (var statusjob, var job) = await _jobService.GetById(interview.JobId);
-                    if(statusjob.ErrorCode != ErrorCode.Success)
+                    if (statusjob.ErrorCode != ErrorCode.Success)
                     {
                         result.ErrorCode = ErrorCode.JobNull;
                         break;
@@ -253,11 +256,11 @@ namespace JB.Job.Services
                     interview.Job = job;
 
                     (var statusCV, var cv) = await _cvService.GetById(interview.IntervieweeCVId);
-                    if(statusCV.ErrorCode != ErrorCode.Success)
-                    {
-                        result.ErrorCode = ErrorCode.cvNull;
-                        break;
-                    }
+                    //if(statusCV.ErrorCode != ErrorCode.Success)
+                    //{
+                    //    result.ErrorCode = ErrorCode.cvNull;
+                    //    break;
+                    //}
                     interview.IntervieweeCV = cv;
                 }
                 catch (Exception e)
@@ -286,13 +289,13 @@ namespace JB.Job.Services
                     break;
                 }
                 (var status, var user) = await _userService.GetUser(userId);
-                if(status.ErrorCode != ErrorCode.Success)
+                if (status.ErrorCode != ErrorCode.Success)
                 {
                     result.ErrorCode = ErrorCode.UserNotExist;
                     break;
                 }
 
-             
+
 
                 try
                 {
@@ -318,6 +321,56 @@ namespace JB.Job.Services
                     {
                         result.ErrorCode = ErrorCode.InterviewNull;
                         break;
+                    }
+
+                    foreach (var interview in interviews)
+                    {
+                        (var statusOrg, var organization) = await _organizationService.GetById(interview.OrganizationId);
+                        if (statusOrg.ErrorCode != ErrorCode.Success)
+                        {
+                            result.ErrorCode = ErrorCode.OrganizationNull;
+                            break;
+                        }
+
+                        if (userId != interview.IntervieweeId &&
+                            !UserHelper.IsRecruiter(userId, organization) && !UserHelper.IsManager(userId, organization))
+                        {
+                            result.ErrorCode = ErrorCode.NoPrivilege;
+                            break;
+                        }
+                        interview.Organization = organization;
+
+                        (var statusEmp, var emp) = await _userService.GetUser(interview.IntervieweeId);
+                        if (statusEmp.ErrorCode != ErrorCode.Success)
+                        {
+                            result.ErrorCode = ErrorCode.UserNotExist;
+                            break;
+                        }
+                        interview.Interviewee = emp;
+
+                        (var statusEmper, var emper) = await _userService.GetUser(interview.InterviewerId);
+                        if (statusEmper.ErrorCode != ErrorCode.Success)
+                        {
+                            result.ErrorCode = ErrorCode.UserNotExist;
+                            break;
+                        }
+                        interview.Interviewer = emper;
+
+                        (var statusjob, var job) = await _jobService.GetById(interview.JobId);
+                        if (statusjob.ErrorCode != ErrorCode.Success)
+                        {
+                            result.ErrorCode = ErrorCode.JobNull;
+                            break;
+                        }
+                        interview.Job = job;
+
+                        (var statusCV, var cv) = await _cvService.GetById(interview.IntervieweeCVId);
+                        //if (statusCV.ErrorCode != ErrorCode.Success)
+                        //{
+                        //    result.ErrorCode = ErrorCode.cvNull;
+                        //    break;
+                        //}
+                        interview.IntervieweeCV = cv;
                     }
 
                 }

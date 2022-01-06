@@ -108,6 +108,16 @@ namespace JB.Organization
             services.AddScoped<IReviewService, ReviewService>();
             #endregion
 
+            #region REST endpoints
+            services.AddCors(o => o.AddPolicy("LowCorsPolicy", builder =>
+            {
+                builder.SetIsOriginAllowed(origin => true)
+                       .AllowCredentials()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+            #endregion
+
             #region GraphQL
             services.AddGraphQLServer()
                 .AddInMemorySubscriptions()

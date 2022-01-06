@@ -100,6 +100,18 @@ namespace JB.Blog
                 );
 
             services.AddScoped<IBlogService, BlogService>();
+            services.AddScoped<IUserManagementService, UserManagementGRPCService>();
+            services.AddScoped<INotificationService, NotificationGRPCService>();
+            #endregion
+
+            #region REST endpoints
+            services.AddCors(o => o.AddPolicy("LowCorsPolicy", builder =>
+            {
+                builder.SetIsOriginAllowed(origin => true)
+                       .AllowCredentials()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
             #endregion
 
             #region GraphQL

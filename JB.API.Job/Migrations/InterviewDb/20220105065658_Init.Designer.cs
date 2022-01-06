@@ -5,13 +5,12 @@ using JB.Job.Models.Interview;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace JB.Job.Migrations.InterviewDb
+namespace JB.API.Migrations.InterviewDb
 {
     [DbContext(typeof(InterviewDbContext))]
-    [Migration("20211002090847_Init")]
+    [Migration("20220105065658_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,7 +22,7 @@ namespace JB.Job.Migrations.InterviewDb
                 .HasAnnotation("ProductVersion", "5.0.7")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            modelBuilder.Entity("JB.API.Job.Models.Interview.InterviewModel", b =>
+            modelBuilder.Entity("JB.API.Models.Interview.InterviewModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -42,6 +41,9 @@ namespace JB.Job.Migrations.InterviewDb
                     b.Property<DateTime>("InterviewTime")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("IntervieweeCVId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("IntervieweeId")
                         .HasColumnType("integer");
 
@@ -49,6 +51,9 @@ namespace JB.Job.Migrations.InterviewDb
                         .HasColumnType("integer");
 
                     b.Property<int>("JobId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrganizationId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Status")

@@ -6,7 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-namespace JB.API.Services
+
+namespace JB.Job.Services
 {
     public class UserManagementGRPCService : IUserManagementService
     {

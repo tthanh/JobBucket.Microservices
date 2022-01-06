@@ -23,6 +23,8 @@ using JB.Lib.Extensions.Filters;
 using Newtonsoft.Json;
 using Microsoft.OpenApi.Models;
 using System.IO;
+using JB.Authentication.Models.User;
+using Microsoft.AspNetCore.Identity;
 
 namespace JB.Authentication
 {
@@ -93,7 +95,20 @@ namespace JB.Authentication
 
             services.AddAuthorization();
 
+            services.AddIdentity<UserModel, IdentityRole<int>>(config =>
+            {
+                config.SignIn.RequireConfirmedEmail = true;
+                config.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultEmailProvider;
+                config.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+            })
+                .AddEntityFrameworkStores<AuthenticationDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.Configure<DataProtectionTokenProviderOptions>(o =>
+                o.TokenLifespan = TimeSpan.FromHours(3));
+
             services.AddScoped<IUserClaimsModel, UserClaimsModel>();
+            services.AddTransient<IJwtService, JwtService>();
             #endregion
 
             #region Services
@@ -101,6 +116,7 @@ namespace JB.Authentication
                 typeof(AuthenticationMapperProfile).Assembly
                 );
 
+            services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserManagementService, UserManagementService>();
             #endregion
@@ -190,7 +206,7 @@ namespace JB.Authentication
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGraphQL();
+                endpoints.MapControllers();
             });
         }
     }

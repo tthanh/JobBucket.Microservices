@@ -13,6 +13,8 @@ using AutoMapper;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
 using JB.Infrastructure.Helpers;
+using JB.Job.Helpers;
+using JB.Infrastructure.Constants;
 
 namespace JB.Job.GraphQL.Job
 {
@@ -21,17 +23,22 @@ namespace JB.Job.GraphQL.Job
     {
         private readonly IMapper _mapper;
         private readonly IJobService _jobService;
+        private readonly IOrganizationService _orgService;
+        private readonly IUserManagementService _userService;
         private readonly IUserClaimsModel _claims;
         public JobQuery(
             IMapper mapper,
             IJobService jobService,
+            IOrganizationService orgService,
+            IUserManagementService userService,
             IUserClaimsModel claims)
         {
             _mapper = mapper;
             _claims = claims;
             _jobService = jobService;
+            _orgService = orgService;
+            _userService = userService;
         }
-
 
         [GraphQLName("jobs")]
         public async Task<List<JobResponse>> Jobs(IResolverContext context, int? id, ListJobRequest filter)
@@ -114,7 +121,7 @@ namespace JB.Job.GraphQL.Job
                 (status, jobs) = await _jobService.GetRecommendations(new JobModel
                 {
                     Id = filter?.JobId ?? 0,
-                },j => true, j => j.Id, size, page, isDescending);
+                }, j => true, j => j.Id, size, page, isDescending);
 
                 if (!status.IsSuccess)
                 {
@@ -224,17 +231,61 @@ namespace JB.Job.GraphQL.Job
 
                 bool isDescending = filter?.IsDescending ?? false;
 
-                if (filter?.JobId > 0)
+                if (_claims.Id < 0)
                 {
-                    (status, applications) = await _jobService.GetAppliedUsersByJob(filter.JobId.Value, filterExpr, sortExpr, size, page, isDescending);
-                    if (!status.IsSuccess)
-                    {
-                        context.ReportError(status.Message);
-                    }
+                    status.ErrorCode = ErrorCode.Unauthorized;
                     break;
                 }
 
-                (status, applications) = await _jobService.GetAppliedJobsByUser(filterExpr, sortExpr, size, page, isDescending);
+                if (filter?.UserId > 0)
+                {
+                    filterExpr = filterExpr.And(x => x.UserId == _claims.Id);
+                }
+
+                if (filter?.EmployerId > 0)
+                {
+                    filterExpr = filterExpr.And(x => x.Job.EmployerId == _claims.Id);
+                }
+
+                if (filter?.OrganizationId > 0)
+                {
+                    (var getOrgStatus, var org) = await _orgService.GetById(filter.OrganizationId.Value);
+                    if (!getOrgStatus.IsSuccess)
+                    {
+                        status = getOrgStatus;
+                        break;
+                    }
+
+                    if (!UserHelper.IsManager(_claims.Id, org))
+                    {
+                        status.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+                }
+
+                if (filter?.JobId > 0)
+                {
+                    (var getUserStatus, var user) = await _userService.GetUser(_claims.Id);
+                    if (!getUserStatus.IsSuccess)
+                    {
+                        status = getUserStatus;
+                        break;
+                    }
+
+                    if (user?.OrganizationId == null || user.OrganizationId.Value < 0)
+                    {
+                        status.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+
+                    filterExpr = filterExpr.And(x => x.Job.OrganizationId == user.OrganizationId);
+                }
+
+                (status, applications) = await _jobService.ListApply(filterExpr, sortExpr, size, page, isDescending);
+                if (!status.IsSuccess)
+                {
+                    context.ReportError(status.Message);
+                }
             }
             while (false);
 

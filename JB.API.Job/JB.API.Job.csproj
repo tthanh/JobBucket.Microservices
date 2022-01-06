@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <AssemblyName>JB.API.Job.Job</AssemblyName>
+    <AssemblyName>JB.Job</AssemblyName>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 	<UserSecretsId>181e96ae-f093-4073-839d-71cfba730fb9</UserSecretsId>

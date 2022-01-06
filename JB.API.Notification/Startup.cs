@@ -102,8 +102,24 @@ namespace JB.Notification
                 typeof(ChatMapperProfile).Assembly
                 );
 
+            services.AddTransient<IJwtService, JwtService>();
+            services.AddScoped<IOrganizationService, OrganizationGRPCService>();
+            services.AddScoped<IUserManagementService, UserManagementGRPCService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IChatService, ChatService>();
+
+            services.AddSingleton<INotificationSubscriptionsService, NotificationSubscriptionsService>();
+            services.AddSingleton<IChatSubscriptionsService, ChatSubscriptionsService>();
+            #endregion
+
+            #region REST endpoints
+            services.AddCors(o => o.AddPolicy("LowCorsPolicy", builder =>
+            {
+                builder.SetIsOriginAllowed(origin => true)
+                       .AllowCredentials()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
             #endregion
 
             #region GraphQL
@@ -149,6 +165,9 @@ namespace JB.Notification
               }));
 
             app.UseWebSockets();
+
+            app.SubScribeToNotification();
+            app.SubScribeToChat();
 
             app.UseEndpoints(endpoints =>
             {

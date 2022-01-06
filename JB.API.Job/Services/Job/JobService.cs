@@ -755,6 +755,30 @@ namespace JB.Job.Services
                         result.ErrorCode = ErrorCode.JobNull;
                         break;
                     }
+
+                    foreach (var app in applications)
+                    {
+                        if (app.Job != null)
+                        {
+                            if (app.Job.EmployerId > 0)
+                            {
+                                UserModel employer = _userService.GetUser(app.Job.EmployerId).Result.Item2;
+                                app.Job.Employer = employer ?? app.Job.Employer;
+                            }
+
+                            if (app.Job.OrganizationId > 0)
+                            {
+                                OrganizationModel organization = _organizationService.GetById(app.Job.OrganizationId).Result.Item2;
+                                app.Job.Organization = organization ?? app.Job.Organization;
+                            }
+                        }
+
+                        if (app.UserId > 0)
+                        {
+                            UserModel user = _userService.GetUser(app.UserId).Result.Item2;
+                            app.User = user ?? app.Job.Employer;
+                        }
+                    }
                 }
                 catch (Exception e)
                 {

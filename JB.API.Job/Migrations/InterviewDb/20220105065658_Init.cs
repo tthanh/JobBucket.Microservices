@@ -3,7 +3,7 @@ using JB.Job.Models.Interview;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace JB.Job.Migrations.InterviewDb
+namespace JB.API.Migrations.InterviewDb
 {
     public partial class Init : Migration
     {
@@ -26,7 +26,9 @@ namespace JB.Job.Migrations.InterviewDb
                     Description = table.Column<string>(type: "text", nullable: true),
                     JobId = table.Column<int>(type: "integer", nullable: false),
                     IntervieweeId = table.Column<int>(type: "integer", nullable: false),
+                    IntervieweeCVId = table.Column<int>(type: "integer", nullable: false),
                     InterviewerId = table.Column<int>(type: "integer", nullable: false),
+                    OrganizationId = table.Column<int>(type: "integer", nullable: false),
                     Form = table.Column<InterviewFormModel>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>

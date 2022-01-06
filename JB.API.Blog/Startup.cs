@@ -118,8 +118,7 @@ namespace JB.Blog
             services.AddGraphQLServer()
                 .AddInMemorySubscriptions()
                 .AddQueryType()
-                .AddMutationType()
-                .AddSubscriptionType();
+                .AddMutationType();
 
             services.AddGraphQLBlog();
             #endregion

@@ -145,7 +145,7 @@ namespace JB.Authentication
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "JB.API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "JB.API.Authentication", Version = "v1" });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
@@ -153,7 +153,6 @@ namespace JB.Authentication
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
                 });
-                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "JB.API.xml"));
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement {
                 {
                  new OpenApiSecurityScheme
@@ -164,7 +163,7 @@ namespace JB.Authentication
                      Id = "Bearer"
                    }
                   },
-                  Array.Empty<string>()
+                  new string[] { }
                 }
                 });
             });
@@ -203,6 +202,12 @@ namespace JB.Authentication
               }));
 
             app.UseWebSockets();
+            
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("v1/swagger.json", "Authentication");
+            });
 
             app.UseEndpoints(endpoints =>
             {

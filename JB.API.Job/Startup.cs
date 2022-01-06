@@ -149,7 +149,6 @@ namespace JB.Job
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
                 });
-                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "JB.API.Job.xml"));
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement {
                 {
                  new OpenApiSecurityScheme
@@ -160,7 +159,7 @@ namespace JB.Job
                      Id = "Bearer"
                    }
                   },
-                  Array.Empty<string>()
+                  new string[] { }
                 }
                 });
             });
@@ -171,8 +170,7 @@ namespace JB.Job
             services.AddGraphQLServer()
                 .AddInMemorySubscriptions()
                 .AddQueryType()
-                .AddMutationType()
-                .AddSubscriptionType();
+                .AddMutationType();
 
             services.AddGraphQLInterview();
             services.AddGraphQLJob();
@@ -213,7 +211,7 @@ namespace JB.Job
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("v1/swagger.json", "JobBucket");
+                c.SwaggerEndpoint("v1/swagger.json", "Job");
             });
 
             app.UseEndpoints(endpoints =>

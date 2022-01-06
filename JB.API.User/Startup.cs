@@ -112,8 +112,7 @@ namespace JB.User
             services.AddGraphQLServer()
                 .AddInMemorySubscriptions()
                 .AddQueryType()
-                .AddMutationType()
-                .AddSubscriptionType();
+                .AddMutationType();
 
             services.AddGraphQLCV();
             services.AddGraphQLProfile();

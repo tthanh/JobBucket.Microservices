@@ -122,8 +122,7 @@ namespace JB.Organization
             services.AddGraphQLServer()
                 .AddInMemorySubscriptions()
                 .AddQueryType()
-                .AddMutationType()
-                .AddSubscriptionType();
+                .AddMutationType();
 
             services.AddGraphQLOrganization();
             services.AddGraphQLReview();

@@ -22,18 +22,17 @@ message UserResponse {
 message User {
 	google.protobuf.Timestamp createdDate = 1;
 	google.protobuf.Timestamp updatedDate = 2;
-	string authSource = 3;
+	optional string authSource = 3;
 	int32 roleId = 4;
 	bool isLockedOut = 5;
-	string passwordPlain = 6;
-	string name = 7;
-	string avatarUrl = 8;
+	optional string name = 7;
+	optional string avatarUrl = 8;
 	google.protobuf.Int32Value organizationId = 9;
 	organization.Organization organization = 10;
 	google.protobuf.Int32Value defaultCVId = 11;
-	string phoneNumber = 12;
+	optional string phoneNumber = 12;
 	bool emailConfirmed = 13;
-	string email = 14;
-	string userName = 15;
+	optional string email = 14;
+	optional string userName = 15;
 	int32 id = 16;
 }

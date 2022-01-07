@@ -124,10 +124,10 @@ namespace JB.Blog
             #endregion
 
             #region gRPC services
-            //services.AddGrpcClient<Hello.HelloClient>(c =>
-            //{
-            //    c.Address = new Uri("http://localhost:50051");
-            //});
+            services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
+            {
+                c.Address = new Uri("http://localhost:6002");
+            });
             #endregion
         }
 

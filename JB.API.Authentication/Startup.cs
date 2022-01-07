@@ -25,6 +25,7 @@ using Microsoft.OpenApi.Models;
 using System.IO;
 using JB.Authentication.Models.User;
 using Microsoft.AspNetCore.Identity;
+using JB.Authentication.GRPC;
 
 namespace JB.Authentication
 {
@@ -113,7 +114,8 @@ namespace JB.Authentication
 
             #region Services
             services.AddAutoMapper(
-                typeof(AuthenticationMapperProfile).Assembly
+                typeof(AuthenticationMapperProfile).Assembly,
+                typeof(UserManagementMapperProfile).Assembly
                 );
 
             services.AddScoped<IEmailService, EmailService>();
@@ -171,10 +173,7 @@ namespace JB.Authentication
             #endregion
 
             #region gRPC services
-            //services.AddGrpcClient<Hello.HelloClient>(c =>
-            //{
-            //    c.Address = new Uri("http://localhost:50051");
-            //});
+            services.AddGrpc();
             #endregion
         }
 
@@ -211,6 +210,7 @@ namespace JB.Authentication
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapGrpcService<UserGRPCHandler>();
                 endpoints.MapControllers();
             });
         }

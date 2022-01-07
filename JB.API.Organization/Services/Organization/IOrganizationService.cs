@@ -13,6 +13,8 @@ namespace JB.Organization.Services
 {
     public interface IOrganizationService : IServiceBase<OrganizationModel>
     {
+        Task<(Status, List<OrganizationModel>)> GetByIds(List<int> organizationIds);
+
         //Organization Manager or Recruiter Authorized only
         Task<(Status, OrganizationModel)> GetDetailById(int organizationId);
 

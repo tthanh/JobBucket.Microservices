@@ -22,28 +22,28 @@ message ProfileResponse {
 
 message Profile {
 	int32 id = 1;
-	string name = 2;
+	optional string name = 2;
 	int32 roleId = 3;
-	string avatarUrl = 4;
+	optional string avatarUrl = 4;
 	google.protobuf.Int32Value organizationId = 5;
 	organization.Organization organization = 6;
 	google.protobuf.Int32Value defaultCVId = 7;
-	string phoneNumber = 8;
+	optional string phoneNumber = 8;
 	bool emailConfirmed = 9;
-	string email = 10;
-	string userName = 11;
+	optional string email = 10;
+	optional string userName = 11;
 	google.protobuf.Timestamp createdDate = 12;
 	google.protobuf.Timestamp updatedDate = 13;
-	string address = 14;
-	string city = 15;
-	string country = 16;
-	string introduction = 17;
-	string website = 18;
-	string gender = 19;
+	optional string address = 14;
+	optional string city = 15;
+	optional string country = 16;
+	optional string introduction = 17;
+	optional string website = 18;
+	optional string gender = 19;
 	google.protobuf.Timestamp birthdate = 20;
-	string phone = 21;
-	string github = 22;
-	string reference = 23;
+	optional string phone = 21;
+	optional string github = 22;
+	optional string reference = 23;
 	repeated string activities = 24;
 	repeated string certifications = 25;
 	repeated string awards = 26;
@@ -54,19 +54,19 @@ message Profile {
 }
 
 message UserSkill {
-	string skillName = 1;
+	optional string skillName = 1;
 	int32 level = 2;
 }
 
 message UserEducation {
-	string school = 1;
-	string major = 2;
-	string status = 3;
-	string profession = 4;
+	optional string school = 1;
+	optional string major = 2;
+	optional string status = 3;
+	optional string profession = 4;
 }
 
 message UserExperience {
-	string company = 1;
-	string position = 2;
-	string duration = 3;
+	optional string company = 1;
+	optional string position = 2;
+	optional string duration = 3;
 }

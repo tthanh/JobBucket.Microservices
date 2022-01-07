@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Google.Protobuf.WellKnownTypes;
 using JB.Blog.Blog.Models;
 using JB.Blog.DTOs.Blog;
 using JB.Blog.Models.User;
 using JB.Infrastructure.Elasticsearch.Blog;
+using System;
 
 namespace JB.Blog.AutoMapper
 {
@@ -28,6 +30,9 @@ namespace JB.Blog.AutoMapper
 
             CreateMap<CommentModel, BlogCommentDocument>();
             CreateMap<BlogModel, BlogDocument>();
+
+            CreateMap<Timestamp, DateTime>().ConvertUsing(x => x.ToDateTime());
+            CreateMap<JB.gRPC.User.User, UserModel>();
         }
     }
 

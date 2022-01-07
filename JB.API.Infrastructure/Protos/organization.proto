@@ -19,14 +19,14 @@ message OrganizationResponse {
 
 message Organization {
 	int32 id = 1;
-	string name = 2;
-	string bio = 3;
-	string country = 4;
-	string phoneNumber = 5;
-	string email = 6;
+	optional string name = 2;
+	optional string bio = 3;
+	optional string country = 4;
+	optional string phoneNumber = 5;
+	optional string email = 6;
 	repeated string addresses = 7;
 	repeated string imageUrls = 8;
-	string avatarUrl = 9;
+	optional string avatarUrl = 9;
 	repeated int32 managerIds = 10;
 	repeated int32 employerIds = 12;
 	google.protobuf.Timestamp createdDate = 14;

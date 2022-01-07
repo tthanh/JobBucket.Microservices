@@ -22,17 +22,17 @@ message JobResponse {
 
 message Job {
 	int32 id = 1;
-	string title = 2;
+	optional string title = 2;
 	repeated string imageUrls = 3;
-	string description = 4;
+	optional string description = 4;
 	int32 activeStatus = 5;
 	google.protobuf.Int32Value priority = 6;
 	repeated string addresses = 7;
 	repeated string cities = 8;
 	google.protobuf.Int32Value minSalary = 9;
 	google.protobuf.Int32Value maxSalary = 10;
-	string salaryCurrency = 11;
-	string salaryDuration = 12;
+	optional string salaryCurrency = 11;
+	optional string salaryDuration = 12;
 	repeated JobSkill skills = 13;
 	repeated JobPosition positions = 14;
 	int32 applicationCount = 16;
@@ -45,16 +45,16 @@ message Job {
 	google.protobuf.Timestamp createdDate = 24;
 	google.protobuf.Timestamp updatedDate = 25;
 	google.protobuf.Timestamp expireDate = 26;
-	string benefits = 27;
-	string experiences = 28;
-	string responsibilities = 29;
-	string requirements = 30;
-	string optionalRequirements = 31;
-	string cultures = 32;
-	string whyJoinUs = 33;
+	optional string benefits = 27;
+	optional string experiences = 28;
+	optional string responsibilities = 29;
+	optional string requirements = 30;
+	optional string optionalRequirements = 31;
+	optional string cultures = 32;
+	optional string whyJoinUs = 33;
 	google.protobuf.Int32Value numberEmployeesToApplied = 34;
-	string jobForm = 35;
-	string gender = 36;
+	optional string jobForm = 35;
+	optional string gender = 36;
 	google.protobuf.Int32Value views = 37;
 	bool isJobInterested = 38;
 	bool isJobApplied = 39;
@@ -64,20 +64,20 @@ message Job {
 
 message JobCategory {
 	int32 id = 1;
-	string name = 2;
+	optional string name = 2;
 }
 
 message JobPosition {
 	int32 id = 1;
-	string name = 2;
+	optional string name = 2;
 }
 
 message JobSkill {
 	int32 id = 1;
-	string name = 2;
+	optional string name = 2;
 }
 
 message JobType {
 	int32 id = 1;
-	string name = 2;
+	optional string name = 2;
 }

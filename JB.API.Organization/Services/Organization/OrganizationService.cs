@@ -213,6 +213,61 @@ namespace JB.Organization.Services
 
             return (result, org);
         }
+
+        public async Task<(Status, List<OrganizationModel>)> GetByIds(List<int> organizationIds)
+        {
+            Status result = new Status();
+            List<OrganizationModel> orgs = new();
+
+            do
+            {
+                if (organizationIds == null ||  organizationIds.Count == 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+
+                try
+                {
+                    foreach (var id in organizationIds)
+                    {
+                        bool isSetCache = false;
+                        var org = await _cache.GetAsync<OrganizationModel>($"organization-{id}");
+                        if (org == null)
+                        {
+                            isSetCache = true;
+                        }
+
+                        org = await _organizationDbContext.Organizations.Where(x => x.Id == id).FirstOrDefaultAsync();
+                        if (org == null)
+                        {
+                            result.ErrorCode = ErrorCode.OrganizationNull;
+                            break;
+                        }
+
+                        if (isSetCache)
+                        {
+                            await _cache.SetAsync<OrganizationModel>($"organization-{id}", org, new DistributedCacheEntryOptions
+                            {
+                                AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1),
+                                SlidingExpiration = TimeSpan.FromHours(1),
+                            });
+                        }
+
+                        orgs.Add(org);
+                    }
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return (result, orgs);
+        }
+
         public async Task<(Status, OrganizationModel)> GetDetailById(int organizationId)
         {
             Status result = new Status();

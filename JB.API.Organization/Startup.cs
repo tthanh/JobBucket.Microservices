@@ -22,6 +22,7 @@ using Nest;
 using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Models.Authentication;
+using JB.Authentication.GRPC;
 
 namespace JB.Organization
 {
@@ -129,6 +130,7 @@ namespace JB.Organization
             #endregion
 
             #region gRPC services
+            services.AddGrpc();
             //services.AddGrpcClient<Hello.HelloClient>(c =>
             //{
             //    c.Address = new Uri("http://localhost:50051");
@@ -164,6 +166,7 @@ namespace JB.Organization
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGraphQL();
+                endpoints.MapGrpcService<OrganizationGRPCHandler>();
             });
         }
     }

@@ -24,8 +24,10 @@ namespace JB.Job.Models.Job
         public virtual ICollection<SkillModel> Skills { get; set; }
         public virtual ICollection<PositionModel> Positions { get; set; }
         public virtual ICollection<ApplicationModel> Applications { get; set; }
+        [NotMapped]
         public int ApplicationCount { get; set; }
         public virtual ICollection<InterestModel> Interests { get; set; }
+        [NotMapped]
         public int InterestCount { get; set; }
         public virtual ICollection<TypeModel> Types { get; set; }
         public virtual ICollection<CategoryModel> Categories { get; set; }
@@ -47,7 +49,9 @@ namespace JB.Job.Models.Job
         public string JobForm { get; set; }
         public string Gender { get; set; }
         public int? Views { get; set; }
+        [NotMapped]
         public bool IsJobInterested { get; set; }
+        [NotMapped]
         public bool IsJobApplied { get; set; }
         public int OrganizationId { get; set; }
         [NotMapped]

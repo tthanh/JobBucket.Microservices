@@ -485,8 +485,8 @@ namespace JB.Authentication.Services
         public async Task<(Status, List<UserModel>)> GetUsers(List<int> userIds)
         {
             Status result = new Status();
-            List<UserModel> users = null;
-
+            List<UserModel> users = new List<UserModel>();
+            List<int> notCachedIds = new List<int>();
             do
             {
                 try
@@ -498,12 +498,35 @@ namespace JB.Authentication.Services
                         break;
                     }
 
-                    //Find user
-                    users = await _authenticationdbContext.Users.Where(u => userIds.Contains(u.Id)).ToListAsync();
-                    if (users == null)
+                    foreach (var id in userIds)
                     {
-                        result.ErrorCode = ErrorCode.UserNotExist;
-                        break;
+                        var user = await _cache.GetAsync<UserModel>($"user-{id}");
+                        if (user == null)
+                        {
+                            notCachedIds.Add(id);
+                            continue;
+                        }
+
+                        users.Add(user);
+                    }
+
+                    if (notCachedIds.Count > 0)
+                    {
+                        //Find user
+                        var usersFromDb = await _authenticationdbContext.Users
+                            .Where(u => notCachedIds.Contains(u.Id))
+                            .ToListAsync();
+
+                        foreach (var u in usersFromDb)
+                        {
+                            await _cache.SetAsync<UserModel>($"user-{u.Id}", u, new DistributedCacheEntryOptions
+                            {
+                                AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1),
+                                SlidingExpiration = TimeSpan.FromHours(1),
+                            });
+                        }
+
+                        users.AddRange(usersFromDb);
                     }
                 }
                 catch (Exception e)

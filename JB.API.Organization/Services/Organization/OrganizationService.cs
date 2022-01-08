@@ -218,7 +218,7 @@ namespace JB.Organization.Services
         {
             Status result = new Status();
             List<OrganizationModel> orgs = new();
-
+            List<int> notCachedIds = new List<int>();
             do
             {
                 if (organizationIds == null ||  organizationIds.Count == 0)
@@ -231,30 +231,29 @@ namespace JB.Organization.Services
                 {
                     foreach (var id in organizationIds)
                     {
-                        bool isSetCache = false;
                         var org = await _cache.GetAsync<OrganizationModel>($"organization-{id}");
                         if (org == null)
                         {
-                            isSetCache = true;
+                            notCachedIds.Add(id);
                         }
 
-                        org = await _organizationDbContext.Organizations.Where(x => x.Id == id).FirstOrDefaultAsync();
-                        if (org == null)
-                        {
-                            result.ErrorCode = ErrorCode.OrganizationNull;
-                            break;
-                        }
+                        orgs.Add(org);
+                    }
 
-                        if (isSetCache)
+                    if (notCachedIds.Count > 0)
+                    {
+                        var orgsFromDb = await _organizationDbContext.Organizations.Where(x => notCachedIds.Contains(x.Id)).ToListAsync();
+
+                        foreach (var org in orgsFromDb)
                         {
-                            await _cache.SetAsync<OrganizationModel>($"organization-{id}", org, new DistributedCacheEntryOptions
+                            await _cache.SetAsync<OrganizationModel>($"organization-{org.Id}", org, new DistributedCacheEntryOptions
                             {
                                 AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1),
                                 SlidingExpiration = TimeSpan.FromHours(1),
                             });
                         }
 
-                        orgs.Add(org);
+                        orgs.AddRange(orgsFromDb);
                     }
                 }
                 catch (Exception e)

@@ -4,6 +4,7 @@ using JB.Organization.Models.User;
 using JB.Organization.DTOs.Organization;
 using System;
 using JB.Infrastructure.Elasticsearch.Organization;
+using Google.Protobuf.WellKnownTypes;
 
 namespace JB.Organization.AutoMapper
 {
@@ -38,6 +39,15 @@ namespace JB.Organization.AutoMapper
             CreateMap<UserModel, AddEmployerResponse>();
 
             CreateMap<OrganizationModel, OrganizationDocument>();
+
+            // for gRPC Clients
+            CreateMap<Timestamp, DateTime>().ConvertUsing(x => x.ToDateTime());
+            CreateMap<JB.gRPC.User.User, UserModel>();
+
+            // for gRPC Server
+            CreateMap<DateTime, Timestamp>().ConvertUsing(x => Timestamp.FromDateTime(x.ToUniversalTime()));
+            CreateMap<OrganizationModel, JB.gRPC.Organization.Organization>();
+            CreateMap<UserModel, JB.gRPC.User.User>();
         }
     }
 

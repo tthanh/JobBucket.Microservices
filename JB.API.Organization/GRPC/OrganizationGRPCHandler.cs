@@ -29,6 +29,7 @@ namespace JB.Authentication.GRPC
             (var status, var orgs) = await _orgService.GetByIds(request.Id.ToList());
             if (status.IsSuccess)
             {
+                orgs.RemoveAll(x => x == null);
                 organizationResponse.Organizations.AddRange(_mapper.Map<List<OrganizationModel>, List<gRPC.Organization.Organization>>(orgs));
             }
 

@@ -177,10 +177,14 @@ namespace JB.Job
             #endregion
 
             #region gRPC services
-            //services.AddGrpcClient<Hello.HelloClient>(c =>
-            //{
-            //    c.Address = new Uri("http://localhost:50051");
-            //});
+            services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
+            {
+                c.Address = new Uri("http://localhost:6002");
+            });
+            services.AddGrpcClient<JB.gRPC.Organization.OrganizationRPC.OrganizationRPCClient>(c =>
+            {
+                c.Address = new Uri("http://localhost:6005");
+            });
             #endregion
         }
 

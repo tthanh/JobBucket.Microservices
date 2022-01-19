@@ -1,10 +1,5 @@
-﻿using JB.Authentication.Models;
-using JB.Authentication.Models.User;
+﻿using JB.Authentication.Models.User;
 using JB.Infrastructure.Models;
-using JB.Lib.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace JB.Authentication.Services

@@ -46,6 +46,8 @@ namespace JB.Notification.GraphQL.Notification
                 int page = filterRequest?.Page > 1 ? filterRequest.Page.Value : 1;
                 bool isDescending = filterRequest?.IsDescending ?? false;
 
+                filter = filter.And(x => x.ReceiverId == _claims.Id);
+
                 (status, notis) = await _notiService.List(filter, sort, size, page, isDescending);
                 if (!status.IsSuccess)
                 {

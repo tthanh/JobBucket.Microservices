@@ -277,7 +277,7 @@ namespace JB.Notification.Services
                 {
                     var notiQuery = _notificationDbContext.Notifications.Where(filter);
                     notiQuery = isDescending ? notiQuery.OrderByDescending(sort) : notiQuery.OrderBy(sort);
-                    notifications = await notiQuery.Skip(size * offset).Take(size).ToListAsync();
+                    notifications = await notiQuery.Skip(size * (offset - 1)).Take(size).ToListAsync();
                     if (notifications == null)
                     {
                         break;

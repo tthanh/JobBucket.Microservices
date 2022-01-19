@@ -1,4 +1,4 @@
-﻿using JB.Lib.Models.User;
+﻿using JB.Infrastructure.Models.Authentication;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 

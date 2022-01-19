@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using JB.API.Gateway.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -18,12 +20,6 @@ using Ocelot.Middleware;
 
 namespace JB.API.Gateway
 {
-    public class Settings
-    {
-        public string Name { get; set; }
-        public string Url { get; set; }
-    }
-
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -36,6 +32,8 @@ namespace JB.API.Gateway
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
+
             var graphQLBuilder = services.AddGraphQLServer();
             var graphqQLDownstreams = Configuration.GetSection("GraphQL:Downstreams").Get<GraphQLDownstreamInformation[]>();
             if (graphqQLDownstreams?.Length > 0)
@@ -44,12 +42,24 @@ namespace JB.API.Gateway
                 {
                     if (!string.IsNullOrEmpty(downstream.Name) && !string.IsNullOrEmpty(downstream.Url))
                     {
-                        services.AddHttpClient(downstream.Name, c => c.BaseAddress = new Uri(downstream.Url));
+                        services.AddHttpClient(downstream.Name, (sp, c) =>
+                        {
+                            HttpContext context = sp.GetRequiredService<IHttpContextAccessor>().HttpContext;
+
+                            if (context.Request.Headers.ContainsKey("Authorization"))
+                            {
+                                c.DefaultRequestHeaders.Authorization =
+                                    AuthenticationHeaderValue.Parse(
+                                        context.Request.Headers["Authorization"]
+                                            .ToString());
+                            }
+
+                            c.BaseAddress = new Uri(downstream.Url);
+                        });
                         graphQLBuilder = graphQLBuilder.AddRemoteSchema(downstream.Name);
                     }
                 }
             }
-
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

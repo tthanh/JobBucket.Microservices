@@ -230,7 +230,7 @@ namespace JB.Job.GraphQL.Job
                 int page = filter?.Page > 0 ? filter.Page.Value : 1;
 
                 bool isDescending = filter?.IsDescending ?? false;
-
+                bool isValidFilter = false;
                 if (_claims.Id < 0)
                 {
                     status.ErrorCode = ErrorCode.Unauthorized;
@@ -240,11 +240,13 @@ namespace JB.Job.GraphQL.Job
                 if (filter?.UserId > 0)
                 {
                     filterExpr = filterExpr.And(x => x.UserId == _claims.Id);
+                    isValidFilter = true;
                 }
 
                 if (filter?.EmployerId > 0)
                 {
                     filterExpr = filterExpr.And(x => x.Job.EmployerId == _claims.Id);
+                    isValidFilter = true;
                 }
 
                 if (filter?.OrganizationId > 0)
@@ -261,27 +263,32 @@ namespace JB.Job.GraphQL.Job
                         status.ErrorCode = ErrorCode.NoPrivilege;
                         break;
                     }
+                    isValidFilter = true;
                 }
 
                 if (filter?.JobId > 0)
                 {
-                    (var getUserStatus, var user) = await _userService.GetUser(_claims.Id);
-                    if (!getUserStatus.IsSuccess)
-                    {
-                        status = getUserStatus;
-                        break;
-                    }
+                    //(var getUserStatus, var user) = await _userService.GetUser(_claims.Id);
+                    //if (!getUserStatus.IsSuccess)
+                    //{
+                    //    status = getUserStatus;
+                    //    break;
+                    //}
 
-                    if (user?.OrganizationId == null || user.OrganizationId.Value < 0)
-                    {
-                        status.ErrorCode = ErrorCode.NoPrivilege;
-                        break;
-                    }
+                    //if (user?.OrganizationId == null || user.OrganizationId.Value < 0)
+                    //{
+                    //    status.ErrorCode = ErrorCode.NoPrivilege;
+                    //    break;
+                    //}
 
-                    filterExpr = filterExpr.And(x => x.Job.OrganizationId == user.OrganizationId);
+                    //filterExpr = filterExpr.And(x => x.Job.OrganizationId == user.OrganizationId);
+                    filterExpr = filterExpr.And(x => x.Job.Id == filter.JobId.Value);
+                    isValidFilter = true;
                 }
 
-                (status, applications) = await _jobService.ListApply(filterExpr, sortExpr, size, page, isDescending);
+                if (isValidFilter)
+                    (status, applications) = await _jobService.ListApply(filterExpr, sortExpr, size, page, isDescending);
+
                 if (!status.IsSuccess)
                 {
                     context.ReportError(status.Message);

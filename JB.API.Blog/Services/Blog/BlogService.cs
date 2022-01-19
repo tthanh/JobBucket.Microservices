@@ -252,7 +252,7 @@ namespace JB.Blog.Services
                     {
                         c.InterestCount = c.CommentInterests?.Count ?? 0;
                         c.IsInterested = c.CommentInterests?.Any(x => x.UserId == _claims.Id) ?? false;
-                        (var getCreatorStatus, var creator) = await _userManagementService.GetUser(blog.AuthorId);
+                        (var getCreatorStatus, var creator) = await _userManagementService.GetUser(c.UserId);
                         if (getCreatorStatus.IsSuccess)
                         {
                             c.User = creator;

@@ -407,7 +407,7 @@ namespace JB.Organization.Services
 
         //Organization Manager Authorized only
         #region Organization Employer Management
-        public async Task<(Status, UserModel)> AddEmployer(string name, string username, string password)
+        public async Task<(Status, UserModel)> AddEmployer(string name, string password, string email)
         {
 
             Status result = new Status();
@@ -417,7 +417,7 @@ namespace JB.Organization.Services
             {
                 try
                 {
-                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(name))
+                    if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(name))
                     {
                         result.ErrorCode = ErrorCode.InvalidArgument;
                         break;
@@ -437,14 +437,21 @@ namespace JB.Organization.Services
                     var user = new UserModel
                     {
                         Name = name,
-                        UserName = username,
+                        UserName = email,
+                        Email = email,
                         RoleId = (int)RoleType.Recruiter,
-                        PasswordPlain = password,
+                        OrganizationId = organization.Id,
+                        PasswordPlain = password
                     };
                     (var status, var userResult) = await _userService.CreateUser(user);
+                    if (status.ErrorCode != ErrorCode.Success)
+                    {
+                        result.ErrorCode = ErrorCode.EmailAlreadyRegistered;
+                        break;
+                    }
                     userModel = userResult;
 
-                    organization.EmployerIds.Append(userResult.Id).ToArray();
+                    organization.EmployerIds = organization.EmployerIds.Append(userResult.Id).ToArray();
                     _organizationDbContext.Update(organization);
                     await _organizationDbContext.SaveChangesAsync();
                 }

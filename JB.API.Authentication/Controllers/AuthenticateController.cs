@@ -4,9 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using System.ComponentModel.DataAnnotations;
-using JB.Lib.Models.User;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
 using static Google.Apis.Auth.GoogleJsonWebSignature;
 using JB.Authentication.DTOs.Authentication;
 using JB.Authentication.Services;
@@ -14,6 +12,8 @@ using JB.Authentication.Models.User;
 using Swashbuckle.AspNetCore.Annotations;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Models;
+using JB.Infrastructure.Models.Authentication;
+using JB.Authentication.Helpers;
 
 namespace JB.Authentication.User.Controllers
 {
@@ -128,7 +128,69 @@ namespace JB.Authentication.User.Controllers
                     AuthSource = "Google",
                     RoleId = googleLoginRequest.RoleId,
                     EmailConfirmed = true,
-                    AvatarUrl = avatarUrl
+                    AvatarUrl = avatarUrl,
+                    PasswordPlain = UserHelper.GenRandomPassword(20),
+                };
+
+                (result, user) = await _userManagementService.CreateUser(user);
+                if (!result.IsSuccess)
+                {
+                    return BadRequest();
+                }
+            }
+
+            var claimsModel = _mapper.Map<UserClaimsModel>(user);
+
+            var accessToken = _jwtService.GenerateJwtToken(claimsModel, DateTime.UtcNow.AddMinutes(accessTokenMinute));
+            var refreshToken = _jwtService.GenerateJwtToken(claimsModel, DateTime.UtcNow.AddMinutes(refreshTokenMinute));
+
+            return Ok(new LoginResponse
+            {
+                Token = accessToken,
+                RefreshToken = refreshToken,
+                User = _mapper.Map<LoginUserResponse>(user),
+            });
+        }
+
+        /// <summary>
+        /// Login using Google account
+        /// </summary>
+        /// <param name="googleLoginVM">Google Login request</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> LoginGoogleMobile(LoginGoogleRequest googleLoginRequest)
+        {
+            var canParseAccessTokenMinute = int.TryParse(_configuration.GetSection("Jwt:AccessTokenMinute")?.Value, out int accessTokenMinute);
+            var canParseRefreshTokenMinute = int.TryParse(_configuration.GetSection("Jwt:RefreshTokenMinute")?.Value, out int refreshTokenMinute);
+
+            var payload = await ValidateAsync(googleLoginRequest.TokenId, new ValidationSettings
+            {
+                Audience = new[] { _configuration["ExternalAuth:GoogleMobile:ClientId"] }
+            });
+
+            if (payload == null)
+            {
+                return BadRequest();
+            }
+
+            string email = payload.Email;
+            string name = payload.Name;
+            string avatarUrl = payload.Picture;
+            string id = googleLoginRequest.GoogleId;
+
+            (var result, var user) = await _userManagementService.GetUser(id, "Google");
+            if (user == null)
+            {
+                user = new UserModel
+                {
+                    Name = name,
+                    Email = email,
+                    UserName = id,
+                    AuthSource = "Google",
+                    RoleId = googleLoginRequest.RoleId,
+                    EmailConfirmed = true,
+                    AvatarUrl = avatarUrl,
+                    PasswordPlain = UserHelper.GenRandomPassword(20),
                 };
 
                 (result, user) = await _userManagementService.CreateUser(user);

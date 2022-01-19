@@ -1,6 +1,6 @@
 ﻿using JB.Infrastructure.Constants;
 using JB.Infrastructure.Helpers;
-using JB.Lib.Models.User;
+using JB.Infrastructure.Models.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;

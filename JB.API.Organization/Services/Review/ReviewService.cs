@@ -69,6 +69,13 @@ namespace JB.Organization.Services
 
                 try
                 {
+                    bool isReviewed = await _reviewDbContext.Reviews.AnyAsync(x => x.OrganizationId == entity.OrganizationId && x.UserId == userId);
+                    if (isReviewed)
+                    {
+                        result.ErrorCode = ErrorCode.ReviewAlreadyExist;
+                        break;
+                    }
+
                     await _reviewDbContext.Reviews.AddAsync(entity);
                     await _reviewDbContext.SaveChangesAsync();
 
@@ -232,7 +239,7 @@ namespace JB.Organization.Services
                 {
 
                     var reviewQuery = _reviewDbContext.Reviews.Where(filter);
-                    reviewQuery = isDescending ? reviewQuery.OrderByDescending(sort) : reviewQuery.OrderBy(sort);
+                    reviewQuery = isDescending ? reviewQuery.OrderByDescending(x => x.UserId == userId).ThenByDescending(sort) : reviewQuery.OrderByDescending(x => x.UserId == userId).ThenBy(sort);
                     reviews = await reviewQuery.Skip(size * (offset - 1)).Take(size).ToListAsync();
                     if (reviews == null)
                     {

@@ -20,7 +20,7 @@ namespace JB.Organization.Services
 
         //Organization Manager Authorized only
         #region Organization Employer Management
-        Task<(Status, UserModel)> AddEmployer(string name, string username, string passwordPlain);
+        Task<(Status, UserModel)> AddEmployer(string name, string passwordPlain, string email);
         Task<Status> DeleteEmployer(int Id);
         Task<(Status, string)> ResetPassEmployer(int Id);
 

@@ -307,7 +307,7 @@ namespace JB.Authentication.Services
                         break;
                     }
 
-                    if(user.OrganizationId <= 0)
+                    if (user.OrganizationId == null || user.OrganizationId <= 0)
                     {
                         user.OrganizationId = organizationId;
                     }

@@ -21,6 +21,7 @@ using JB.Notification.AutoMapper;
 using JB.Notification.GraphQL.Notification;
 using JB.Notification.GraphQL.Chat;
 using JB.Notification.Data;
+using JB.API.Infrastructure.Middlewares;
 
 namespace JB.Notification
 {
@@ -134,10 +135,14 @@ namespace JB.Notification
             #endregion
 
             #region gRPC services
-            //services.AddGrpcClient<Hello.HelloClient>(c =>
-            //{
-            //    c.Address = new Uri("http://localhost:50051");
-            //});
+            services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
+            {
+                c.Address = new Uri("http://localhost:6002");
+            });
+            services.AddGrpcClient<JB.gRPC.Organization.OrganizationRPC.OrganizationRPCClient>(c =>
+            {
+                c.Address = new Uri("http://localhost:6005");
+            });
             #endregion
         }
 
@@ -164,6 +169,7 @@ namespace JB.Notification
                   return Task.CompletedTask;
               }));
 
+            app.UseMiddleware<JwtMiddleware>();
             app.UseWebSockets();
 
             app.SubScribeToNotification();

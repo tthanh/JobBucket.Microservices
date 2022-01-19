@@ -20,6 +20,7 @@ using JB.Infrastructure.Models.Authentication;
 using JB.Blog.AutoMapper;
 using JB.Blog.Data;
 using JB.Blog.GraphQL.Blog;
+using JB.API.Infrastructure.Middlewares;
 
 namespace JB.Blog
 {
@@ -154,6 +155,7 @@ namespace JB.Blog
                   return Task.CompletedTask;
               }));
 
+            app.UseMiddleware<JwtMiddleware>();
             app.UseWebSockets();
 
             app.UseEndpoints(endpoints =>

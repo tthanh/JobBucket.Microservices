@@ -61,6 +61,8 @@ namespace JB.User.GraphQL.CV
                 int page = filterRequest?.Page > 1 ? filterRequest.Page.Value : 1;
                 bool isDescending = filterRequest?.IsDescending ?? false;
 
+                filter = filter.And(x => x.UserId == _claims.Id);
+
                 (status, cvs) = await _cvService.List(filter, sort, size, page, isDescending);
                 if (!status.IsSuccess)
                 {

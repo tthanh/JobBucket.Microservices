@@ -168,14 +168,14 @@ namespace JB.Organization.GraphQL.Organization
 
 
 
-                (status, newEmployer) = await _organizationService.AddEmployer(request.Name, request.UserName, request.PasswordPlain);
+                (status, newEmployer) = await _organizationService.AddEmployer(request.Name, request.PasswordPlain, request.Email);
                 if (!status.IsSuccess)
                 {
                     break;
                 }
 
                 result = _mapper.Map<AddEmployerResponse>(newEmployer);
-                result.UserName = request.UserName;
+                result.UserName = request.Email;
 
             }
             while (false);

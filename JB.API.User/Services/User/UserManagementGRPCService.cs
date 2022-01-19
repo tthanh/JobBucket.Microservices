@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using AutoMapper;
+using JB.User.Services;
 using JB.User.Models.User;
 
 namespace JB.User.Services
@@ -13,14 +15,20 @@ namespace JB.User.Services
     {
         private readonly ILogger<UserManagementGRPCService> _logger;
         private readonly IDistributedCache _cache;
+        private readonly IMapper _mapper;
+        private readonly gRPC.User.UserRPC.UserRPCClient _userGrpcClient;
 
         public UserManagementGRPCService(
             ILogger<UserManagementGRPCService> logger,
-            IDistributedCache cache
+            IDistributedCache cache,
+            IMapper mapper,
+            gRPC.User.UserRPC.UserRPCClient userGrpcClient
             )
         {
             _logger = logger;
             _cache = cache;
+            _mapper = mapper;
+            _userGrpcClient = userGrpcClient;
         }
 
         public Task<(Status, int)> CountUser(Expression<Func<UserModel, bool>> filters)
@@ -53,9 +61,16 @@ namespace JB.User.Services
             throw new NotImplementedException();
         }
 
-        public Task<(Status, UserModel)> GetUser(int userId)
+        public async Task<(Status, UserModel)> GetUser(int userId)
         {
-            throw new NotImplementedException();
+            Status status = new Status();
+            var req = new gRPC.User.UserRequest();
+            req.Id.Add(userId);
+
+            var userResp = await _userGrpcClient.GetAsync(req);
+            UserModel user = userResp.Users.Count == 1 ? _mapper.Map<UserModel>(userResp.Users[0]) : null;
+
+            return (status, user);
         }
 
         public Task<(Status, UserModel)> GetUser(string userName, string authSource = null)

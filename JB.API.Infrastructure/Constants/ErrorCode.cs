@@ -169,5 +169,10 @@ namespace JB.Infrastructure.Constants
         [Description("Blog not liked")]
         BlogNotLiked = 11005,
         #endregion
+
+        #region review service
+        [Description("Review already exist")]
+        ReviewAlreadyExist = 12001,
+        #endregion
     }
 }

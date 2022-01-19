@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Linq;
 
-namespace JB.Lib.Extensions.Filters
+namespace JB.Authentication.Extensions.Filters
 {
     public class ModelValidationActionFilter : IActionFilter
     {

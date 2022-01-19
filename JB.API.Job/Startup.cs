@@ -28,6 +28,7 @@ using Nest;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Models.Authentication;
+using JB.API.Infrastructure.Middlewares;
 
 namespace JB.Job
 {
@@ -211,6 +212,7 @@ namespace JB.Job
                   return Task.CompletedTask;
               }));
 
+            app.UseMiddleware<JwtMiddleware>();
             app.UseWebSockets();
             app.UseSwagger();
             app.UseSwaggerUI(c =>

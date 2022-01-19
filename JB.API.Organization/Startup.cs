@@ -23,6 +23,7 @@ using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Models.Authentication;
 using JB.Authentication.GRPC;
+using JB.API.Infrastructure.Middlewares;
 
 namespace JB.Organization
 {
@@ -161,6 +162,7 @@ namespace JB.Organization
                   return Task.CompletedTask;
               }));
 
+            app.UseMiddleware<JwtMiddleware>();
             app.UseWebSockets();
 
             app.UseEndpoints(endpoints =>

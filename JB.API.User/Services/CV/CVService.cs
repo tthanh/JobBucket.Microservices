@@ -230,7 +230,6 @@ namespace JB.User.Services
                         break;
                     }
 
-                    cvs.RemoveAll(c => c.UserId <= 0 || c.UserId != userId );
                     foreach (var cv in cvs)
                     {
                         UserModel user = _userService.GetUser(userId).Result.Item2;

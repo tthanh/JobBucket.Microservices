@@ -1,7 +1,8 @@
-﻿using JB.Infrastructure.Models;
-using JB.Infrastructure.Models.Authentication;
+﻿using AutoMapper;
+using JB.Infrastructure.Models;
 using JB.User.Models.Organization;
 using JB.User.Models.User;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,18 +11,24 @@ using System.Threading.Tasks;
 
 namespace JB.User.Services
 {
-    public class OrganizationgGRPCService : IOrganizationService
+    public class OrganizationGRPCService : IOrganizationService
     {
-        private readonly ILogger<OrganizationgGRPCService> _logger;
-        private readonly IUserClaimsModel _claims;
+        private readonly ILogger<OrganizationGRPCService> _logger;
+        private readonly IDistributedCache _cache;
+        private readonly IMapper _mapper;
+        private readonly gRPC.Organization.OrganizationRPC.OrganizationRPCClient _orgGrpcClient;
 
-        public OrganizationgGRPCService(
-            ILogger<OrganizationgGRPCService> logger,
-            IUserClaimsModel claims
+        public OrganizationGRPCService(
+            ILogger<OrganizationGRPCService> logger,
+            IDistributedCache cache,
+            IMapper mapper,
+            gRPC.Organization.OrganizationRPC.OrganizationRPCClient orgGrpcClient
             )
         {
             _logger = logger;
-            _claims = claims;
+            _cache = cache;
+            _mapper = mapper;
+            _orgGrpcClient = orgGrpcClient;
         }
 
         public Task<Status> Add(OrganizationModel entity)
@@ -54,9 +61,16 @@ namespace JB.User.Services
             throw new NotImplementedException();
         }
 
-        public Task<(Status, OrganizationModel)> GetById(int id)
+        public async Task<(Status, OrganizationModel)> GetById(int id)
         {
-            throw new NotImplementedException();
+            Status status = new Status();
+            var req = new gRPC.Organization.OrganizationRequest();
+            req.Id.Add(id);
+
+            var userResp = await _orgGrpcClient.GetAsync(req);
+            OrganizationModel org = userResp.Organizations.Count == 1 ? _mapper.Map<OrganizationModel>(userResp.Organizations[0]) : null;
+
+            return (status, org);
         }
 
         public Task<(Status, OrganizationModel)> GetDetailById(int organizationId)

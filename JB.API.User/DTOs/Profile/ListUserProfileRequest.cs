@@ -9,6 +9,7 @@ namespace JB.User.DTOs.Profile
     public class ListUserProfileRequest : ListVM<UserProfileModel>, ISearchRequest
     {
         public int? OrganizationId { get; set; }
+        public int? RoleId { get; set; }
         public string Keyword { get; set; }
 
         public override Expression<Func<UserProfileModel, bool>> GetFilterExpression()
@@ -20,12 +21,17 @@ namespace JB.User.DTOs.Profile
                 filter = filter.And(b => b.OrganizationId == OrganizationId);
             }
 
+            if (RoleId > 0)
+            {
+                filter = filter.And(b => b.RoleId == RoleId);
+            }
+
             return filter;
         }
 
         protected override string[] GetAllowedSortFields()
         {
-            return new string[] { nameof(UserProfileModel.Id), nameof(UserProfileModel.Name)};
+            return new string[] { nameof(UserProfileModel.Id), nameof(UserProfileModel.Name) };
         }
     }
 }

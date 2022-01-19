@@ -19,13 +19,13 @@ using JB.Infrastructure.Constants;
 using JB.Infrastructure.Models.Authentication;
 using JB.Authentication.AutoMapper;
 using JB.Authentication.Data;
-using JB.Lib.Extensions.Filters;
 using Newtonsoft.Json;
 using Microsoft.OpenApi.Models;
-using System.IO;
 using JB.Authentication.Models.User;
 using Microsoft.AspNetCore.Identity;
 using JB.Authentication.GRPC;
+using JB.Authentication.Extensions.Filters;
+using JB.API.Infrastructure.Middlewares;
 
 namespace JB.Authentication
 {
@@ -200,8 +200,9 @@ namespace JB.Authentication
                   return Task.CompletedTask;
               }));
 
+            app.UseMiddleware<JwtMiddleware>();
             app.UseWebSockets();
-            
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

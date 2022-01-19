@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using JB.Lib.Models.User;
 using JB.Authentication.DTOs.Authentication;
 using JB.Authentication.Models.User;
+using JB.Infrastructure.Models.Authentication;
 
 namespace JB.Authentication.AutoMapper
 {

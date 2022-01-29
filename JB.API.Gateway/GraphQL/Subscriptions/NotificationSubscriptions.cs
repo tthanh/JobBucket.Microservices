@@ -1,34 +1,33 @@
-﻿using HotChocolate.Execution;
+﻿using HotChocolate;
+using HotChocolate.Execution;
 using HotChocolate.Subscriptions;
 using HotChocolate.Types;
-using JB.Notification.Models.Notification;
-using JB.Notification.Services;
+using JB.Gateway.DTOs.Notification;
+using JB.Gateway.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace JB.Notification.GraphQL.Notification
+namespace JB.Gateway.GraphQL.Subscriptions
 {
     [ExtendObjectType(OperationTypeNames.Subscription)]
-    public class NotificationSubscriptions : IObserver<NotificationModel>
+    public class NotificationSubscriptions
     {
-        private readonly ITopicEventSender _topicEventSender;
         private readonly ITopicEventReceiver _topicEventReceiver;
         private readonly IJwtService _jwtService;
 
         public NotificationSubscriptions(
-            ITopicEventSender topicEventSender,
             ITopicEventReceiver topicEventReceiver,
             IJwtService jwtService)
         {
-            _topicEventSender = topicEventSender;
             _topicEventReceiver = topicEventReceiver;
             _jwtService = jwtService;
         }
 
         [SubscribeAndResolve]
         [Topic("notification")]
-        public ValueTask<ISourceStream<NotificationModel>> Notification(string token)
+        public ValueTask<ISourceStream<SubscriptionsNotificationResponse>> Notification(string token)
         {
             if (_jwtService.ValidateToken(token, out var jwtToken))
             {
@@ -36,24 +35,11 @@ namespace JB.Notification.GraphQL.Notification
                 {
                     var topic = $"notification_{userId}";
 
-                    return _topicEventReceiver.SubscribeAsync<string, NotificationModel>(topic);
+                    return _topicEventReceiver.SubscribeAsync<string, SubscriptionsNotificationResponse>(topic);
                 }
             }
 
-            return new ValueTask<ISourceStream<NotificationModel>>();
-        }
-
-        public void OnCompleted()
-        {
-        }
-
-        public void OnError(Exception error)
-        {
-        }
-
-        public void OnNext(NotificationModel value)
-        {
-            Task.Run(() => _topicEventSender.SendAsync($"notification_{value.ReceiverId}", value));
+            return new ValueTask<ISourceStream<SubscriptionsNotificationResponse>>();
         }
     }
 }

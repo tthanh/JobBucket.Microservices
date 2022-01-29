@@ -10,6 +10,7 @@ using JB.Infrastructure.Constants;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
 using JB.Infrastructure.Helpers;
+using HotChocolate.Subscriptions;
 
 namespace JB.Job.GraphQL.Job
 {

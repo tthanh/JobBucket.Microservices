@@ -7,14 +7,15 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["src/JB.Notification.csproj", "src/"]
-RUN dotnet restore "src/JB.Notification.csproj"
+COPY ["JB.API.Notification/JB.API.Notification.csproj", "JB.API.Notification/"]
+COPY ["JB.API.Infrastructure/JB.API.Infrastructure.csproj", "JB.API.Infrastructure/"]
+RUN dotnet restore "JB.API.Notification/JB.API.Notification.csproj"
 COPY . .
-WORKDIR "/src/src"
-RUN dotnet build "JB.Notification.csproj" -c Release -o /app/build
+WORKDIR "/src/JB.API.Notification"
+RUN dotnet build "JB.API.Notification.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "JB.Notification.csproj" -c Release -o /app/publish
+RUN dotnet publish "JB.API.Notification.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app

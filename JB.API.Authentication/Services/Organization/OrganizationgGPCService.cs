@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace JB.Job.Services
+namespace JB.Authentication.Services
 {
     public class OrganizationgGPCService : IOrganizationService
     {

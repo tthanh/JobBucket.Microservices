@@ -15,14 +15,12 @@ namespace JB.Notification.GraphQL.Notification
         {
             services.AddScoped<NotificationQuery>();
             services.AddScoped<NotificationMutation>();
-            services.AddSingleton<IObserver<NotificationModel>, NotificationSubscriptions>();
 
             services.AddScoped<NotificationMutationWrapper>();
 
             services.AddGraphQLServer()
                 .AddTypeExtension<NotificationQuery>()
-                .AddTypeExtension<NotificationMutationWrapper>()
-                .AddTypeExtension<NotificationSubscriptions>();
+                .AddTypeExtension<NotificationMutationWrapper>();
 
             return services;
         }

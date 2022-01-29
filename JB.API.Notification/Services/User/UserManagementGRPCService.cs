@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using JB.Notification.Models.User;
 using JB.Notification.Services;
+using JB.Infrastructure.Helpers;
 
 namespace JB.Notification.Services
 {
@@ -64,11 +65,16 @@ namespace JB.Notification.Services
         public async Task<(Status, UserModel)> GetUser(int userId)
         {
             Status status = new Status();
-            var req = new gRPC.User.UserRequest();
-            req.Id.Add(userId);
+            var user = await _cache.GetAsync<UserModel>($"user-{userId}");
 
-            var userResp = await _userGrpcClient.GetAsync(req);
-            UserModel user = userResp.Users.Count == 1 ? _mapper.Map<UserModel>(userResp.Users[0]) : null;
+            if (user == null)
+            {
+                var req = new gRPC.User.UserRequest();
+                req.Id.Add(userId);
+
+                var userResp = await _userGrpcClient.GetAsync(req);
+                user = userResp.Users.Count == 1 ? _mapper.Map<UserModel>(userResp.Users[0]) : null;
+            }
 
             return (status, user);
         }

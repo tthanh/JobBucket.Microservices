@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using JB.Blog.Models.User;
 using AutoMapper;
+using JB.Infrastructure.Helpers;
 
 namespace JB.Blog.Services
 {
@@ -63,11 +64,16 @@ namespace JB.Blog.Services
         public async Task<(Status, UserModel)> GetUser(int userId)
         {
             Status status = new Status();
-            var req = new gRPC.User.UserRequest();
-            req.Id.Add(userId);
+            var user = await _cache.GetAsync<UserModel>($"user-{userId}");
 
-            var userResp = await _userGrpcClient.GetAsync(req);
-            UserModel user = userResp.Users.Count == 1 ? _mapper.Map<UserModel>(userResp.Users[0]) : null;
+            if (user == null)
+            {
+                var req = new gRPC.User.UserRequest();
+                req.Id.Add(userId);
+
+                var userResp = await _userGrpcClient.GetAsync(req);
+                user = userResp.Users.Count == 1 ? _mapper.Map<UserModel>(userResp.Users[0]) : null;
+            }
 
             return (status, user);
         }

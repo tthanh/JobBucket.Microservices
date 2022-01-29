@@ -74,7 +74,7 @@ namespace JB.Organization
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = Configuration["Redis:Url"];
-                options.InstanceName = "JB.Organization.Redis";
+                options.InstanceName = "JB.API";
             });
             #endregion
 
@@ -132,10 +132,10 @@ namespace JB.Organization
 
             #region gRPC services
             services.AddGrpc();
-            //services.AddGrpcClient<Hello.HelloClient>(c =>
-            //{
-            //    c.Address = new Uri("http://localhost:50051");
-            //});
+            services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
+            {
+                c.Address = new Uri("http://localhost:6002");
+            });
             #endregion
         }
 

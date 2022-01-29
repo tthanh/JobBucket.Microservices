@@ -72,7 +72,7 @@ namespace JB.User
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = Configuration["Redis:Url"];
-                options.InstanceName = "JB.User.Redis";
+                options.InstanceName = "JB.API";
             });
             #endregion
 

@@ -3,8 +3,6 @@ using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
 using JB.Organization.Data;
 using JB.Organization.Helpers;
-using JB.Organization.Models;
-using JB.Organization.Models.Job;
 using JB.Organization.Models.Organization;
 using JB.Organization.Models.User;
 using JB.Infrastructure.Helpers;

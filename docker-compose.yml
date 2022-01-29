@@ -1,0 +1,44 @@
+version: '3.4'
+
+services:
+  jb.api.authentication:
+    image: ${DOCKER_REGISTRY-}jbapiauthentication
+    build:
+      context: .
+      dockerfile: JB.API.Authentication/Dockerfile
+
+  jb.api.blog:
+    image: ${DOCKER_REGISTRY-}jbapiblog
+    build:
+      context: .
+      dockerfile: JB.API.Blog/Dockerfile
+
+  jb.api.gateway:
+    image: ${DOCKER_REGISTRY-}jbapigateway
+    build:
+      context: .
+      dockerfile: JB.API.Gateway/Dockerfile
+
+  jb.api.job:
+    image: ${DOCKER_REGISTRY-}jbapijob
+    build:
+      context: .
+      dockerfile: JB.API.Job/Dockerfile
+
+  jb.api.notification:
+    image: ${DOCKER_REGISTRY-}jbapinotification
+    build:
+      context: .
+      dockerfile: JB.API.Notification/Dockerfile
+
+  jb.api.organization:
+    image: ${DOCKER_REGISTRY-}jbapiorganization
+    build:
+      context: .
+      dockerfile: JB.API.Organization/Dockerfile
+
+  jb.api.user:
+    image: ${DOCKER_REGISTRY-}jbapiuser
+    build:
+      context: .
+      dockerfile: JB.API.User/Dockerfile

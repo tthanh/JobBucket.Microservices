@@ -75,7 +75,7 @@ namespace JB.Job.GraphQL.Job
                     break;
                 }
 
-                if (!string.IsNullOrEmpty(filter.Keyword))
+                if (!string.IsNullOrEmpty(filter?.Keyword))
                 {
                     (status, jobs) = await _jobService.Search(filter.Keyword, filterExpr, sortExpr, size, page, isDescending);
                     if (!status.IsSuccess)

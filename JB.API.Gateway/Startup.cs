@@ -1,24 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using JB.API.Gateway.Models;
+using HotChocolate;
+using JB.API.Gateway.GraphQL.Query;
+using JB.Gateway.GraphQL.Subscriptions;
+using JB.Gateway.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json.Linq;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
-namespace JB.API.Gateway
+namespace JB.Gateway
 {
     public class Startup
     {
@@ -33,8 +28,10 @@ namespace JB.API.Gateway
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
+            services.AddSingleton<NotificationSubscriptions>();
 
-            var graphQLBuilder = services.AddGraphQLServer();
+            var graphQLBuilder = services.AddGraphQLServer().AddInMemorySubscriptions();
+
             var graphqQLDownstreams = Configuration.GetSection("GraphQL:Downstreams").Get<GraphQLDownstreamInformation[]>();
             if (graphqQLDownstreams?.Length > 0)
             {
@@ -61,6 +58,11 @@ namespace JB.API.Gateway
                 }
             }
 
+            graphQLBuilder = graphQLBuilder
+                .AddTypeExtension<NotificationSubscriptions>();
+                //.AddTypeExtension<SampleQuery>()
+
+            services.AddTransient<IJwtService, JwtService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -102,6 +104,8 @@ namespace JB.API.Gateway
             {
                 opt.PathToSwaggerGenerator = "/swagger/docs";
             });
+
+            app.UseWebSockets();
 
             app.UseEndpoints(endpoints =>
             {

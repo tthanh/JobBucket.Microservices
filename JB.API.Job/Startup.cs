@@ -79,7 +79,7 @@ namespace JB.Job
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = Configuration["Redis:Url"];
-                options.InstanceName = "JB.API.Job.Redis";
+                options.InstanceName = "JB.API";
             });
             #endregion
 
@@ -168,8 +168,7 @@ namespace JB.Job
             #endregion
 
             #region GraphQL
-            services.AddGraphQLServer()
-                .AddInMemorySubscriptions()
+            var graphQLBuilder = services.AddGraphQLServer()
                 .AddQueryType()
                 .AddMutationType();
 

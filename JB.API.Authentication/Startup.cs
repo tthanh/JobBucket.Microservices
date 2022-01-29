@@ -74,7 +74,7 @@ namespace JB.Authentication
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = Configuration["Redis:Url"];
-                options.InstanceName = "JB.Authentication.Redis";
+                options.InstanceName = "JB.API";
             });
             #endregion
 
@@ -121,6 +121,7 @@ namespace JB.Authentication
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserManagementService, UserManagementService>();
+            services.AddScoped<IOrganizationService, OrganizationgGPCService>();
             #endregion
 
             #region REST endpoints

@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-
+using JB.Infrastructure.Helpers;
 namespace JB.Job.Services
 {
     public class OrganizationGRPCService : IOrganizationService
@@ -65,11 +65,15 @@ namespace JB.Job.Services
         public async Task<(Status, OrganizationModel)> GetById(int id)
         {
             Status status = new Status();
-            var req = new gRPC.Organization.OrganizationRequest();
-            req.Id.Add(id);
+            var org = await _cache.GetAsync<OrganizationModel>($"organization-{id}");
 
-            var userResp = await _orgGrpcClient.GetAsync(req);
-            OrganizationModel org = userResp.Organizations.Count == 1 ? _mapper.Map<OrganizationModel>(userResp.Organizations[0]) : null;
+            if (org == null)
+            {
+                var req = new gRPC.Organization.OrganizationRequest();
+                req.Id.Add(id);
+                var userResp = await _orgGrpcClient.GetAsync(req);
+                org = userResp.Organizations.Count == 1 ? _mapper.Map<OrganizationModel>(userResp.Organizations[0]) : null;
+            }
 
             return (status, org);
         }

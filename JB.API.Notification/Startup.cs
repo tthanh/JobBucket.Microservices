@@ -22,6 +22,8 @@ using JB.Notification.GraphQL.Notification;
 using JB.Notification.GraphQL.Chat;
 using JB.Notification.Data;
 using JB.API.Infrastructure.Middlewares;
+using JB.Notification.Models.Notification;
+using JB.API.Notification.GraphQL.Sample;
 
 namespace JB.Notification
 {
@@ -72,7 +74,7 @@ namespace JB.Notification
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = Configuration["Redis:Url"];
-                options.InstanceName = "JB.Notification.Redis";
+                options.InstanceName = "JB.API";
             });
             #endregion
 
@@ -109,6 +111,9 @@ namespace JB.Notification
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IChatService, ChatService>();
 
+            services.AddSingleton<NotificationRedisPubSubObserver>();
+            services.AddSingleton<IObserver<NotificationModel>, NotificationRedisPubSubObserver>(p => p.GetService<NotificationRedisPubSubObserver>());
+
             services.AddSingleton<INotificationSubscriptionsService, NotificationSubscriptionsService>();
             services.AddSingleton<IChatSubscriptionsService, ChatSubscriptionsService>();
             #endregion
@@ -128,7 +133,8 @@ namespace JB.Notification
                 .AddInMemorySubscriptions()
                 .AddQueryType()
                 .AddMutationType()
-                .AddSubscriptionType();
+                .AddSubscriptionType()
+                .AddTypeExtension<SampleSubscriptions>();
 
             services.AddGraphQLChat();
             services.AddGraphQLNotification();
@@ -173,7 +179,7 @@ namespace JB.Notification
             app.UseWebSockets();
 
             app.SubScribeToNotification();
-            app.SubScribeToChat();
+            //app.SubScribeToChat();
 
             app.UseEndpoints(endpoints =>
             {

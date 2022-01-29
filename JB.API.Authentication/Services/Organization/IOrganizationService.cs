@@ -4,7 +4,7 @@ using JB.Infrastructure.Models;
 using JB.Infrastructure.Services;
 using System.Threading.Tasks;
 
-namespace JB.Job.Services
+namespace JB.Authentication.Services
 {
     public interface IOrganizationService : IServiceBase<OrganizationModel>
     {

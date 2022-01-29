@@ -70,7 +70,7 @@ namespace JB.Blog
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = Configuration["Redis:Url"];
-                options.InstanceName = "JB.Blog.Redis";
+                options.InstanceName = "JB.API";
             });
             #endregion
 

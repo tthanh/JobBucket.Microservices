@@ -1,7 +1,5 @@
 using System;
 using System.Net.Http.Headers;
-using HotChocolate;
-using JB.API.Gateway.GraphQL.Query;
 using JB.Gateway.GraphQL.Subscriptions;
 using JB.Gateway.Services;
 using Microsoft.AspNetCore.Builder;
@@ -59,8 +57,8 @@ namespace JB.Gateway
             }
 
             graphQLBuilder = graphQLBuilder
-                .AddTypeExtension<NotificationSubscriptions>();
-                //.AddTypeExtension<SampleQuery>()
+                .AddTypeExtension<NotificationSubscriptions>()
+                .AddTypeExtension<ChatSubscriptions>();
 
             services.AddTransient<IJwtService, JwtService>();
             services.AddControllers();

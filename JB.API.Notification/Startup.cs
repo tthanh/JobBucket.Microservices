@@ -143,11 +143,11 @@ namespace JB.Notification
             #region gRPC services
             services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
             {
-                c.Address = new Uri("http://localhost:6002");
+                c.Address = new Uri(Configuration["GrpcServices:User"]);
             });
             services.AddGrpcClient<JB.gRPC.Organization.OrganizationRPC.OrganizationRPCClient>(c =>
             {
-                c.Address = new Uri("http://localhost:6005");
+                c.Address = new Uri(Configuration["GrpcServices:Organization"]);
             });
             #endregion
         }

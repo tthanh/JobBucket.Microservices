@@ -17,14 +17,12 @@ namespace JB.Notification.GraphQL.Chat
         {
             services.AddScoped<ChatQuery>();
             services.AddScoped<ChatMutation>();
-            //services.AddSingleton<IObserver<ChatMessageModel>, ChatSubscriptions>();
 
             services.AddScoped<ChatMutationWrapper>();
 
             services.AddGraphQLServer()
                 .AddTypeExtension<ChatQuery>()
                 .AddTypeExtension<ChatMutationWrapper>();
-                //.AddTypeExtension<ChatSubscriptions>();
 
             return services;
         }

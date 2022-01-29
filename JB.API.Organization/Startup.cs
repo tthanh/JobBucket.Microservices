@@ -134,7 +134,7 @@ namespace JB.Organization
             services.AddGrpc();
             services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
             {
-                c.Address = new Uri("http://localhost:6002");
+                c.Address = new Uri(Configuration["GrpcServices:User"]);
             });
             #endregion
         }

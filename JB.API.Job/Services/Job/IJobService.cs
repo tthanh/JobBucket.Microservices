@@ -35,5 +35,9 @@ namespace JB.Job.Services
         Task<(Status, JobPropertiesResponse)> GetJobProperties();
         Task<(Status, JobCountsResponse)> GetJobCountsByCategory(int count);
         #endregion
+
+        #region
+        Task<Status> UpdateExpiredJobStatus();
+        #endregion
     }
 }

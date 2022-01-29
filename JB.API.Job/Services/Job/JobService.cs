@@ -4,6 +4,7 @@ using JB.Infrastructure.Elasticsearch.Job;
 using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
+using JB.Job.Constants;
 using JB.Job.Data;
 using JB.Job.DTOs.Job;
 using JB.Job.DTOs.Job.Property;
@@ -17,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -988,74 +990,50 @@ namespace JB.Job.Services
             return await _searchService.Search(entity, filter, sort, size, offset, isDescending);
         }
 
-        Task<(Status, List<JobModel>)> IJobService.Search(string keyword, Expression<Func<JobModel, bool>> filter, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending)
+        public async Task<Status> UpdateExpiredJobStatus()
         {
-            throw new NotImplementedException();
-        }
+            Status result = new Status();
 
-        Task<(Status, List<JobModel>)> IJobService.GetRecommendations(JobModel entity, Expression<Func<JobModel, bool>> filter, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending)
-        {
-            throw new NotImplementedException();
-        }
+            do
+            {
+                try
+                {
+                    var jobs = await _jobDbContext.Jobs.ToListAsync();
 
-        Task<(Status, List<JobModel>)> IJobService.ListJobByOrganization(int organizationId, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending)
-        {
-            throw new NotImplementedException();
-        }
+                    foreach (var job in jobs)
+                    {
+                        if (job.ActiveStatus == (int)JobActiveStatus.HIRING)
+                        {
+                            if (job.ExpireDate < DateTime.UtcNow)
+                            {
+                                job.ActiveStatus = (int)JobActiveStatus.EXPIRED;
+                            }
+                        }
+                        else if (job.ActiveStatus == (int)JobActiveStatus.NEW)
+                        {
+                            if (job.ExpireDate < DateTime.UtcNow)
+                            {
+                                job.ActiveStatus = (int)JobActiveStatus.EXPIRED;
+                            }
+                            else if (DateTime.UtcNow - job.CreatedDate > TimeSpan.FromDays(3))
+                            {
+                                job.ActiveStatus = (int)JobActiveStatus.HIRING;
+                            }
+                        }
+                    }
 
-        Task<(Status, List<JobModel>)> IJobService.GetInterestedJobsByUser()
-        {
-            throw new NotImplementedException();
-        }
+                    _jobDbContext.Jobs.UpdateRange(jobs);
+                    await _jobDbContext.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
 
-        Task<(Status, long)> IJobService.CountInterestedUsersByJob(int jobId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<Status> IJobService.AddInterestedJob(int jobId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<Status> IJobService.RemoveInterestedJob(int jobId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<(Status, ApplicationModel)> IJobService.Apply(ApplicationModel applyForm)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<(Status, ApplicationModel)> IJobService.Unapply(int jobId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<(Status, List<ApplicationModel>)> IJobService.GetAppliedJobsByUser(Expression<Func<ApplicationModel, bool>> filter, Expression<Func<ApplicationModel, object>> sort, int size, int offset, bool isDescending)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<(Status, List<ApplicationModel>)> IJobService.GetAppliedUsersByJob(int jobId, Expression<Func<ApplicationModel, bool>> filter, Expression<Func<ApplicationModel, object>> sort, int size, int offset, bool isDescending)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<(Status, List<ApplicationModel>)> IJobService.ListApply(Expression<Func<ApplicationModel, bool>> filter, Expression<Func<ApplicationModel, object>> sort, int size, int offset, bool isDescending)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<(Status, JobPropertiesResponse)> IJobService.GetJobProperties()
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<(Status, JobCountsResponse)> IJobService.GetJobCountsByCategory(int count)
-        {
-            throw new NotImplementedException();
+            return result;
         }
         #endregion
     }

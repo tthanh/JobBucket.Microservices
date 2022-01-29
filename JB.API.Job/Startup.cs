@@ -29,6 +29,9 @@ using JB.Infrastructure.Constants;
 using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Models.Authentication;
 using JB.API.Infrastructure.Middlewares;
+using Hangfire;
+using Hangfire.MemoryStorage;
+using System.Net;
 
 namespace JB.Job
 {
@@ -116,6 +119,8 @@ namespace JB.Job
             services.AddScoped<IUserManagementService, UserManagementGRPCService>();
             services.AddScoped<ICVService, CVGRPCService>();
             services.AddScoped<INotificationService, NotificationGRPCService>();
+
+            services.AddHangfire(c => c.UseMemoryStorage());
             #endregion
 
             #region REST endpoints
@@ -179,16 +184,16 @@ namespace JB.Job
             #region gRPC services
             services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
             {
-                c.Address = new Uri("http://localhost:6002");
+                c.Address = new Uri(Configuration["GrpcServices:User"]);
             });
             services.AddGrpcClient<JB.gRPC.Organization.OrganizationRPC.OrganizationRPCClient>(c =>
             {
-                c.Address = new Uri("http://localhost:6005");
+                c.Address = new Uri(Configuration["GrpcServices:Organization"]);
             });
             #endregion
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IRecurringJobManager jobManager)
         {
             if (env.IsDevelopment())
             {
@@ -218,6 +223,10 @@ namespace JB.Job
             {
                 c.SwaggerEndpoint("v1/swagger.json", "Job");
             });
+
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
+            jobManager.AddOrUpdate<IJobService>("update-expired-job", x => x.GetById(3), "0 1 * * *", TimeZoneInfo.Utc);
 
             app.UseEndpoints(endpoints =>
             {

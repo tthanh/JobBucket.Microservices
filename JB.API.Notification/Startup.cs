@@ -24,6 +24,12 @@ using JB.Notification.Data;
 using JB.API.Infrastructure.Middlewares;
 using JB.Notification.Models.Notification;
 using JB.API.Notification.GraphQL.Sample;
+using JB.Infrastructure.Messages;
+using SlimMessageBus.Host.Redis;
+using SlimMessageBus.Host.Serialization.Json;
+using Newtonsoft.Json;
+using JB.API.Notification.MessageBus.Consumers;
+using SlimMessageBus.Host.MsDependencyInjection;
 
 namespace JB.Notification
 {
@@ -150,6 +156,21 @@ namespace JB.Notification
                 c.Address = new Uri(Configuration["GrpcServices:Organization"]);
             });
             #endregion
+
+            #region PubSub
+            services.AddScoped<NotificationMessageConsumer>();
+
+            services.AddSlimMessageBus((mbb, svp) =>
+            {
+                mbb
+                    .Consume<NotificationMessage>(x =>
+                    {
+                        x.Topic("notification").WithConsumer<NotificationMessageConsumer>();
+                    })
+                    .WithProviderRedis(new RedisMessageBusSettings(Configuration["Redis:Url"]))
+                    .WithSerializer(new JsonMessageSerializer());
+            });
+            #endregion
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -179,7 +200,7 @@ namespace JB.Notification
             app.UseWebSockets();
 
             app.SubScribeToNotification();
-            //app.SubScribeToChat();
+            app.SubScribeToChat();
 
             app.UseEndpoints(endpoints =>
             {

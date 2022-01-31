@@ -21,6 +21,11 @@ using JB.Blog.AutoMapper;
 using JB.Blog.Data;
 using JB.Blog.GraphQL.Blog;
 using JB.API.Infrastructure.Middlewares;
+using Newtonsoft.Json;
+using SlimMessageBus.Host.Redis;
+using SlimMessageBus.Host.Serialization.Json;
+using JB.Infrastructure.Messages;
+using SlimMessageBus.Host.MsDependencyInjection;
 
 namespace JB.Blog
 {
@@ -128,6 +133,19 @@ namespace JB.Blog
             services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
             {
                 c.Address = new Uri(Configuration["GrpcServices:User"]);
+            });
+            #endregion
+
+            #region PubSub
+            services.AddSlimMessageBus((mbb, svp) =>
+            {
+                mbb
+                    .Produce<NotificationMessage>(x =>
+                    {
+                        x.DefaultTopic("notification");
+                    })
+                    .WithProviderRedis(new RedisMessageBusSettings(Configuration["Redis:Url"]))
+                    .WithSerializer(new JsonMessageSerializer());
             });
             #endregion
         }

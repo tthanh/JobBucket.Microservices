@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace JB.Job.Services
 {
-    public interface INotificationService : IServiceBase<NotificationModel>
+    public interface INotificationService
     {
-        Task<Status> Delete(DateTime olderThan);
-        Task<Status> Delete(int[] ids);
-        Task<Status> MarkNotificationAsSeen(int[] notificationIds);
+        Task<Status> Add(NotificationModel entity);
     }
 }

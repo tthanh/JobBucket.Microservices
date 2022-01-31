@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
-using JB.Lib.Extensions.Filters;
 using JB.Job.Services;
 using JB.Job.Data;
 using Microsoft.OpenApi.Models;
@@ -32,6 +31,11 @@ using JB.API.Infrastructure.Middlewares;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using System.Net;
+using JB.Infrastructure.Filters;
+using JB.Infrastructure.Messages;
+using SlimMessageBus.Host.Redis;
+using SlimMessageBus.Host.Serialization.Json;
+using SlimMessageBus.Host.MsDependencyInjection;
 
 namespace JB.Job
 {
@@ -118,7 +122,7 @@ namespace JB.Job
             services.AddScoped<IOrganizationService, OrganizationGRPCService>();
             services.AddScoped<IUserManagementService, UserManagementGRPCService>();
             services.AddScoped<ICVService, CVGRPCService>();
-            services.AddScoped<INotificationService, NotificationGRPCService>();
+            services.AddScoped<INotificationService, NotificationRemoteService>();
 
             services.AddHangfire(c => c.UseMemoryStorage());
             #endregion
@@ -189,6 +193,20 @@ namespace JB.Job
             services.AddGrpcClient<JB.gRPC.Organization.OrganizationRPC.OrganizationRPCClient>(c =>
             {
                 c.Address = new Uri(Configuration["GrpcServices:Organization"]);
+            });
+            #endregion
+
+            #region PubSub
+            services.AddSlimMessageBus((mbb, svp) =>
+            {
+                mbb
+                    .Produce<NotificationMessage>(x =>
+                    {
+                        x.DefaultTopic("notification");
+                    })
+                    .WithProviderRedis(new RedisMessageBusSettings(Configuration["Redis:Url"]))
+                    .WithSerializer(new JsonMessageSerializer());
+
             });
             #endregion
         }

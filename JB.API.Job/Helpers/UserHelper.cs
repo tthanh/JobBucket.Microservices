@@ -7,14 +7,6 @@ namespace JB.Job.Helpers
 {
     public static class UserHelper
     {
-        public static string GenRandomPassword(int length)
-        {
-            byte[] rgb = new byte[length];
-            RNGCryptoServiceProvider rngCrypt = new RNGCryptoServiceProvider();
-            rngCrypt.GetBytes(rgb);
-            return Convert.ToBase64String(rgb);
-        }
-
         public static bool IsRecruiter(int recruiterId, OrganizationModel organization)
         {
             if (recruiterId <= 0

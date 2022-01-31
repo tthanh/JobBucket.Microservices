@@ -24,8 +24,8 @@ using Microsoft.OpenApi.Models;
 using JB.Authentication.Models.User;
 using Microsoft.AspNetCore.Identity;
 using JB.Authentication.GRPC;
-using JB.Authentication.Extensions.Filters;
 using JB.API.Infrastructure.Middlewares;
+using JB.Infrastructure.Filters;
 
 namespace JB.Authentication
 {
@@ -121,7 +121,6 @@ namespace JB.Authentication
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserManagementService, UserManagementService>();
-            services.AddScoped<IOrganizationService, OrganizationgGPCService>();
             #endregion
 
             #region REST endpoints

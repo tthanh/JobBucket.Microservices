@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Models.Authentication;
+using SlimMessageBus;
+using JB.Infrastructure.Messages;
 
 namespace JB.Notification.Services
 {
@@ -24,6 +26,7 @@ namespace JB.Notification.Services
         private readonly INotificationSubscriptionsService _notificationSubscriptionsService;
         private readonly IUserClaimsModel _claims;
         private readonly IMapper _mapper;
+        private readonly IMessageBus _messageBus;
 
         public NotificationService(
             NotificationDbContext notificationDbContext,
@@ -32,7 +35,8 @@ namespace JB.Notification.Services
             INotificationSubscriptionsService notificationSubscriptionsService,
             ILogger<NotificationService> logger,
             IUserClaimsModel claims,
-            IMapper mapper)
+            IMapper mapper,
+            IMessageBus messageBus)
 
         {
             _notificationDbContext = notificationDbContext;
@@ -42,6 +46,7 @@ namespace JB.Notification.Services
             _claims = claims;
             _mapper = mapper;
             _logger = logger;
+            _messageBus = messageBus;
         }
 
         public async Task<Status> Add(NotificationModel entity)
@@ -275,6 +280,10 @@ namespace JB.Notification.Services
             {
                 try
                 {
+                    await _messageBus.Publish(new NotificationMessage
+                    {
+
+                    });
                     var notiQuery = _notificationDbContext.Notifications.Where(filter);
                     notiQuery = isDescending ? notiQuery.OrderByDescending(sort) : notiQuery.OrderBy(sort);
                     notifications = await notiQuery.Skip(size * (offset - 1)).Take(size).ToListAsync();

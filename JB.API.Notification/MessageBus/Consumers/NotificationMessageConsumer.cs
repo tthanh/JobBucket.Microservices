@@ -15,3 +15,4 @@ namespace JB.API.Notification.MessageBus.Consumers
         }
     }
 }
+   

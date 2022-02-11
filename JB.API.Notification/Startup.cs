@@ -158,11 +158,12 @@ namespace JB.Notification
             #endregion
 
             #region PubSub
-            services.AddScoped<NotificationMessageConsumer>();
+            services.AddSingleton<NotificationMessageConsumer>();
 
             services.AddSlimMessageBus((mbb, svp) =>
             {
                 mbb
+                    .Produce<NotificationMessage>(p => p.DefaultTopic("notification"))
                     .Consume<NotificationMessage>(x =>
                     {
                         x.Topic("notification").WithConsumer<NotificationMessageConsumer>();

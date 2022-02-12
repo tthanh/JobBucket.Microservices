@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="HotChocolate.AspNetCore" Version="12.4.1" />
     <PackageReference Include="HotChocolate.Stitching" Version="12.4.1" />
+    <PackageReference Include="HotChocolate.Subscriptions.Redis" Version="12.6.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.14" />
     <PackageReference Include="MMLib.SwaggerForOcelot" Version="4.7.0" />
     <PackageReference Include="Ocelot" Version="17.0.1" />

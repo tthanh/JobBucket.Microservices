@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using StackExchange.Redis;
 
 namespace JB.Gateway
 {
@@ -28,7 +29,9 @@ namespace JB.Gateway
             services.AddHttpContextAccessor();
             services.AddSingleton<NotificationSubscriptions>();
 
-            var graphQLBuilder = services.AddGraphQLServer().AddInMemorySubscriptions();
+            var graphQLBuilder = services.AddGraphQLServer()
+                //.AddInMemorySubscriptions();
+                .AddRedisSubscriptions((sp) => ConnectionMultiplexer.Connect(Configuration["Redis:Url"]));
 
             var graphqQLDownstreams = Configuration.GetSection("GraphQL:Downstreams").Get<GraphQLDownstreamInformation[]>();
             if (graphqQLDownstreams?.Length > 0)
@@ -93,7 +96,6 @@ namespace JB.Gateway
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
 

@@ -10,10 +10,16 @@ services:
     ports:
       - 54320:5432
 
+  jb.redis:
+    image: redis
+    ports: 
+      - "63790:6379"
+    command: redis-server --requirepass jb123
+
   jb.api.authentication:
-    image: ${DOCKER_REGISTRY-}jbapiauthentication
+    image: jbapiauthentication
     build:
-      context: .
+      context: ./
       dockerfile: JB.API.Authentication/Dockerfile
     environment:
       - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5002
@@ -21,34 +27,44 @@ services:
       - Redis:Url=jb.redis:6379,password=jb123
       - Elasticsearch:Url=http://localhost:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
-
+    depends_on:
+      - jb.db
+      - jb.redis
   jb.api.blog:
-    image: ${DOCKER_REGISTRY-}jbapiblog
+    image: jbapiblog
     build:
       context: .
       dockerfile: JB.API.Blog/Dockerfile
+    ports:
+      - 5006:5006 
     environment:
-      - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5002
-      - Kestrel:Endpoints:Grpc:Url=http://0.0.0.0:6002
+      - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5006
       - Redis:Url=jb.redis:6379,password=jb123
       - Elasticsearch:Url=http://localhost:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
+    depends_on:
+      - jb.db
+      - jb.redis
+      - jb.api.authentication
 
   jb.api.gateway:
-    image: ${DOCKER_REGISTRY-}jbapigateway
+    image: jbapigateway
     build:
       context: .
       dockerfile: JB.API.Gateway/Dockerfile
+    ports:
+      - 5001:5001
     environment:
-      - GraphQL:Downstreams__0:Url=http://jb.api.job:5003
-      - GraphQL:Downstreams__1:Url=http://jb.api.user:5004
-      - GraphQL:Downstreams__2:Url=http://jb.api.organization:5005
-      - GraphQL:Downstreams__3:Url=http://jb.api.blog:5006
-      - GraphQL:Downstreams__4:Url=http://jb.api.notification:5007
+      - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5001
+      - GraphQL:Downstreams:Job:Url=http://jb.api.job:5003/graphql
+      - GraphQL:Downstreams:User:Url=http://jb.api.user:5004/graphql
+      - GraphQL:Downstreams:Organization:Url=http://jb.api.organization:5005/graphql
+      - GraphQL:Downstreams:Blog:Url=http://jb.api.blog:5006/graphql
+      - GraphQL:Downstreams:Notification:Url=http://jb.api.notification:5007/graphql
 
   jb.api.job:
-    image: ${DOCKER_REGISTRY-}jbapijob
+    image: jbapijob
     build:
       context: .
       dockerfile: JB.API.Job/Dockerfile
@@ -59,9 +75,14 @@ services:
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
       - GrpcServices:Organization=http://jb.api.authentication:6005
+    depends_on:
+      - jb.db
+      - jb.redis
+      - jb.api.authentication
+      - jb.api.organization
 
   jb.api.notification:
-    image: ${DOCKER_REGISTRY-}jbapinotification
+    image: jbapinotification
     build:
       context: .
       dockerfile: JB.API.Notification/Dockerfile
@@ -72,8 +93,14 @@ services:
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
       - GrpcServices:Organization=http://jb.api.authentication:6005
+    depends_on:
+      - jb.db
+      - jb.redis
+      - jb.api.authentication
+      - jb.api.organization
+
   jb.api.organization:
-    image: ${DOCKER_REGISTRY-}jbapiorganization
+    image: jbapiorganization
     build:
       context: .
       dockerfile: JB.API.Organization/Dockerfile
@@ -83,9 +110,12 @@ services:
       - Redis:Url=jb.redis:6379,password=jb123
       - Elasticsearch:Url=http://localhost:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
+    depends_on:
+      - jb.db
+      - jb.redis
 
   jb.api.user:
-    image: ${DOCKER_REGISTRY-}jbapiuser
+    image: jbapiuser
     build:
       context: .
       dockerfile: JB.API.User/Dockerfile
@@ -95,9 +125,10 @@ services:
       - Elasticsearch:Url=http://localhost:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
-      - GrpcServices:Organization=http://jb.api.authentication:6005 
-  jb.redis:
-    image: redis
-    ports: 
-      - "63790:6379"
-    command: redis-server --requirepass jb123
+      - GrpcServices:Organization=http://jb.api.authentication:6005
+    depends_on:
+      - jb.db
+      - jb.redis
+      - jb.api.authentication
+      - jb.api.organization
+

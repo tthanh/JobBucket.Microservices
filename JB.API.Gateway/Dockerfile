@@ -8,6 +8,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 COPY ["JB.API.Gateway/JB.API.Gateway.csproj", "JB.API.Gateway/"]
+COPY ["JB.API.Infrastructure/JB.API.Infrastructure.csproj", "JB.API.Infrastructure/"]
 RUN dotnet restore "JB.API.Gateway/JB.API.Gateway.csproj"
 COPY . .
 WORKDIR "/src/JB.API.Gateway"

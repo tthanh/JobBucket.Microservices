@@ -7,16 +7,18 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["src/JB.Authentication.csproj", "src/"]
-RUN dotnet restore "src/JB.Authentication.csproj"
+COPY ["JB.API.Authentication/JB.API.Authentication.csproj", "JB.API.Authentication/"]
+COPY ["JB.API.Infrastructure/JB.API.Infrastructure.csproj", "JB.API.Infrastructure/"]
+RUN dotnet restore "JB.API.Authentication/JB.API.Authentication.csproj"
 COPY . .
-WORKDIR "/src/src"
-RUN dotnet build "JB.Authentication.csproj" -c Release -o /app/build
+WORKDIR "/src/JB.API.Authentication"
+RUN dotnet build "JB.API.Authentication.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "JB.Authentication.csproj" -c Release -o /app/publish
+RUN dotnet publish "JB.API.Authentication.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "JB.Authentication.dll"]
+

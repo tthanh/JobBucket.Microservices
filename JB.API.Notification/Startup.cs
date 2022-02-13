@@ -30,6 +30,7 @@ using SlimMessageBus.Host.Serialization.Json;
 using Newtonsoft.Json;
 using JB.API.Notification.MessageBus.Consumers;
 using SlimMessageBus.Host.MsDependencyInjection;
+using StackExchange.Redis;
 
 namespace JB.Notification
 {
@@ -136,7 +137,8 @@ namespace JB.Notification
 
             #region GraphQL
             services.AddGraphQLServer()
-                .AddInMemorySubscriptions()
+                //.AddInMemorySubscriptions()
+                .AddRedisSubscriptions((sp) => ConnectionMultiplexer.Connect(Configuration["Redis:Url"]))
                 .AddQueryType()
                 .AddMutationType()
                 .AddSubscriptionType()

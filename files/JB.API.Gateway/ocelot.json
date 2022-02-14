@@ -1,0 +1,79 @@
+{
+    "Routes": [
+      {
+        "DownstreamPathTemplate": "/api/authenticate/{everything}",
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "jb.api.authentication",
+            "Port": 5002
+          }
+        ],
+        "UpstreamPathTemplate": "/api/authenticate/{everything}",
+        "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ],
+        "SwaggerKey": "authentication"
+      },
+      {
+        "DownstreamPathTemplate": "/api/authenticate",
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "jb.api.authentication",
+            "Port": 5002
+          }
+        ],
+        "UpstreamPathTemplate": "/api/authenticate",
+        "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ]
+      },
+  
+      {
+        "DownstreamPathTemplate": "/api/job/{everything}",
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "jb.api.job",
+            "Port": 5003
+          }
+        ],
+        "UpstreamPathTemplate": "/api/job/{everything}",
+        "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ],
+        "SwaggerKey": "job"
+      },
+      {
+        "DownstreamPathTemplate": "/api/job",
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "jb.api.job",
+            "Port": 5003
+          }
+        ],
+        "UpstreamPathTemplate": "/api/job",
+        "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ]
+      }
+    ],
+    "SwaggerEndPoints": [
+      {
+        "Key": "authentication",
+        "Config": [
+          {
+            "Name": "Authentication",
+            "Version": "v1",
+            "Url": "http://jb.api.authentication:5002/swagger/v1/swagger.json"
+          }
+        ]
+      },
+      {
+        "Key": "job",
+        "Config": [
+          {
+            "Name": "Job",
+            "Version": "v1",
+            "Url": "http://jb.api.job:5003/swagger/v1/swagger.json"
+          }
+        ]
+      }
+    ],
+    "GlobalConfiguration": {
+    }
+  }

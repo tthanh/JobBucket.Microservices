@@ -62,6 +62,8 @@ services:
       - GraphQL:Downstreams:Organization:Url=http://jb.api.organization:5005/graphql
       - GraphQL:Downstreams:Blog:Url=http://jb.api.blog:5006/graphql
       - GraphQL:Downstreams:Notification:Url=http://jb.api.notification:5007/graphql
+    volumes:
+      - ./files/JB.API.Gateway/ocelot.json:/app/ocelot.json
 
   jb.api.job:
     image: jbapijob
@@ -74,7 +76,7 @@ services:
       - Elasticsearch:Url=http://localhost:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
-      - GrpcServices:Organization=http://jb.api.authentication:6005
+      - GrpcServices:Organization=http://jb.api.organization:6005
     depends_on:
       - jb.db
       - jb.redis
@@ -92,7 +94,7 @@ services:
       - Elasticsearch:Url=http://localhost:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
-      - GrpcServices:Organization=http://jb.api.authentication:6005
+      - GrpcServices:Organization=http://jb.api.organization:6005
     depends_on:
       - jb.db
       - jb.redis
@@ -110,6 +112,7 @@ services:
       - Redis:Url=jb.redis:6379,password=jb123
       - Elasticsearch:Url=http://localhost:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
+      - GrpcServices:User=http://jb.api.authentication:6002
     depends_on:
       - jb.db
       - jb.redis
@@ -125,7 +128,7 @@ services:
       - Elasticsearch:Url=http://localhost:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
-      - GrpcServices:Organization=http://jb.api.authentication:6005
+      - GrpcServices:Organization=http://jb.api.organization:6005
     depends_on:
       - jb.db
       - jb.redis

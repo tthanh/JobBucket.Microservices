@@ -25,7 +25,7 @@ services:
       - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5002
       - Kestrel:Endpoints:Grpc:Url=http://0.0.0.0:6002
       - Redis:Url=jb.redis:6379,password=jb123
-      - Elasticsearch:Url=http://localhost:9200
+      - Elasticsearch:Url=http://103.153.75.82:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
     depends_on:
       - jb.db
@@ -40,7 +40,7 @@ services:
     environment:
       - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5006
       - Redis:Url=jb.redis:6379,password=jb123
-      - Elasticsearch:Url=http://localhost:9200
+      - Elasticsearch:Url=http://103.153.75.82:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
     depends_on:
@@ -73,7 +73,7 @@ services:
     environment:
       - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5003
       - Redis:Url=jb.redis:6379,password=jb123
-      - Elasticsearch:Url=http://localhost:9200
+      - Elasticsearch:Url=http://103.153.75.82:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
       - GrpcServices:Organization=http://jb.api.organization:6005
@@ -91,7 +91,7 @@ services:
     environment:
       - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5007
       - Redis:Url=jb.redis:6379,password=jb123
-      - Elasticsearch:Url=http://localhost:9200
+      - Elasticsearch:Url=http://103.153.75.82:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
       - GrpcServices:Organization=http://jb.api.organization:6005
@@ -110,7 +110,7 @@ services:
       - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5005
       - Kestrel:Endpoints:Grpc:Url=http://0.0.0.0:6005
       - Redis:Url=jb.redis:6379,password=jb123
-      - Elasticsearch:Url=http://localhost:9200
+      - Elasticsearch:Url=http://103.153.75.82:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
     depends_on:
@@ -125,7 +125,7 @@ services:
     environment:
       - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5004
       - Redis:Url=jb.redis:6379,password=jb123
-      - Elasticsearch:Url=http://localhost:9200
+      - Elasticsearch:Url=http://103.153.75.82:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
       - GrpcServices:Organization=http://jb.api.organization:6005

@@ -1,0 +1,72 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+import "organization.proto";
+
+package profile;
+
+option csharp_namespace = "JB.gRPC.Profile";
+
+service ProfileRPC {
+  rpc Get (ProfileRequest) returns (ProfileResponse);
+}
+
+message ProfileRequest {
+	repeated int32 id = 1;
+}
+
+message ProfileResponse {
+	repeated Profile profiles = 1;
+}
+
+
+message Profile {
+	int32 id = 1;
+	optional string name = 2;
+	int32 roleId = 3;
+	optional string avatarUrl = 4;
+	google.protobuf.Int32Value organizationId = 5;
+	organization.Organization organization = 6;
+	google.protobuf.Int32Value defaultCVId = 7;
+	optional string phoneNumber = 8;
+	bool emailConfirmed = 9;
+	optional string email = 10;
+	optional string userName = 11;
+	google.protobuf.Timestamp createdDate = 12;
+	google.protobuf.Timestamp updatedDate = 13;
+	optional string address = 14;
+	optional string city = 15;
+	optional string country = 16;
+	optional string introduction = 17;
+	optional string website = 18;
+	optional string gender = 19;
+	google.protobuf.Timestamp birthdate = 20;
+	optional string phone = 21;
+	optional string github = 22;
+	optional string reference = 23;
+	repeated string activities = 24;
+	repeated string certifications = 25;
+	repeated string awards = 26;
+	repeated UserSkill skills = 27;
+	repeated UserEducation educations = 28;
+	repeated UserExperience experiences = 29;
+	int32 views = 30;
+}
+
+message UserSkill {
+	optional string skillName = 1;
+	int32 level = 2;
+}
+
+message UserEducation {
+	optional string school = 1;
+	optional string major = 2;
+	optional string status = 3;
+	optional string profession = 4;
+}
+
+message UserExperience {
+	optional string company = 1;
+	optional string position = 2;
+	optional string duration = 3;
+}

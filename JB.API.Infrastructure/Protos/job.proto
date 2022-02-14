@@ -1,0 +1,83 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+import "organization.proto";
+import "user.proto";
+
+package job;
+
+option csharp_namespace = "JB.gRPC.Job";
+
+service JobRPC {
+  rpc Get (JobRequest) returns (JobResponse);
+}
+
+message JobRequest {
+	repeated int32 id = 1;
+}
+
+message JobResponse {
+	repeated Job jobs = 1;
+}
+
+message Job {
+	int32 id = 1;
+	optional string title = 2;
+	repeated string imageUrls = 3;
+	optional string description = 4;
+	int32 activeStatus = 5;
+	google.protobuf.Int32Value priority = 6;
+	repeated string addresses = 7;
+	repeated string cities = 8;
+	google.protobuf.Int32Value minSalary = 9;
+	google.protobuf.Int32Value maxSalary = 10;
+	optional string salaryCurrency = 11;
+	optional string salaryDuration = 12;
+	repeated JobSkill skills = 13;
+	repeated JobPosition positions = 14;
+	int32 applicationCount = 16;
+	int32 interestCount = 18;
+	repeated JobType types = 19;
+	repeated JobCategory categories = 20;
+	bool isVisaSponsorship = 21;
+	int32 employerId = 22;
+	user.User employer = 23;
+	google.protobuf.Timestamp createdDate = 24;
+	google.protobuf.Timestamp updatedDate = 25;
+	google.protobuf.Timestamp expireDate = 26;
+	optional string benefits = 27;
+	optional string experiences = 28;
+	optional string responsibilities = 29;
+	optional string requirements = 30;
+	optional string optionalRequirements = 31;
+	optional string cultures = 32;
+	optional string whyJoinUs = 33;
+	google.protobuf.Int32Value numberEmployeesToApplied = 34;
+	optional string jobForm = 35;
+	optional string gender = 36;
+	google.protobuf.Int32Value views = 37;
+	bool isJobInterested = 38;
+	bool isJobApplied = 39;
+	int32 organizationId = 40;
+	organization.Organization organization = 41;
+}
+
+message JobCategory {
+	int32 id = 1;
+	optional string name = 2;
+}
+
+message JobPosition {
+	int32 id = 1;
+	optional string name = 2;
+}
+
+message JobSkill {
+	int32 id = 1;
+	optional string name = 2;
+}
+
+message JobType {
+	int32 id = 1;
+	optional string name = 2;
+}

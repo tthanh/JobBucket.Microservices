@@ -63,6 +63,14 @@ namespace JB.Gateway
                 .AddTypeExtension<NotificationSubscriptions>()
                 .AddTypeExtension<ChatSubscriptions>();
 
+            services.AddCors(o => o.AddPolicy("LowCorsPolicy", builder =>
+            {
+                builder.SetIsOriginAllowed(origin => true)
+                       .AllowCredentials()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
             services.AddTransient<IJwtService, JwtService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -96,6 +104,7 @@ namespace JB.Gateway
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("LowCorsPolicy");
             app.UseRouting();
             app.UseAuthorization();
 

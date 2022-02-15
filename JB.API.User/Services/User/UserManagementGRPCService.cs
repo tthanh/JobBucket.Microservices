@@ -114,9 +114,24 @@ namespace JB.User.Services
             throw new NotImplementedException();
         }
 
-        public Task<(Status, UserModel)> UpdateUser(UserModel user)
+        public async Task<(Status, UserModel)> UpdateUser(UserModel user)
         {
             throw new NotImplementedException();
+
+            Status status = new Status();
+            
+            if (user == null)
+            {
+                var req = new gRPC.User.UpdateUserRequest();
+                req.Id = user.Id;
+                req.AvatarUrl = user.AvatarUrl;
+                req.DefaultCVId = user.DefaultCVId;
+                req.Name = user.Name;
+
+                _ = await _userGrpcClient.UpdateAsync(req);
+            }
+
+            return (status, user);
         }
 
         public Task<(Status, UserModel)> UpdateUserDefaultCV(int userId, int cvId)

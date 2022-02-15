@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace JB.Job.Services.Search
+namespace JB.Infrastructure.Services
 {
     public interface ISearchService<T>
     {

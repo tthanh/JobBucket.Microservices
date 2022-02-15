@@ -35,5 +35,35 @@ namespace JB.Authentication.GRPC
 
             return userResponse;
         }
+
+        public override async Task<gRPC.User.User> Update(UpdateUserRequest request, ServerCallContext context)
+        {
+            gRPC.User.User userResponse = new gRPC.User.User();
+
+            (var status, var user) = await _userManagementService.GetUser(request.Id);
+            if (!status.IsSuccess || user == null)
+            {
+                return userResponse;
+            }
+
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                user.Name = request.Name;
+            }
+
+            if (!string.IsNullOrEmpty(request.AvatarUrl))
+            {
+                user.AvatarUrl = request.AvatarUrl;
+            }
+
+            if (request.DefaultCVId > 0)
+            {
+                user.DefaultCVId = request.DefaultCVId;
+            }
+
+            (status, user) = await _userManagementService.UpdateUser(user);
+
+            return userResponse;
+        }
     }
 }

@@ -22,6 +22,8 @@ using JB.User.GraphQL.Profile;
 using JB.User.AutoMapper;
 using JB.User.Data;
 using JB.API.Infrastructure.Middlewares;
+using JB.User.Models.Profile;
+using JB.Infrastructure.Services;
 
 namespace JB.User
 {
@@ -106,6 +108,7 @@ namespace JB.User
             services.AddScoped<IUserManagementService, UserManagementGRPCService>();
             services.AddScoped<IOrganizationService, OrganizationGRPCService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
+            services.AddScoped<ISearchService<UserProfileModel>, UserProfileElasticsearchService>();
             services.AddScoped<ICVService, CVService>();
             #endregion
 

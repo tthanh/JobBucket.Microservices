@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using Npgsql;
 using JB.Job.GraphQL.Interview;
 using JB.Job.GraphQL.Job;
-using JB.Job.Services.Search;
 using JB.Job.Models.Job;
 using JB.Job.Services.Job;
 using Nest;
@@ -36,6 +35,7 @@ using JB.Infrastructure.Messages;
 using SlimMessageBus.Host.Redis;
 using SlimMessageBus.Host.Serialization.Json;
 using SlimMessageBus.Host.MsDependencyInjection;
+using JB.Infrastructure.Services;
 
 namespace JB.Job
 {

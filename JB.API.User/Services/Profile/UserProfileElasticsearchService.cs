@@ -3,9 +3,8 @@ using JB.Infrastructure.Constants;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
 using JB.Infrastructure.Services;
-using JB.Job.Data;
-using JB.Job.DTOs.Job;
-using JB.Job.Models.Job;
+using JB.User.DTOs.Profile;
+using JB.User.Models.Profile;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -13,35 +12,32 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace JB.Job.Services.Job
+namespace JB.User.Services
 {
-    public class JobElasticsearchService : ISearchService<JobModel>
+    public class UserProfileElasticsearchService : ISearchService<UserProfileModel>
     {
-        private readonly JobDbContext _jobDbContext;
         private readonly IMapper _mapper;
-        private readonly ILogger<JobSearchService> _logger;
+        private readonly ILogger<UserProfileElasticsearchService> _logger;
         private readonly IUserClaimsModel _claims;
 
         private readonly Nest.IElasticClient _elasticClient;
 
-        public JobElasticsearchService(
-            JobDbContext jobDbContext,
+        public UserProfileElasticsearchService(
             IMapper mapper,
-            ILogger<JobSearchService> logger,
+            ILogger<UserProfileElasticsearchService> logger,
             IUserClaimsModel claims,
             Nest.IElasticClient elasticClient
         )
         {
             _elasticClient = elasticClient;
-            _jobDbContext = jobDbContext;
             _mapper = mapper;
             _logger = logger;
             _claims = claims;
         }
-        public async Task<(Status, List<JobModel>)> Search(string keyword, Expression<Func<JobModel, bool>> filter, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending = false)
+        public async Task<(Status, List<UserProfileModel>)> Search(string keyword, Expression<Func<UserProfileModel, bool>> filter, Expression<Func<UserProfileModel, object>> sort, int size, int offset, bool isDescending = false)
         {
             Status result = new Status();
-            var jobs = new List<JobModel>();
+            var profiles = new List<UserProfileModel>();
             int userId = _claims?.Id ?? 0;
 
             do
@@ -50,13 +46,13 @@ namespace JB.Job.Services.Job
                 {
                     userId = _claims?.Id ?? userId;
 
-                    var fields = typeof(JobResponse).GetProperties()
+                    var fields = typeof(UserProfileResponse).GetProperties()
                         .Where(p => p.PropertyType == typeof(string) || p.PropertyType == typeof(ICollection<string>) || p.PropertyType == typeof(string[]))
                         .Select(p => char.ToLowerInvariant(p.Name[0]) + p.Name[1..])
                         .ToArray();
 
-                    var searchResponse = await _elasticClient.SearchAsync<JobModel>(r => r
-                        .Index("job")
+                    var searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(r => r
+                        .Index("profile")
                         .From((offset - 1) * size)
                         .Size(size)
                         .Query(q => q.QueryString(qs => qs.Query(keyword))));
@@ -67,13 +63,7 @@ namespace JB.Job.Services.Job
                         break;
                     }
 
-                    jobs = searchResponse.Hits.Select(r => _mapper.Map<JobModel>(r.Source)).ToList();
-
-                    jobs.ForEach(x =>
-                    {
-                        x.IsJobApplied = _jobDbContext.Application.Any(i => i.JobId == x.Id && i.UserId == userId);
-                        x.IsJobInterested = _jobDbContext.Interests.Any(i => i.JobId == x.Id && i.UserId == userId);
-                    });
+                    profiles = searchResponse.Hits.Select(r => _mapper.Map<UserProfileModel>(r.Source)).ToList();
                 }
                 catch (Exception e)
                 {
@@ -84,13 +74,13 @@ namespace JB.Job.Services.Job
             }
             while (false);
 
-            return (result, jobs);
+            return (result, profiles);
         }
 
-        public async Task<(Status, List<JobModel>)> Search(JobModel entity, Expression<Func<JobModel, bool>> filter, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending = false)
+        public async Task<(Status, List<UserProfileModel>)> Search(UserProfileModel entity, Expression<Func<UserProfileModel, bool>> filter, Expression<Func<UserProfileModel, object>> sort, int size, int offset, bool isDescending = false)
         {
             Status result = new Status();
-            var jobs = new List<JobModel>();
+            var profiles = new List<UserProfileModel>();
             int userId = _claims?.Id ?? 0;
 
             do
@@ -99,9 +89,8 @@ namespace JB.Job.Services.Job
                 {
                     userId = _claims?.Id ?? userId;
 
-                    var searchResponse = await _elasticClient.SearchAsync<JobModel>(r => r
-                        .Index("job")
-                        //.From((offset - 1) * size)
+                    var searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(r => r
+                        .Index("profile")
                         .From((offset) * size)
                         .Size(size)
                         .Query(q => q.MoreLikeThis(mlt => mlt
@@ -117,13 +106,7 @@ namespace JB.Job.Services.Job
                         break;
                     }
 
-                    jobs = searchResponse.Hits.Select(r => _mapper.Map<JobModel>(r.Source)).ToList();
-
-                    jobs.ForEach(x =>
-                    {
-                        x.IsJobApplied = _jobDbContext.Application.Any(i => i.JobId == x.Id && i.UserId == userId);
-                        x.IsJobInterested = _jobDbContext.Interests.Any(i => i.JobId == x.Id && i.UserId == userId);
-                    });
+                    profiles = searchResponse.Hits.Select(r => _mapper.Map<UserProfileModel>(r.Source)).ToList();
                 }
                 catch (Exception e)
                 {
@@ -134,7 +117,7 @@ namespace JB.Job.Services.Job
             }
             while (false);
 
-            return (result, jobs);
+            return (result, profiles);
         }
     }
 }

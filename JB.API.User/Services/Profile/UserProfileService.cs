@@ -4,6 +4,7 @@ using JB.Infrastructure.Elasticsearch.User;
 using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
+using JB.Infrastructure.Services;
 using JB.User.Data;
 using JB.User.Models.Profile;
 using JB.User.Models.User;
@@ -22,6 +23,7 @@ namespace JB.User.Services
         private readonly ProfileDbContext _profileDbContext;
         private readonly IUserManagementService _userManagementService;
         private readonly IOrganizationService _organizationService;
+        private readonly ISearchService<UserProfileModel> _profileSearchService;
         private readonly IMapper _mapper;
         private readonly ILogger<UserProfileService> _logger;
         private readonly IUserClaimsModel _claims;
@@ -31,6 +33,7 @@ namespace JB.User.Services
             ProfileDbContext profileDbContext,
             IUserManagementService userManagementService,
             IOrganizationService organizationService,
+            ISearchService<UserProfileModel> profileSearchService,
             IMapper mapper,
             ILogger<UserProfileService> logger,
             IUserClaimsModel claims,
@@ -40,6 +43,7 @@ namespace JB.User.Services
             _profileDbContext = profileDbContext;
             _userManagementService = userManagementService;
             _organizationService = organizationService;
+            _profileSearchService = profileSearchService;
             _mapper = mapper;
             _logger = logger;
             _claims = claims;
@@ -263,6 +267,16 @@ namespace JB.User.Services
         private async Task DeleteDocument(int id)
         {
             await _elasticClient.DeleteAsync<UserProfileModel>(id, r => r.Index("profile"));
+        }
+
+        public Task<(Status, List<UserProfileModel>)> Search(string keyword, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<(Status, List<UserProfileModel>)> GetRecommendations(UserProfileModel entity, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

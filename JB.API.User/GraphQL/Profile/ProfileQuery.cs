@@ -90,5 +90,41 @@ namespace JB.User.GraphQL.Profile
 
             return results;
         }
+
+        [GraphQLName("profileRecommendation")]
+        public async Task<List<UserProfileResponse>> ProfileRecommendations(IResolverContext context, [GraphQLName("filter")] ListUserProfileRequest filter)
+        {
+            List<UserProfileResponse> results = new();
+            List<UserProfileModel> profiles = new();
+            UserProfileModel profile = null;
+            Status status = new();
+
+            do
+            {
+                int size = filter?.Size > 0 ? filter.Size.Value : 20;
+                int page = filter?.Page > 0 ? filter.Page.Value : 1;
+                bool isDescending = filter?.IsDescending ?? false;
+
+                (status, profiles) = await _profileService.GetRecommendations(new UserProfileModel
+                {
+                }, j => true, j => j.Id, size, page, isDescending);
+
+                if (!status.IsSuccess)
+                {
+                    break;
+                }
+
+                results = _mapper.Map<List<UserProfileResponse>>(profiles);
+
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return results;
+        }
     }
 }

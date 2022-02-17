@@ -992,9 +992,51 @@ namespace JB.Job.Services
             return (result, counts);
         }
 
-        public async Task<(Status, List<JobModel>)> GetRecommendations(JobModel entity, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
+        public async Task<(Status, List<JobModel>)> GetRecommendations(JobModel entity = null, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
         {
-            return await _searchService.Search(entity, filter, sort, size, offset, isDescending);
+            if (entity != null)
+                return await _searchService.Search(entity, filter, sort, size, offset, isDescending);
+
+            Status result = new Status();
+            var jobs = new List<JobModel>();
+            int userId = _claims?.Id ?? 0;
+
+            do
+            {
+                try
+                {
+                    userId = _claims?.Id ?? userId;
+
+                    var searchResponse = await _elasticClient.SearchAsync<JobModel>(r => r
+                        .Index("job")
+                        .From((offset) * size)
+                        .Size(size)
+                    );
+
+                    if (!searchResponse.IsValid)
+                    {
+                        result.ErrorCode = ErrorCode.InvalidData;
+                        break;
+                    }
+
+                    jobs = searchResponse.Hits.Select(r => _mapper.Map<JobModel>(r.Source)).ToList();
+
+                    jobs.ForEach(x =>
+                    {
+                        x.IsJobApplied = _jobDbContext.Application.Any(i => i.JobId == x.Id && i.UserId == userId);
+                        x.IsJobInterested = _jobDbContext.Interests.Any(i => i.JobId == x.Id && i.UserId == userId);
+                    });
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+
+            }
+            while (false);
+
+            return (result, jobs);
         }
 
         public async Task<Status> UpdateExpiredJobStatus()

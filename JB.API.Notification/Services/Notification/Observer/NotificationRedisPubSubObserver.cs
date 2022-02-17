@@ -1,8 +1,10 @@
 ﻿using HotChocolate.Execution;
 using HotChocolate.Subscriptions;
 using HotChocolate.Types;
+using JB.Infrastructure.Messages;
 using JB.Notification.Models.Notification;
 using JB.Notification.Services;
+using SlimMessageBus;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,14 +13,12 @@ namespace JB.Notification.GraphQL.Notification
 {
     public class NotificationRedisPubSubObserver : IObserver<NotificationModel>
     {
-        private readonly ITopicEventSender _topicEventSender;
-        private readonly ITopicEventReceiver _topicEventReceiver;
         private readonly IJwtService _jwtService;
+        private readonly IMessageBus _messageBus;
 
-        public NotificationRedisPubSubObserver(
-            ITopicEventSender topicEventSender)
+        public NotificationRedisPubSubObserver(IMessageBus messageBus)
         {
-            _topicEventSender = topicEventSender;
+            _messageBus = messageBus;
         }
 
         public void OnCompleted()
@@ -31,7 +31,7 @@ namespace JB.Notification.GraphQL.Notification
 
         public void OnNext(NotificationModel value)
         {
-            Task.Run(() => _topicEventSender.SendAsync($"notification_{value.ReceiverId}", value));
+            _messageBus.Publish(new { Id = 1 },"graphql_notification");
         }
     }
 }

@@ -274,9 +274,41 @@ namespace JB.User.Services
             throw new NotImplementedException();
         }
 
-        public Task<(Status, List<UserProfileModel>)> GetRecommendations(UserProfileModel entity, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
+        public async Task<(Status, List<UserProfileModel>)> GetRecommendations(UserProfileModel entity = null, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
         {
-            throw new NotImplementedException();
+            Status result = new Status();
+            var profiles = new List<UserProfileModel>();
+            int userId = _claims?.Id ?? 0;
+
+            do
+            {
+                try
+                {
+                    userId = _claims?.Id ?? userId;
+
+                    var searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(r => r
+                        .Index("profile")
+                        .From((offset) * size)
+                        .Size(size));
+
+                    if (!searchResponse.IsValid)
+                    {
+                        result.ErrorCode = ErrorCode.InvalidData;
+                        break;
+                    }
+
+                    profiles = searchResponse.Hits.Select(r => _mapper.Map<UserProfileModel>(r.Source)).ToList();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+
+            }
+            while (false);
+
+            return (result, profiles);
         }
         #endregion
     }

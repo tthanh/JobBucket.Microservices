@@ -36,7 +36,8 @@ namespace JB.Notification.Services
             ILogger<NotificationService> logger,
             IUserClaimsModel claims,
             IMapper mapper,
-            IMessageBus messageBus)
+            IMessageBus messageBus
+            )
 
         {
             _notificationDbContext = notificationDbContext;
@@ -280,10 +281,6 @@ namespace JB.Notification.Services
             {
                 try
                 {
-                    await _messageBus.Publish(new NotificationMessage
-                    {
-
-                    });
                     var notiQuery = _notificationDbContext.Notifications.Where(filter);
                     notiQuery = isDescending ? notiQuery.OrderByDescending(sort) : notiQuery.OrderBy(sort);
                     notifications = await notiQuery.Skip(size * (offset - 1)).Take(size).ToListAsync();

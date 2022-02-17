@@ -37,11 +37,9 @@ namespace JB.Notification.Services
     {
         private readonly List<IObserver<ChatMessageModel>> _notiObservers;
 
-        private readonly ITopicEventSender _topicEventSender;
-        public ChatSubscriptionsService(ITopicEventSender topicEventSender)
+        public ChatSubscriptionsService()
         {
             _notiObservers = new List<IObserver<ChatMessageModel>>();
-            _topicEventSender = topicEventSender;
         }
 
         public Status Add(ChatMessageModel entity)

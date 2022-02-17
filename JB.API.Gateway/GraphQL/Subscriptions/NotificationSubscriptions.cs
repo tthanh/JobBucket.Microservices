@@ -19,6 +19,7 @@ namespace JB.Gateway.GraphQL.Subscriptions
 
         public NotificationSubscriptions(
             ITopicEventReceiver topicEventReceiver,
+            ITopicEventSender topicEventSender,
             IJwtService jwtService)
         {
             _topicEventReceiver = topicEventReceiver;

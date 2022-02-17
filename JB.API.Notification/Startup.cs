@@ -31,6 +31,8 @@ using Newtonsoft.Json;
 using JB.API.Notification.MessageBus.Consumers;
 using SlimMessageBus.Host.MsDependencyInjection;
 using StackExchange.Redis;
+using JB.Notification.Models.Chat;
+using Newtonsoft.Json.Linq;
 
 namespace JB.Notification
 {
@@ -121,6 +123,9 @@ namespace JB.Notification
             services.AddSingleton<NotificationRedisPubSubObserver>();
             services.AddSingleton<IObserver<NotificationModel>, NotificationRedisPubSubObserver>(p => p.GetService<NotificationRedisPubSubObserver>());
 
+            services.AddSingleton<ChatRedisPubSubObserver>();
+            services.AddSingleton<IObserver<ChatMessageModel>, ChatRedisPubSubObserver>(p => p.GetService<ChatRedisPubSubObserver>());
+
             services.AddSingleton<INotificationSubscriptionsService, NotificationSubscriptionsService>();
             services.AddSingleton<IChatSubscriptionsService, ChatSubscriptionsService>();
             #endregion
@@ -138,7 +143,6 @@ namespace JB.Notification
             #region GraphQL
             services.AddGraphQLServer()
                 //.AddInMemorySubscriptions()
-                .AddRedisSubscriptions((sp) => ConnectionMultiplexer.Connect(Configuration["Redis:Url"]))
                 .AddQueryType()
                 .AddMutationType()
                 .AddSubscriptionType()
@@ -165,6 +169,7 @@ namespace JB.Notification
             services.AddSlimMessageBus((mbb, svp) =>
             {
                 mbb
+                    .Produce<dynamic>(p => p.DefaultTopic("graphql_notification"))
                     .Produce<NotificationMessage>(p => p.DefaultTopic("notification"))
                     .Consume<NotificationMessage>(x =>
                     {

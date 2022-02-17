@@ -1,6 +1,9 @@
 using System;
 using System.Net.Http.Headers;
+using JB.Gateway.DTOs.Chat;
+using JB.Gateway.DTOs.Notification;
 using JB.Gateway.GraphQL.Subscriptions;
+using JB.Gateway.MessageBus.Consumers;
 using JB.Gateway.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +13,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using SlimMessageBus;
+using SlimMessageBus.Host.MsDependencyInjection;
+using SlimMessageBus.Host.Redis;
+using SlimMessageBus.Host.Serialization.Json;
 using StackExchange.Redis;
 
 namespace JB.Gateway
@@ -30,8 +37,8 @@ namespace JB.Gateway
             services.AddSingleton<NotificationSubscriptions>();
 
             var graphQLBuilder = services.AddGraphQLServer()
-                //.AddInMemorySubscriptions();
-                .AddRedisSubscriptions((sp) => ConnectionMultiplexer.Connect(Configuration["Redis:Url"]));
+                .AddInMemorySubscriptions();
+                //.AddRedisSubscriptions((sp) => ConnectionMultiplexer.Connect(Configuration["Redis:Url"]));
 
             var graphqQLDownstreams = Configuration.GetSection("GraphQL:Downstreams").Get<GraphQLDownstreamInformation[]>();
             if (graphqQLDownstreams?.Length > 0)
@@ -99,6 +106,29 @@ namespace JB.Gateway
 
             services.AddSwaggerForOcelot(Configuration);
             services.AddOcelot(Configuration);
+
+            #region PubSub
+            //var notiConsumer = new NotificationGraphQLConsumer();
+            //var chatConsumer = new ChatGraphQLConsumer();
+
+            services.AddSingleton<NotificationGraphQLConsumer>(/*notiConsumer*/);
+            services.AddSingleton<ChatGraphQLConsumer>(/*chatConsumer*/);
+
+            services.AddSlimMessageBus((mbb, svp) =>
+            {
+                mbb
+                    .Consume<SubscriptionsNotificationResponse>(x =>
+                    {
+                        x.Topic("graphql_notification").WithConsumer<NotificationGraphQLConsumer>();
+                    })
+                    .Consume<SubscriptionsMessageResponse>(x =>
+                    {
+                        x.Topic("graphql_chat").WithConsumer<ChatGraphQLConsumer>();
+                    })
+                    .WithProviderRedis(new RedisMessageBusSettings(Configuration["Redis:Url"]))
+                    .WithSerializer(new JsonMessageSerializer());
+            });
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -122,6 +152,8 @@ namespace JB.Gateway
                 endpoints.MapGraphQL();
             });
 
+            app.ApplicationServices.GetRequiredService<IMessageBus>();
+           
             app.UseOcelot().Wait();
         }
     }

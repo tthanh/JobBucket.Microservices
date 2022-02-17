@@ -91,7 +91,7 @@ namespace JB.User.GraphQL.Profile
             return results;
         }
 
-        [GraphQLName("profileRecommendation")]
+        [GraphQLName("profileRecommendations")]
         public async Task<List<UserProfileResponse>> ProfileRecommendations(IResolverContext context, [GraphQLName("filter")] ListUserProfileRequest filter)
         {
             List<UserProfileResponse> results = new();

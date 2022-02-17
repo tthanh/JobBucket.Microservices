@@ -110,7 +110,7 @@ namespace JB.Job.GraphQL.Job
             List<JobResponse> results = new();
             Status status = new();
             List<JobModel> jobs = new();
-            JobModel job = new();
+            JobModel job = null;
 
             do
             {
@@ -118,10 +118,15 @@ namespace JB.Job.GraphQL.Job
                 int page = filter?.Page > 0 ? filter.Page.Value : 1;
                 bool isDescending = filter?.IsDescending ?? false;
 
-                (status, jobs) = await _jobService.GetRecommendations(new JobModel
+                if (filter?.JobId > 0)
                 {
-                    Id = filter?.JobId ?? 0,
-                }, j => true, j => j.Id, size, page, isDescending);
+                    job = new JobModel
+                    {
+                        Id = filter?.JobId ?? 0,
+                    };
+                }
+
+                (status, jobs) = await _jobService.GetRecommendations(job, j => true, j => j.Id, size, page, isDescending);
 
                 if (!status.IsSuccess)
                 {

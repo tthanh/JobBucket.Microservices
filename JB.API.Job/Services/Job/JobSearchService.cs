@@ -105,7 +105,7 @@ namespace JB.Job.Services.Job
             return (result, jobs);
         }
 
-        public Task<(Status, List<JobModel>)> Search(JobModel entity, Expression<Func<JobModel, bool>> filter, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending = false)
+        public Task<(Status, List<JobModel>)> Search(int[] entityIds, Expression<Func<JobModel, bool>> filter, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending = false)
         {
             throw new NotImplementedException();
         }

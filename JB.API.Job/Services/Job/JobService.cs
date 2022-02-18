@@ -22,7 +22,6 @@ using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-
 namespace JB.Job.Services
 {
     public class JobService : IJobService
@@ -939,13 +938,12 @@ namespace JB.Job.Services
 
             return (result, properties);
         }
-
-        public async Task<(Status, List<JobModel>)> Search(string keyword, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 0, int offset = 0, bool isDescending = false)
-        {
-            return await _searchService.Search(keyword, filter, sort, size, offset, isDescending);
-        }
         #endregion
 
+        public async Task<(Status, List<JobModel>)> Search(string keyword, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 0, int offset = 0, bool isDescending = false)
+            => await _searchService.Search(keyword, filter, sort, size, offset, isDescending);
+        public async Task<(Status, List<JobModel>)> GetRecommendations(int[] entityIds = null, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false) =>
+            await _searchService.Search(entityIds, filter, sort, size, offset, isDescending);
         #region
         private async Task AddDocument(JobModel job)
         {
@@ -990,53 +988,6 @@ namespace JB.Job.Services
             while (false);
 
             return (result, counts);
-        }
-
-        public async Task<(Status, List<JobModel>)> GetRecommendations(JobModel entity = null, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
-        {
-            if (entity != null)
-                return await _searchService.Search(entity, filter, sort, size, offset, isDescending);
-
-            Status result = new Status();
-            var jobs = new List<JobModel>();
-            int userId = _claims?.Id ?? 0;
-
-            do
-            {
-                try
-                {
-                    userId = _claims?.Id ?? userId;
-
-                    var searchResponse = await _elasticClient.SearchAsync<JobModel>(r => r
-                        .Index("job")
-                        .From((offset) * size)
-                        .Size(size)
-                    );
-
-                    if (!searchResponse.IsValid)
-                    {
-                        result.ErrorCode = ErrorCode.InvalidData;
-                        break;
-                    }
-
-                    jobs = searchResponse.Hits.Select(r => _mapper.Map<JobModel>(r.Source)).ToList();
-
-                    jobs.ForEach(x =>
-                    {
-                        x.IsJobApplied = _jobDbContext.Application.Any(i => i.JobId == x.Id && i.UserId == userId);
-                        x.IsJobInterested = _jobDbContext.Interests.Any(i => i.JobId == x.Id && i.UserId == userId);
-                    });
-                }
-                catch (Exception e)
-                {
-                    result.ErrorCode = ErrorCode.Unknown;
-                    _logger.LogError(e, e.Message);
-                }
-
-            }
-            while (false);
-
-            return (result, jobs);
         }
 
         public async Task<Status> UpdateExpiredJobStatus()

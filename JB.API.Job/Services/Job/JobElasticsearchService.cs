@@ -87,7 +87,7 @@ namespace JB.Job.Services.Job
             return (result, jobs);
         }
 
-        public async Task<(Status, List<JobModel>)> Search(JobModel entity, Expression<Func<JobModel, bool>> filter, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending = false)
+        public async Task<(Status, List<JobModel>)> Search(int[] entityIds, Expression<Func<JobModel, bool>> filter, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending = false)
         {
             Status result = new Status();
             var jobs = new List<JobModel>();
@@ -105,7 +105,7 @@ namespace JB.Job.Services.Job
                         .From((offset) * size)
                         .Size(size)
                         .Query(q => q.MoreLikeThis(mlt => mlt
-                            .Like(l => l.Document(ld => ld.Index("job").Id(entity.Id)))
+                            .Like(l => l.Document(ld => ld.Index("job").Id(entityIds.First())))
                             .Fields(f => f.Fields("skills.name", "organization.name", "positions.name", "categories.name", "title", "description", "types", "cities", "benefits", "experiences", "responsibilities", "requirements"))
                             .MaxQueryTerms(12)
                             .MinTermFrequency(1)

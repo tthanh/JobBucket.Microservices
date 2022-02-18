@@ -2,8 +2,8 @@
 using HotChocolate.Execution;
 using HotChocolate.Subscriptions;
 using HotChocolate.Types;
-using JB.Gateway.DTOs.Notification;
 using JB.Gateway.Services;
+using JB.Infrastructure.DTOs.Subscriptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

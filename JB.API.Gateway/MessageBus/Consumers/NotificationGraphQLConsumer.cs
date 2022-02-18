@@ -1,10 +1,6 @@
 ﻿using HotChocolate.Subscriptions;
-using JB.Gateway.DTOs.Notification;
-using JB.Infrastructure.Messages;
+using JB.Infrastructure.DTOs.Subscriptions;
 using SlimMessageBus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace JB.Gateway.MessageBus.Consumers
@@ -18,8 +14,7 @@ namespace JB.Gateway.MessageBus.Consumers
         }
         public async Task OnHandle(SubscriptionsNotificationResponse message, string path)
         {
-            await _topicEventSender.SendAsync("notification_40", message);
+            await _topicEventSender.SendAsync($"notification_{message.ReceiverId}", message);
         }
     }
 }
-   

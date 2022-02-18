@@ -1,4 +1,4 @@
-﻿namespace JB.Gateway.DTOs.User
+﻿namespace JB.Infrastructure.DTOs.Subscriptions
 {
     public class SubscriptionsUserResponse
     {

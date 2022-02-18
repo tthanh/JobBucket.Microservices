@@ -1,8 +1,6 @@
-﻿using JB.Gateway.DTOs.Organization;
-using JB.Gateway.DTOs.User;
-using System;
+﻿using System;
 
-namespace JB.Gateway.DTOs.Notification
+namespace JB.Infrastructure.DTOs.Subscriptions
 {
     public class SubscriptionsNotificationResponse
     {

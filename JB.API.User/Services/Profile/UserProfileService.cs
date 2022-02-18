@@ -23,30 +23,30 @@ namespace JB.User.Services
         private readonly ProfileDbContext _profileDbContext;
         private readonly IUserManagementService _userManagementService;
         private readonly IOrganizationService _organizationService;
-        private readonly ISearchService<UserProfileModel> _profileSearchService;
         private readonly IMapper _mapper;
         private readonly ILogger<UserProfileService> _logger;
         private readonly IUserClaimsModel _claims;
+        private readonly ISearchService<UserProfileModel> _searchService;
         private readonly Nest.IElasticClient _elasticClient;
 
         public UserProfileService(
             ProfileDbContext profileDbContext,
             IUserManagementService userManagementService,
             IOrganizationService organizationService,
-            ISearchService<UserProfileModel> profileSearchService,
             IMapper mapper,
             ILogger<UserProfileService> logger,
             IUserClaimsModel claims,
+            ISearchService<UserProfileModel> searchService,
             Nest.IElasticClient elasticClient
             )
         {
             _profileDbContext = profileDbContext;
             _userManagementService = userManagementService;
             _organizationService = organizationService;
-            _profileSearchService = profileSearchService;
             _mapper = mapper;
             _logger = logger;
             _claims = claims;
+            _searchService = searchService;
             _elasticClient = elasticClient;
         }
 
@@ -269,47 +269,11 @@ namespace JB.User.Services
             await _elasticClient.DeleteAsync<UserProfileModel>(id, r => r.Index("profile"));
         }
 
-        public Task<(Status, List<UserProfileModel>)> Search(string keyword, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<(Status, List<UserProfileModel>)> Search(string keyword, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
+            => await _searchService.Search(keyword, filter, sort, size, offset, isDescending);
 
-        public async Task<(Status, List<UserProfileModel>)> GetRecommendations(UserProfileModel entity = null, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
-        {
-            Status result = new Status();
-            var profiles = new List<UserProfileModel>();
-            int userId = _claims?.Id ?? 0;
-
-            do
-            {
-                try
-                {
-                    userId = _claims?.Id ?? userId;
-
-                    var searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(r => r
-                        .Index("profile")
-                        .From((offset) * size)
-                        .Size(size));
-
-                    if (!searchResponse.IsValid)
-                    {
-                        result.ErrorCode = ErrorCode.InvalidData;
-                        break;
-                    }
-
-                    profiles = searchResponse.Hits.Select(r => _mapper.Map<UserProfileModel>(r.Source)).ToList();
-                }
-                catch (Exception e)
-                {
-                    result.ErrorCode = ErrorCode.Unknown;
-                    _logger.LogError(e, e.Message);
-                }
-
-            }
-            while (false);
-
-            return (result, profiles);
-        }
+        public async Task<(Status, List<UserProfileModel>)> GetRecommendations(int[] entityIds = null, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
+            => await _searchService.Search(entityIds, filter, sort, size, offset, isDescending);
         #endregion
     }
 }

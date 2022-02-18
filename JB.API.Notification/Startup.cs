@@ -33,6 +33,8 @@ using SlimMessageBus.Host.MsDependencyInjection;
 using StackExchange.Redis;
 using JB.Notification.Models.Chat;
 using Newtonsoft.Json.Linq;
+using SlimMessageBus;
+using JB.Infrastructure.DTOs.Subscriptions;
 
 namespace JB.Notification
 {
@@ -169,8 +171,8 @@ namespace JB.Notification
             services.AddSlimMessageBus((mbb, svp) =>
             {
                 mbb
-                    .Produce<dynamic>(p => p.DefaultTopic("graphql_notification"))
-                    .Produce<NotificationMessage>(p => p.DefaultTopic("notification"))
+                    .Produce<SubscriptionsMessageResponse>(p => p.DefaultTopic("graphql_chat"))
+                    .Produce<SubscriptionsNotificationResponse>(p => p.DefaultTopic("graphql_notification"))
                     .Consume<NotificationMessage>(x =>
                     {
                         x.Topic("notification").WithConsumer<NotificationMessageConsumer>();
@@ -209,6 +211,8 @@ namespace JB.Notification
 
             app.SubScribeToNotification();
             app.SubScribeToChat();
+            
+            app.ApplicationServices.GetRequiredService<IMessageBus>();
 
             app.UseEndpoints(endpoints =>
             {

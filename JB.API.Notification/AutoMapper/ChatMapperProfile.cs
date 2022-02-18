@@ -3,6 +3,7 @@ using JB.Notification.Models.User;
 using JB.Notification.DTOs.Chat;
 using JB.Notification.Models.Chat;
 using JB.Notification.DTOs.User;
+using JB.Infrastructure.DTOs.Subscriptions;
 
 namespace JB.Notification.AutoMapper
 {
@@ -18,6 +19,9 @@ namespace JB.Notification.AutoMapper
             CreateMap<UserModel, UserResponse>();
             CreateMap<ChatMessageModel, MessageResponse>();
             CreateMap<ChatConversationModel, ConversationResponse>();
+
+            CreateMap<ChatMessageModel, SubscriptionsMessageResponse>();
+            CreateMap<UserModel, SubscriptionsUserResponse>();
         }
     }
 }

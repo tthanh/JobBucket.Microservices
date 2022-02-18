@@ -1,10 +1,9 @@
 using System;
 using System.Net.Http.Headers;
-using JB.Gateway.DTOs.Chat;
-using JB.Gateway.DTOs.Notification;
 using JB.Gateway.GraphQL.Subscriptions;
 using JB.Gateway.MessageBus.Consumers;
 using JB.Gateway.Services;
+using JB.Infrastructure.DTOs.Subscriptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -108,11 +107,8 @@ namespace JB.Gateway
             services.AddOcelot(Configuration);
 
             #region PubSub
-            //var notiConsumer = new NotificationGraphQLConsumer();
-            //var chatConsumer = new ChatGraphQLConsumer();
-
-            services.AddSingleton<NotificationGraphQLConsumer>(/*notiConsumer*/);
-            services.AddSingleton<ChatGraphQLConsumer>(/*chatConsumer*/);
+            services.AddSingleton<NotificationGraphQLConsumer>();
+            services.AddSingleton<ChatGraphQLConsumer>();
 
             services.AddSlimMessageBus((mbb, svp) =>
             {

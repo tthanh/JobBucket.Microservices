@@ -1,24 +1,21 @@
-﻿using HotChocolate.Execution;
-using HotChocolate.Subscriptions;
-using HotChocolate.Types;
-using JB.Infrastructure.Messages;
+﻿using AutoMapper;
+using JB.Infrastructure.DTOs.Subscriptions;
 using JB.Notification.Models.Notification;
-using JB.Notification.Services;
 using SlimMessageBus;
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace JB.Notification.GraphQL.Notification
 {
     public class NotificationRedisPubSubObserver : IObserver<NotificationModel>
     {
-        private readonly IJwtService _jwtService;
         private readonly IMessageBus _messageBus;
+        private readonly IMapper _mapper;
 
-        public NotificationRedisPubSubObserver(IMessageBus messageBus)
+        public NotificationRedisPubSubObserver(IMessageBus messageBus,
+            IMapper mapper)
         {
             _messageBus = messageBus;
+            _mapper = mapper;
         }
 
         public void OnCompleted()
@@ -31,7 +28,9 @@ namespace JB.Notification.GraphQL.Notification
 
         public void OnNext(NotificationModel value)
         {
-            _messageBus.Publish(new { Id = 1 },"graphql_notification");
+            SubscriptionsNotificationResponse notiResponse = _mapper.Map<SubscriptionsNotificationResponse>(value);
+
+            _messageBus.Publish(notiResponse);
         }
     }
 }

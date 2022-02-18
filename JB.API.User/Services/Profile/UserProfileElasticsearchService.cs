@@ -34,7 +34,7 @@ namespace JB.User.Services
             _logger = logger;
             _claims = claims;
         }
-        public async Task<(Status, List<UserProfileModel>)> Search(string keyword, Expression<Func<UserProfileModel, bool>> filter, Expression<Func<UserProfileModel, object>> sort, int size, int offset, bool isDescending = false)
+        public async Task<(Status, List<UserProfileModel>)> Search(string keyword, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
         {
             Status result = new Status();
             var profiles = new List<UserProfileModel>();
@@ -76,8 +76,7 @@ namespace JB.User.Services
 
             return (result, profiles);
         }
-
-        public async Task<(Status, List<UserProfileModel>)> Search(UserProfileModel entity, Expression<Func<UserProfileModel, bool>> filter, Expression<Func<UserProfileModel, object>> sort, int size, int offset, bool isDescending = false)
+        public async Task<(Status, List<UserProfileModel>)> Search(int[] entityIds = null, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
         {
             Status result = new Status();
             var profiles = new List<UserProfileModel>();
@@ -94,7 +93,7 @@ namespace JB.User.Services
                         .From((offset) * size)
                         .Size(size)
                         .Query(q => q.MoreLikeThis(mlt => mlt
-                            .Like(l => l.Document(ld => ld.Index("job").Id(entity.Id)))
+                            .Like(l => l.Document(ld => ld.Index("job").Id(entityIds?.First())))
                             .Fields(f => f.Fields("skills.name", "organization.name", "positions.name", "categories.name", "title", "description", "types", "cities", "benefits", "experiences", "responsibilities", "requirements"))
                             .MaxQueryTerms(12)
                             .MinTermFrequency(1)

@@ -126,7 +126,7 @@ namespace JB.Job.GraphQL.Job
                     };
                 }
 
-                (status, jobs) = await _jobService.GetRecommendations(job, j => true, j => j.Id, size, page, isDescending);
+                (status, jobs) = await _jobService.GetRecommendations(null, j => true, j => j.Id, size, page, isDescending);
 
                 if (!status.IsSuccess)
                 {

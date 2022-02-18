@@ -1,7 +1,6 @@
-﻿using JB.Gateway.DTOs.User;
-using System;
+﻿using System;
 
-namespace JB.Gateway.DTOs.Chat
+namespace JB.Infrastructure.DTOs.Subscriptions
 {
     public class SubscriptionsMessageResponse
     {
@@ -10,6 +9,7 @@ namespace JB.Gateway.DTOs.Chat
         public int Type { get; set; }
         public SubscriptionsUserResponse Sender { get; set; }
         public int SenderId { get; set; }
+        public int ReceiverId { get; set; }
         public int ConversationId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }

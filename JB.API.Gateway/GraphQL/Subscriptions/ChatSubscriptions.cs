@@ -3,8 +3,8 @@ using HotChocolate.Subscriptions;
 using HotChocolate.Types;
 using System.Linq;
 using System.Threading.Tasks;
-using JB.Gateway.DTOs.Chat;
 using JB.Gateway.Services;
+using JB.Infrastructure.DTOs.Subscriptions;
 
 namespace JB.Gateway.GraphQL.Subscriptions
 {

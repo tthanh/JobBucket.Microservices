@@ -1,19 +1,22 @@
-﻿using JB.Gateway.DTOs.Chat;
-using JB.Infrastructure.Messages;
+﻿using HotChocolate.Subscriptions;
+using JB.Infrastructure.DTOs.Subscriptions;
 using SlimMessageBus;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace JB.Gateway.MessageBus.Consumers
 {
     public class ChatGraphQLConsumer : IConsumer<SubscriptionsMessageResponse>
     {
-        public Task OnHandle(SubscriptionsMessageResponse message, string path)
+        private readonly ITopicEventSender _topicEventSender;
+        public ChatGraphQLConsumer(ITopicEventSender topicEventSender)
         {
-            throw new NotImplementedException();
+            _topicEventSender = topicEventSender;
+        }
+
+        public async Task OnHandle(SubscriptionsMessageResponse message, string path)
+        {
+            await _topicEventSender.SendAsync($"chat_{message.ReceiverId}", message);
         }
     }
 }
-   

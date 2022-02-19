@@ -88,6 +88,8 @@ namespace JB.User.Services
                 {
                     userId = _claims?.Id ?? userId;
 
+                    // Get employer's job's skills
+
                     var searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(r => r
                         .Index("profile")
                         .From((offset) * size)

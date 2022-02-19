@@ -99,6 +99,11 @@ namespace JB.Job.Services.Job
                 {
                     userId = _claims?.Id ?? userId;
 
+                    // Get user's like & apply
+
+                    // Get user's skills
+
+                    // Query
                     var searchResponse = await _elasticClient.SearchAsync<JobModel>(r => r
                         .Index("job")
                         //.From((offset - 1) * size)

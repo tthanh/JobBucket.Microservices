@@ -31,6 +31,11 @@ namespace JB.User.AutoMapper
                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<UserProfileModel, UserProfileDocument>();
+
+            CreateMap<UserProfileModel, Profile>();
+            CreateMap<UserSkillModel, gRPC.Profile.UserExperience>();
+            CreateMap<UserEducationModel, gRPC.Profile.UserEducation>();
+            CreateMap<UserExperienceModel, gRPC.Profile.UserSkill>();
         }
     }
 }

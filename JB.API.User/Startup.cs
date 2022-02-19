@@ -24,6 +24,7 @@ using JB.User.Data;
 using JB.API.Infrastructure.Middlewares;
 using JB.User.Models.Profile;
 using JB.Infrastructure.Services;
+using JB.User.GRPC;
 
 namespace JB.User
 {
@@ -133,6 +134,8 @@ namespace JB.User
             #endregion
 
             #region gRPC services
+            services.AddGrpc();
+
             services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
             {
                 c.Address = new Uri(Configuration["GrpcServices:User"]);
@@ -140,6 +143,10 @@ namespace JB.User
             services.AddGrpcClient<JB.gRPC.Organization.OrganizationRPC.OrganizationRPCClient>(c =>
             {
                 c.Address = new Uri(Configuration["GrpcServices:Organization"]);
+            });
+            services.AddGrpcClient<JB.gRPC.Job.JobRPC.JobRPCClient>(c =>
+            {
+                c.Address = new Uri(Configuration["GrpcServices:Job"]);
             });
             #endregion
         }
@@ -173,6 +180,7 @@ namespace JB.User
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGraphQL();
+                endpoints.MapGrpcService<ProfileGRPCHandler>();
             });
         }
     }

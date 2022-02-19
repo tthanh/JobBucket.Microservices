@@ -36,6 +36,7 @@ using SlimMessageBus.Host.Redis;
 using SlimMessageBus.Host.Serialization.Json;
 using SlimMessageBus.Host.MsDependencyInjection;
 using JB.Infrastructure.Services;
+using JB.Job.GRPC;
 
 namespace JB.Job
 {
@@ -186,6 +187,8 @@ namespace JB.Job
             #endregion
 
             #region gRPC services
+            services.AddGrpc();
+            
             services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
             {
                 c.Address = new Uri(Configuration["GrpcServices:User"]);
@@ -193,6 +196,10 @@ namespace JB.Job
             services.AddGrpcClient<JB.gRPC.Organization.OrganizationRPC.OrganizationRPCClient>(c =>
             {
                 c.Address = new Uri(Configuration["GrpcServices:Organization"]);
+            });
+            services.AddGrpcClient<JB.gRPC.Profile.ProfileRPC.ProfileRPCClient>(c =>
+            {
+                c.Address = new Uri(Configuration["GrpcServices:Profile"]);
             });
             #endregion
 
@@ -250,6 +257,7 @@ namespace JB.Job
             {
                 endpoints.MapGraphQL();
                 endpoints.MapControllers();
+                endpoints.MapGrpcService<JobGRPCHandler>();
             });
         }
     }

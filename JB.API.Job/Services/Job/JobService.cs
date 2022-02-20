@@ -942,8 +942,8 @@ namespace JB.Job.Services
 
         public async Task<(Status, List<JobModel>)> Search(string keyword, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 0, int offset = 0, bool isDescending = false)
             => await _searchService.Search(keyword, filter, sort, size, offset, isDescending);
-        public async Task<(Status, List<JobModel>)> GetRecommendations(int[] entityIds = null, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false) =>
-            await _searchService.Search(entityIds, filter, sort, size, offset, isDescending);
+        public async Task<(Status, List<JobModel>)> GetRecommendations(int[] entityIds = null, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
+            => await _searchService.Search(entityIds, filter, sort, size, offset, isDescending);
         #region
         private async Task AddDocument(JobModel job)
         {

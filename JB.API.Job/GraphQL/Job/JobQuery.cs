@@ -110,24 +110,28 @@ namespace JB.Job.GraphQL.Job
             List<JobResponse> results = new();
             Status status = new();
             List<JobModel> jobs = new();
-            JobModel job = null;
+            JobModel job = new();
 
             do
             {
+                Expression<Func<JobModel, bool>> filterExpr = filter?.GetFilterExpression() ?? ExpressionHelper.True<JobModel>();
+                Expression<Func<JobModel, object>> sortExpr = filter?.GetSortExpression() ?? (u => u.Id);
                 int size = filter?.Size > 0 ? filter.Size.Value : 20;
                 int page = filter?.Page > 0 ? filter.Page.Value : 1;
                 bool isDescending = filter?.IsDescending ?? false;
+                int[] similarJobIds = Array.Empty<int>();
 
-                if (filter?.JobId > 0)
+                if (filter?.IsInterested == true && _claims.Id > 0)
                 {
-                    job = new JobModel
-                    {
-                        Id = filter?.JobId ?? 0,
-                    };
+                    filterExpr = filterExpr.And(b => b.Interests.Any(x => x.UserId == _claims.Id));
                 }
 
-                (status, jobs) = await _jobService.GetRecommendations(null, j => true, j => j.Id, size, page, isDescending);
+                if (filter?.JobId != null)
+                {
+                    similarJobIds = new int[] { filter.JobId.Value };
+                }
 
+                (status, jobs) = await _jobService.GetRecommendations(similarJobIds, filterExpr, sortExpr, size, page, isDescending);
                 if (!status.IsSuccess)
                 {
                     break;

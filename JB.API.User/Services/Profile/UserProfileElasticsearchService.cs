@@ -19,6 +19,7 @@ namespace JB.User.Services
         private readonly IMapper _mapper;
         private readonly ILogger<UserProfileElasticsearchService> _logger;
         private readonly IUserClaimsModel _claims;
+        private readonly IJobService _jobService;
 
         private readonly Nest.IElasticClient _elasticClient;
 
@@ -26,6 +27,7 @@ namespace JB.User.Services
             IMapper mapper,
             ILogger<UserProfileElasticsearchService> logger,
             IUserClaimsModel claims,
+            IJobService jobService,
             Nest.IElasticClient elasticClient
         )
         {
@@ -33,6 +35,8 @@ namespace JB.User.Services
             _mapper = mapper;
             _logger = logger;
             _claims = claims;
+            _jobService = jobService;
+
         }
         public async Task<(Status, List<UserProfileModel>)> Search(string keyword, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
         {
@@ -89,6 +93,11 @@ namespace JB.User.Services
                     userId = _claims?.Id ?? userId;
 
                     // Get employer's job's skills
+                    (var getJobStatus, var employerJob) = await _jobService.ListByEmployerId(userId);
+                    if (getJobStatus.IsSuccess)
+                    {
+                        // Add logic here
+                    }
 
                     var searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(r => r
                         .Index("profile")

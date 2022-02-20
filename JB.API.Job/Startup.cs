@@ -11,7 +11,6 @@ using JB.Job.Services;
 using JB.Job.Data;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
-using System.IO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -29,7 +28,6 @@ using JB.Infrastructure.Models.Authentication;
 using JB.API.Infrastructure.Middlewares;
 using Hangfire;
 using Hangfire.MemoryStorage;
-using System.Net;
 using JB.Infrastructure.Filters;
 using JB.Infrastructure.Messages;
 using SlimMessageBus.Host.Redis;
@@ -122,6 +120,7 @@ namespace JB.Job
             services.AddScoped<IInterviewService, InterviewService>();
             services.AddScoped<IOrganizationService, OrganizationGRPCService>();
             services.AddScoped<IUserManagementService, UserManagementGRPCService>();
+            services.AddScoped<IUserProfileService, UserProfileGRPCService>();
             services.AddScoped<ICVService, CVGRPCService>();
             services.AddScoped<INotificationService, NotificationRemoteService>();
 

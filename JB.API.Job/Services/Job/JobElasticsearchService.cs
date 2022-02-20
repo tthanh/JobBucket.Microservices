@@ -6,12 +6,15 @@ using JB.Infrastructure.Services;
 using JB.Job.Data;
 using JB.Job.DTOs.Job;
 using JB.Job.Models.Job;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Status = JB.Infrastructure.Models.Status;
 
 namespace JB.Job.Services.Job
 {
@@ -21,6 +24,7 @@ namespace JB.Job.Services.Job
         private readonly IMapper _mapper;
         private readonly ILogger<JobSearchService> _logger;
         private readonly IUserClaimsModel _claims;
+        private readonly IUserProfileService _profileService;
 
         private readonly Nest.IElasticClient _elasticClient;
 
@@ -29,6 +33,7 @@ namespace JB.Job.Services.Job
             IMapper mapper,
             ILogger<JobSearchService> logger,
             IUserClaimsModel claims,
+            IUserProfileService profileService,
             Nest.IElasticClient elasticClient
         )
         {
@@ -37,8 +42,9 @@ namespace JB.Job.Services.Job
             _mapper = mapper;
             _logger = logger;
             _claims = claims;
+            _profileService = profileService;
         }
-        public async Task<(Status, List<JobModel>)> Search(string keyword, Expression<Func<JobModel, bool>> filter, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending = false)
+        public async Task<(Status, List<JobModel>)> Search(string keyword = null, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
         {
             Status result = new Status();
             var jobs = new List<JobModel>();
@@ -87,11 +93,13 @@ namespace JB.Job.Services.Job
             return (result, jobs);
         }
 
-        public async Task<(Status, List<JobModel>)> Search(int[] entityIds, Expression<Func<JobModel, bool>> filter, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending = false)
+        public async Task<(Status, List<JobModel>)> Search(int[] entityIds = null, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
         {
             Status result = new Status();
             var jobs = new List<JobModel>();
             int userId = _claims?.Id ?? 0;
+            List<string> likeTerms = new List<string>();
+            ISearchResponse<JobModel> searchResponse = null;
 
             do
             {
@@ -100,21 +108,95 @@ namespace JB.Job.Services.Job
                     userId = _claims?.Id ?? userId;
 
                     // Get user's like & apply
+                    var appliedJobs = (await _jobDbContext.Application.Where(x => x.UserId == _claims.Id).ToListAsync()).Select(x => x.JobId);
+                    var likedJobs = (await _jobDbContext.Interests.Where(x => x.UserId == _claims.Id).ToListAsync()).Select(x => x.JobId);
+                    // Get Job skills, type, category, city, salary range
+                    var likedAndAppliedJobIds = appliedJobs.Concat(likedJobs).ToList();
+                    if (entityIds != null)
+                    {
+                        likedAndAppliedJobIds.AddRange(entityIds);
+                    }
+
+                    likedAndAppliedJobIds = likedAndAppliedJobIds.Distinct().ToList();
 
                     // Get user's skills
+                    (var getProfileStatus, var profile) = await _profileService.GetById(_claims.Id);
+                    if (getProfileStatus.IsSuccess)
+                    {
+                        likeTerms.Add(profile.City);
+                        likeTerms.Add(profile.Country);
+                        likeTerms.AddRange(profile?.Skills.Select(x => x.SkillName) ?? Enumerable.Empty<string>());
+                        likeTerms.AddRange(profile?.Educations.Select(x => x.Major) ?? Enumerable.Empty<string>());
+                        likeTerms.AddRange(profile?.Educations.Select(x => x.Profession) ?? Enumerable.Empty<string>());
+                        likeTerms.AddRange(profile?.Experiences.Select(x => x.Position) ?? Enumerable.Empty<string>());
+                    }
 
-                    // Query
-                    var searchResponse = await _elasticClient.SearchAsync<JobModel>(r => r
+                    if (likedAndAppliedJobIds.Count == 0)
+                    {
+                        searchResponse = await _elasticClient.SearchAsync<JobModel>(r => r
                         .Index("job")
-                        //.From((offset - 1) * size)
-                        .From((offset) * size)
+                        .From(offset * size)
+                        .Size(size)
+                        .Query(q => q.MultiMatch(mm => mm
+                           .Query(string.Join(' ', likeTerms))
+                           .Fields(f => f
+                               .Fields(
+                                   "skills.name",
+                                   "organization.name",
+                                   "positions.name",
+                                   "categories.name",
+                                   "title",
+                                   "description",
+                                   "types",
+                                   "cities",
+                                   "benefits",
+                                   "experiences",
+                                   "responsibilities",
+                                   "requirements"
+                               )
+                           ))
+                        ));
+                    }
+                    else
+                    {
+                        searchResponse = await _elasticClient.SearchAsync<JobModel>(r => r
+                        .Index("job")
+                        .From(offset * size)
                         .Size(size)
                         .Query(q => q.MoreLikeThis(mlt => mlt
-                            .Like(l => l.Document(ld => ld.Index("job").Id(entityIds.First())))
-                            .Fields(f => f.Fields("skills.name", "organization.name", "positions.name", "categories.name", "title", "description", "types", "cities", "benefits", "experiences", "responsibilities", "requirements"))
+                            //.Like(l => l.Document(ld => ld.Index("job").Id(1))
+                            .Like(l => l
+                                .Document(ld =>
+                                {
+                                    ld = ld.Index("job");
+
+                                    foreach (var id in likedAndAppliedJobIds)
+                                    {
+                                        ld = ld.Id(id);
+                                    }
+
+                                    return ld;
+                                })
+                                //Like user skill, position, type, category
+                                .Text(string.Join(' ', likeTerms))
+                            )
+                            .Fields(f => f
+                                .Fields("skills.name",
+                                    "organization.name",
+                                    "positions.name",
+                                    "categories.name",
+                                    "title",
+                                    "description",
+                                    "types",
+                                    "cities",
+                                    "benefits",
+                                    "experiences",
+                                    "responsibilities",
+                                    "requirements"))
                             .MaxQueryTerms(12)
                             .MinTermFrequency(1)
                         )));
+                    }
 
                     if (!searchResponse.IsValid)
                     {

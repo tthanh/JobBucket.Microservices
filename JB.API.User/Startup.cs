@@ -108,6 +108,7 @@ namespace JB.User
 
             services.AddScoped<IUserManagementService, UserManagementGRPCService>();
             services.AddScoped<IOrganizationService, OrganizationGRPCService>();
+            services.AddScoped<IJobService, JobGRPCService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<ISearchService<UserProfileModel>, UserProfileElasticsearchService>();
             services.AddScoped<ICVService, CVService>();

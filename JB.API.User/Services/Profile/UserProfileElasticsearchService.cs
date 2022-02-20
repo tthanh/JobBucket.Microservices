@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using JB.gRPC.Profile;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
@@ -6,11 +7,13 @@ using JB.Infrastructure.Services;
 using JB.User.DTOs.Profile;
 using JB.User.Models.Profile;
 using Microsoft.Extensions.Logging;
+using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Status = JB.Infrastructure.Models.Status;
 
 namespace JB.User.Services
 {
@@ -85,6 +88,8 @@ namespace JB.User.Services
             Status result = new Status();
             var profiles = new List<UserProfileModel>();
             int userId = _claims?.Id ?? 0;
+            List<string> likeTerms = new List<string>();
+            ISearchResponse<UserProfileModel> searchResponse = null;
 
             do
             {
@@ -92,23 +97,81 @@ namespace JB.User.Services
                 {
                     userId = _claims?.Id ?? userId;
 
-                    // Get employer's job's skills
-                    (var getJobStatus, var employerJob) = await _jobService.ListByEmployerId(userId);
-                    if (getJobStatus.IsSuccess)
+                    // Get Job skills, type, category, city, salary range
+                    (var getJobtatus, var jobs) = await _jobService.ListByEmployerId(_claims.Id);
+                    if (getJobtatus.IsSuccess)
                     {
-                        // Add logic here
+                        foreach(var job in jobs)
+{
+                            likeTerms.AddRange(job.Skills?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+                            likeTerms.AddRange(job.Types?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+                            likeTerms.AddRange(job.Categories?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+                            likeTerms.AddRange(job.Cities ?? Enumerable.Empty<string>());
+                            likeTerms.AddRange(job.Positions?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+}
                     }
 
-                    var searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(r => r
+                    if (entityIds == null || entityIds.Count() == 0)
+                    {
+                        searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(r => r
                         .Index("profile")
-                        .From((offset) * size)
+                        .From(offset * size)
+                        .Size(size)
+                        .Query(q => q.MultiMatch(mm => mm
+                           .Query(string.Join(' ', likeTerms))
+                           .Fields(f => f
+                               .Fields(
+                                   "city",
+                                   "country",
+                                   "introduction",
+                                   "certifications",
+                                   "awards",
+                                   "skills.skillName",
+                                   "educations.major",
+                                   "educations.profession",
+                                   "experiences.position"
+                               )
+                           ))
+                        ));
+                    }
+                    else
+                    {
+                        searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(r => r
+                        .Index("job")
+                        .From(offset * size)
                         .Size(size)
                         .Query(q => q.MoreLikeThis(mlt => mlt
-                            .Like(l => l.Document(ld => ld.Index("job").Id(entityIds?.First())))
-                            .Fields(f => f.Fields("skills.name", "organization.name", "positions.name", "categories.name", "title", "description", "types", "cities", "benefits", "experiences", "responsibilities", "requirements"))
+                            .Like(l => l
+                                .Document(ld =>
+                                {
+                                    ld = ld.Index("job");
+
+                                    foreach (var id in entityIds)
+                                    {
+                                        ld = ld.Id(id);
+                                    }
+
+                                    return ld;
+                                })
+                                //Like user skill, position, type, category
+                                .Text(string.Join(' ', likeTerms))
+                            )
+                            .Fields(f => f
+                                .Fields(
+                                    "city",
+                                   "country",
+                                   "introduction",
+                                   "certifications",
+                                   "awards",
+                                   "skills.skillName",
+                                   "educations.major",
+                                   "educations.profession",
+                                   "experiences.position"
+                                   ))
                             .MaxQueryTerms(12)
                             .MinTermFrequency(1)
                         )));
+                    }
 
                     if (!searchResponse.IsValid)
                     {
@@ -116,18 +179,23 @@ namespace JB.User.Services
                         break;
                     }
 
-                    profiles = searchResponse.Hits.Select(r => _mapper.Map<UserProfileModel>(r.Source)).ToList();
+                    jobs = searchResponse.Hits.Select(r => _mapper.Map<JobModel>(r.Source)).ToList();
+
+                    jobs.ForEach(x =>
+                    {
+                        x.IsJobApplied = _jobDbContext.Application.Any(i => i.JobId == x.Id && i.UserId == userId);
+                        x.IsJobInterested = _jobDbContext.Interests.Any(i => i.JobId == x.Id && i.UserId == userId);
+                    });
                 }
                 catch (Exception e)
                 {
                     result.ErrorCode = ErrorCode.Unknown;
                     _logger.LogError(e, e.Message);
                 }
-
             }
             while (false);
 
-            return (result, profiles);
+            return (result, jobs);
         }
     }
 }

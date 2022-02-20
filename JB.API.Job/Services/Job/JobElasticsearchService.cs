@@ -217,7 +217,6 @@ namespace JB.Job.Services.Job
                     result.ErrorCode = ErrorCode.Unknown;
                     _logger.LogError(e, e.Message);
                 }
-
             }
             while (false);
 

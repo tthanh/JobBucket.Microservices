@@ -14,9 +14,9 @@ namespace JB.Notification.DTOs.Notification
         public int Type { get; set; }
         public int Level { get; set; }
         public int SenderId { get; set; }
-        public UserResponse Sender { get; set; }
+        public NotificationUserResponse Sender { get; set; }
         public int OrganizationId { get; set; }
-        public OrganizationResponse Organization { get; set; }
+        public NotificationOrganizationResponse Organization { get; set; }
         public int ReceiverId { get; set; }
         public bool SeenByUser { get; set; }
         public string Message { get; set; }

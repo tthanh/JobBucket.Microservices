@@ -1,6 +1,6 @@
 ﻿namespace JB.Notification.DTOs.User
 {
-    public class UserResponse
+    public class NotificationUserResponse
     {
         public int Id { get; set; }
 

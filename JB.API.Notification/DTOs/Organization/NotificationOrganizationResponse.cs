@@ -1,6 +1,6 @@
 ﻿namespace JB.Notification.DTOs.Organization
 {
-    public class OrganizationResponse
+    public class NotificationOrganizationResponse
     {
         public int Id { get; set; }
 

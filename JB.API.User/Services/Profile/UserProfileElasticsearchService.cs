@@ -179,13 +179,7 @@ namespace JB.User.Services
                         break;
                     }
 
-                    jobs = searchResponse.Hits.Select(r => _mapper.Map<JobModel>(r.Source)).ToList();
-
-                    jobs.ForEach(x =>
-                    {
-                        x.IsJobApplied = _jobDbContext.Application.Any(i => i.JobId == x.Id && i.UserId == userId);
-                        x.IsJobInterested = _jobDbContext.Interests.Any(i => i.JobId == x.Id && i.UserId == userId);
-                    });
+                    profiles = searchResponse.Hits.Select(r => _mapper.Map<UserProfileModel>(r.Source)).ToList();
                 }
                 catch (Exception e)
                 {
@@ -195,7 +189,7 @@ namespace JB.User.Services
             }
             while (false);
 
-            return (result, jobs);
+            return (result, profiles);
         }
     }
 }

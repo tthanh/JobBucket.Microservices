@@ -10,7 +10,7 @@ namespace JB.Notification.DTOs.Chat
     {
         public int Id { get; set; }
         public int[] UserIds { get; set; }
-        public ICollection<UserResponse> Users { get; set; }
+        public ICollection<NotificationUserResponse> Users { get; set; }
         public MessageResponse LastMessage { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }

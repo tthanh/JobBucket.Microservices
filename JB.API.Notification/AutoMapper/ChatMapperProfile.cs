@@ -16,7 +16,7 @@ namespace JB.Notification.AutoMapper
             CreateMap<AddMessageRequest, ChatMessageModel>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-            CreateMap<UserModel, UserResponse>();
+            CreateMap<UserModel, NotificationUserResponse>();
             CreateMap<ChatMessageModel, MessageResponse>();
             CreateMap<ChatConversationModel, ConversationResponse>();
 

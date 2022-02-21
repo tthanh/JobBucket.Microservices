@@ -16,8 +16,8 @@ namespace JB.Notification.AutoMapper
         public NotificationMapperProfile()
         {
             CreateMap<NotificationModel, NotificationResponse>();
-            CreateMap<UserModel, UserResponse>();
-            CreateMap<OrganizationModel, OrganizationResponse>();
+            CreateMap<UserModel, NotificationUserResponse>();
+            CreateMap<OrganizationModel, NotificationOrganizationResponse>();
 
             CreateMap<Timestamp, DateTime>().ConvertUsing(x => x.ToDateTime());
             CreateMap<JB.gRPC.User.User, UserModel>();

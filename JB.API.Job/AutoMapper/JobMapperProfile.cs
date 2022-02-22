@@ -75,6 +75,7 @@ namespace JB.Job.AutoMapper
             CreateMap<UserModel, UserDocument>();
             CreateMap<OrganizationModel, OrganizationDocument>();
 
+            CreateMap<DateTime, Timestamp>().ConvertUsing(x => Timestamp.FromDateTime(x.ToUniversalTime()));
             CreateMap<Timestamp, DateTime>().ConvertUsing(x => x.ToDateTime());
             CreateMap<gRPC.User.User, UserModel>();
             CreateMap<gRPC.Organization.Organization, OrganizationModel>();

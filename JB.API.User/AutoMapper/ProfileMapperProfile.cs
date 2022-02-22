@@ -7,6 +7,8 @@ using JB.User.Models.Profile;
 using JB.User.DTOs.Profile;
 using JB.User.Models.User;
 using JB.Infrastructure.Elasticsearch.User;
+using Google.Protobuf.WellKnownTypes;
+using System;
 
 namespace JB.User.AutoMapper
 {
@@ -31,6 +33,9 @@ namespace JB.User.AutoMapper
                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<UserProfileModel, UserProfileDocument>();
+
+            CreateMap<DateTime, Timestamp>().ConvertUsing(x => Timestamp.FromDateTime(x.ToUniversalTime()));
+            CreateMap<Timestamp, DateTime>().ConvertUsing(x => x.ToDateTime());
 
             CreateMap<UserProfileModel, gRPC.Profile.Profile>();
             CreateMap<UserSkillModel, gRPC.Profile.UserExperience>();

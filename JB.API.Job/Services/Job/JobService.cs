@@ -269,14 +269,6 @@ namespace JB.Job.Services
 
                 try
                 {
-                    await _notiService.Add(new NotificationModel
-                    {
-                        Message = $"Test notification",
-                        OrganizationId = -1,
-                        SenderId = 1,
-                        ReceiverId = _claims.Id,
-                    });
-
                     var jobQuery = _jobDbContext.Jobs.Where(filter);
                     jobQuery = isDescending ? jobQuery.OrderByDescending(sort) : jobQuery.OrderBy(sort);
                     jobs = await jobQuery.Skip(size * (offset - 1)).Take(size).ToListAsync();

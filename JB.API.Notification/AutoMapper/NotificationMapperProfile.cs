@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
 using JB.Infrastructure.DTOs.Subscriptions;
+using JB.Infrastructure.Messages;
 using JB.Notification.DTOs.Notification;
 using JB.Notification.DTOs.Organization;
 using JB.Notification.DTOs.User;
@@ -15,6 +16,8 @@ namespace JB.Notification.AutoMapper
     {
         public NotificationMapperProfile()
         {
+            CreateMap<NotificationMessage, NotificationModel>();
+
             CreateMap<NotificationModel, NotificationResponse>();
             CreateMap<UserModel, NotificationUserResponse>();
             CreateMap<OrganizationModel, NotificationOrganizationResponse>();

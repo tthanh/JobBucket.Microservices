@@ -32,7 +32,7 @@ namespace JB.User.AutoMapper
 
             CreateMap<UserProfileModel, UserProfileDocument>();
 
-            CreateMap<UserProfileModel, Profile>();
+            CreateMap<UserProfileModel, gRPC.Profile.Profile>();
             CreateMap<UserSkillModel, gRPC.Profile.UserExperience>();
             CreateMap<UserEducationModel, gRPC.Profile.UserEducation>();
             CreateMap<UserExperienceModel, gRPC.Profile.UserSkill>();

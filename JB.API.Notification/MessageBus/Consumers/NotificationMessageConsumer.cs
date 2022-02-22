@@ -2,6 +2,8 @@
 using JB.Infrastructure.Messages;
 using JB.Notification.Models.Notification;
 using JB.Notification.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using SlimMessageBus;
 using System;
 using System.Collections.Generic;
@@ -13,18 +15,22 @@ namespace JB.API.Notification.MessageBus.Consumers
     public class NotificationMessageConsumer : IConsumer<NotificationMessage>
     {
         private IMapper _mapper;
-        private INotificationService _notiService;
+        private IServiceProvider _serviceProvider;
+        
         public NotificationMessageConsumer(IMapper mapper,
-            INotificationService notiService)
+            IServiceProvider serviceProvider)
         {
             _mapper = mapper;
-            _notiService = notiService;
+            _serviceProvider = serviceProvider;
         }
         public async Task OnHandle(NotificationMessage message, string path)
         {
+            using var scope = _serviceProvider.CreateScope();
+
+            var notiService = scope.ServiceProvider.GetService<INotificationService>();
             var noti = _mapper.Map<NotificationModel>(message);
 
-            await _notiService.Add(noti);
+            await notiService.Add(noti);
         }
     }
 }

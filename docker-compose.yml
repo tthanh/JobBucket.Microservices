@@ -73,6 +73,7 @@ services:
       dockerfile: JB.API.Job/Dockerfile
     environment:
       - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5003
+      - Kestrel:Endpoints:Grpc:Url=http://0.0.0.0:6003
       - Redis:Url=jb.redis:6379,password=jb123
       - Elasticsearch:Url=http://103.153.75.82:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
@@ -126,12 +127,13 @@ services:
       dockerfile: JB.API.User/Dockerfile
     environment:
       - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5004
+      - Kestrel:Endpoints:Grpc:Url=http://0.0.0.0:6004
       - Redis:Url=jb.redis:6379,password=jb123
       - Elasticsearch:Url=http://103.153.75.82:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
       - GrpcServices:Organization=http://jb.api.organization:6005
-      - GrpcServices:Job=http://jb.api.user:6003
+      - GrpcServices:Job=http://jb.api.job:6003
     depends_on:
       - jb.db
       - jb.redis

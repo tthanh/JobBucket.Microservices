@@ -57,6 +57,7 @@ services:
       - 5001:5001
     environment:
       - Kestrel:Endpoints:Http:Url=http://0.0.0.0:5001
+      - Redis:Url=jb.redis:6379,password=jb123
       - GraphQL:Downstreams:Job:Url=http://jb.api.job:5003/graphql
       - GraphQL:Downstreams:User:Url=http://jb.api.user:5004/graphql
       - GraphQL:Downstreams:Organization:Url=http://jb.api.organization:5005/graphql
@@ -77,6 +78,7 @@ services:
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
       - GrpcServices:Organization=http://jb.api.organization:6005
+      - GrpcServices:Profile=http://jb.api.user:6004
     depends_on:
       - jb.db
       - jb.redis
@@ -129,6 +131,7 @@ services:
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
       - GrpcServices:Organization=http://jb.api.organization:6005
+      - GrpcServices:Job=http://jb.api.user:6003
     depends_on:
       - jb.db
       - jb.redis

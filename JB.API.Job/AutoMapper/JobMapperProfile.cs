@@ -12,6 +12,8 @@ using JB.Infrastructure.Elasticsearch.User;
 using System;
 using Google.Protobuf.WellKnownTypes;
 using JB.Infrastructure.Elasticsearch.Organization;
+using JB.Job.Models.Profile;
+using JB.Job.Models.CV;
 
 namespace JB.Job.AutoMapper
 {
@@ -79,6 +81,10 @@ namespace JB.Job.AutoMapper
             CreateMap<Timestamp, DateTime>().ConvertUsing(x => x.ToDateTime());
             CreateMap<gRPC.User.User, UserModel>();
             CreateMap<gRPC.Organization.Organization, OrganizationModel>();
+            CreateMap<gRPC.Profile.Profile, UserProfileModel>();
+            CreateMap<gRPC.Profile.UserSkill, UserSkillModel>();
+            CreateMap<gRPC.Profile.UserExperience, UserExperienceModel>();
+            CreateMap<gRPC.Profile.UserEducation, UserEducationModel>();
 
             // Map gRPC
             CreateMap<UserModel, gRPC.User.User>();

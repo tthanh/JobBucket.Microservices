@@ -1,4 +1,5 @@
 ﻿using JB.Infrastructure.Models;
+using JB.Notification.Models.Organization;
 using JB.Notification.Models.User;
 using System;
 using System.Collections.Generic;
@@ -21,5 +22,8 @@ namespace JB.Notification.Models.Chat
         public ChatMessageModel LastMessage { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+
+        [NotMapped]
+        public OrganizationModel Organization { get; set; }
     }
 }

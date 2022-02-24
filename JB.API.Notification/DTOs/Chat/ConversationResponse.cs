@@ -1,4 +1,5 @@
-﻿using JB.Notification.DTOs.User;
+﻿using JB.Notification.DTOs.Organization;
+using JB.Notification.DTOs.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,7 @@ namespace JB.Notification.DTOs.Chat
         public MessageResponse LastMessage { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public NotificationOrganizationResponse Organization { get; set; }
+
     }
 }

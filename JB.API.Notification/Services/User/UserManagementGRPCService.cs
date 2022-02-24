@@ -89,9 +89,43 @@ namespace JB.Notification.Services
             throw new NotImplementedException();
         }
 
-        public Task<(Status, List<UserModel>)> GetUsers(List<int> userIds)
+        public async Task<(Status, List<UserModel>)> GetUsers(List<int> userIds)
         {
-            throw new NotImplementedException();
+            Status status = new Status();
+            List<UserModel> users = new();
+            List<int> notCachedIds = new();
+            foreach (var id in userIds)
+            {
+                var user = await _cache.GetAsync<UserModel>($"user-{id}");
+
+                if (user != null)
+                {
+                    users.Add(user);
+                }
+                else
+                {
+                    notCachedIds.Add(id);
+                }
+            }
+
+            if (notCachedIds.Count > 0)
+            {
+                var req = new gRPC.User.UserRequest();
+                req.Id.AddRange(notCachedIds);
+
+                var userResp = await _userGrpcClient.GetAsync(req);
+                
+                foreach (var u in userResp.Users)
+                {
+                    var mapResult = _mapper.Map<UserModel>(u);
+                    if (mapResult != null)
+                    {
+                        users.Add(mapResult);
+                    }
+                }
+            }
+
+            return (status, users);
         }
 
         public Task<(Status, List<UserModel>)> ListUser(Expression<Func<UserModel, bool>> filters, Expression<Func<UserModel, object>> sorts, int size, int offset)

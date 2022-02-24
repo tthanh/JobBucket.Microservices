@@ -23,6 +23,7 @@ namespace JB.Notification.Services
         private readonly ILogger<ChatService> _logger;
         private readonly IUserClaimsModel _claims;
         private readonly IUserManagementService _userService;
+        private readonly IOrganizationService _organizationService;
         private readonly IChatSubscriptionsService _chatSubscriptionsService;
 
         public ChatService(
@@ -31,6 +32,7 @@ namespace JB.Notification.Services
             ILogger<ChatService> logger,
             IUserClaimsModel claims,
             IUserManagementService userService,
+            IOrganizationService organizationService,
             IChatSubscriptionsService chatSubscriptionsService
         )
         {
@@ -39,6 +41,7 @@ namespace JB.Notification.Services
             _logger = logger;
             _claims = claims;
             _userService = userService;
+            _organizationService = organizationService;
             _chatSubscriptionsService = chatSubscriptionsService;
         }
 
@@ -115,6 +118,23 @@ namespace JB.Notification.Services
                         result.ErrorCode = ErrorCode.InvalidData;
                         break;
                     }
+
+                    (var getUserStatus, var users) = await _userService.GetUsers(new List<int>(conv.UserIds));
+                    if (getUserStatus.IsSuccess)
+                    {
+                        conv.Users = users;
+                    }
+
+                    var orgId = conv.Users?.Where(x => x.OrganizationId > 0).Select(x => x.OrganizationId).FirstOrDefault();
+                    if (orgId > 0)
+                    {
+                        (var getOrgStatus, var org) = await _organizationService.GetById(orgId.Value);
+                        if (getOrgStatus.IsSuccess)
+                        {
+                            conv.Organization = org;
+                        }
+                    }
+                    conv.LastMessage = await _chatDbContext.Messages.OrderByDescending(x => x.CreatedDate).FirstOrDefaultAsync(x => x.ConversationId == conv.Id);
                 }
                 catch (Exception e)
                 {
@@ -145,6 +165,26 @@ namespace JB.Notification.Services
                     {
                         result.ErrorCode = ErrorCode.JobNull;
                         break;
+                    }
+
+                    foreach (var conv in convs)
+                    {
+                        (var getUserStatus, var users) = await _userService.GetUsers(new List<int>(conv.UserIds));
+                        if (getUserStatus.IsSuccess)
+                        {
+                            conv.Users = users;
+                        }
+
+                        var orgId = conv.Users?.Where(x => x.OrganizationId > 0).Select(x => x.OrganizationId).FirstOrDefault();
+                        if (orgId > 0)
+                        {
+                            (var getOrgStatus, var org) = await _organizationService.GetById(orgId.Value);
+                            if (getOrgStatus.IsSuccess)
+                            {
+                                conv.Organization = org;
+                            }
+                        }
+                        conv.LastMessage = await _chatDbContext.Messages.OrderByDescending(x => x.CreatedDate).FirstOrDefaultAsync(x => x.ConversationId == conv.Id);
                     }
                 }
                 catch (Exception e)

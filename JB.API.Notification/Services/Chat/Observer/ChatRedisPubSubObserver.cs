@@ -40,7 +40,7 @@ namespace JB.Notification.GraphQL.Notification
 
         public void OnNext(ChatMessageModel value)
         {
-            var receivers = GetConversationReceiver(value.ConversationId, value.SenderId).GetAwaiter().GetResult();
+            var receivers = GetConversationReceiver(value.ConversationId).GetAwaiter().GetResult();
             foreach (var r in receivers)
             {
                 SubscriptionsMessageResponse messageResponse = _mapper.Map<SubscriptionsMessageResponse>(value);
@@ -71,11 +71,11 @@ namespace JB.Notification.GraphQL.Notification
             return convUsers;
         }
 
-        private async Task<int[]> GetConversationReceiver(int conversationId, int sender)
+        private async Task<int[]> GetConversationReceiver(int conversationId)
         {
             var convUsers = await GetConversationUsers(conversationId);
 
-            return convUsers.Where(x => x != sender).ToArray();
+            return convUsers.ToArray();
         }
     }
 }

@@ -65,7 +65,12 @@ namespace JB.Job.Services.Job
                         .Index("job")
                         .From((offset - 1) * size)
                         .Size(size)
-                        .Query(q => q.QueryString(qs => qs.Query(keyword))));
+                        .Query(q => q
+                            .QueryString(qs => qs
+                                .Query(keyword)
+                                )
+                            )
+                        );
 
                     if (!searchResponse.IsValid)
                     {
@@ -129,6 +134,8 @@ namespace JB.Job.Services.Job
                         likeTerms.AddRange(profile?.Educations.Select(x => x.Major) ?? Enumerable.Empty<string>());
                         likeTerms.AddRange(profile?.Educations.Select(x => x.Profession) ?? Enumerable.Empty<string>());
                         likeTerms.AddRange(profile?.Experiences.Select(x => x.Position) ?? Enumerable.Empty<string>());
+
+                        likeTerms = likeTerms.Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
                     }
 
                     if (likedAndAppliedJobIds.Count == 0)
@@ -164,7 +171,6 @@ namespace JB.Job.Services.Job
                         .From(offset * size)
                         .Size(size)
                         .Query(q => q.MoreLikeThis(mlt => mlt
-                            //.Like(l => l.Document(ld => ld.Index("job").Id(1))
                             .Like(l => l
                                 .Document(ld =>
                                 {

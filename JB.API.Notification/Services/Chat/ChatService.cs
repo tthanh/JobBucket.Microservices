@@ -318,6 +318,23 @@ namespace JB.Notification.Services
                         await _chatDbContext.SaveChangesAsync();
                         break;
                     }
+
+                    (var getUserStatus, var users) = await _userService.GetUsers(new List<int>(conv.UserIds));
+                    if (getUserStatus.IsSuccess)
+                    {
+                        conv.Users = users;
+                    }
+
+                    var orgId = conv.Users?.Where(x => x.OrganizationId > 0).Select(x => x.OrganizationId).FirstOrDefault();
+                    if (orgId > 0)
+                    {
+                        (var getOrgStatus, var org) = await _organizationService.GetById(orgId.Value);
+                        if (getOrgStatus.IsSuccess)
+                        {
+                            conv.Organization = org;
+                        }
+                    }
+                    conv.LastMessage = await _chatDbContext.Messages.OrderByDescending(x => x.CreatedDate).FirstOrDefaultAsync(x => x.ConversationId == conv.Id);
                 }
                 catch (Exception e)
                 {

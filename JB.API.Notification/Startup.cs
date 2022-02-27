@@ -35,6 +35,8 @@ using JB.Notification.Models.Chat;
 using Newtonsoft.Json.Linq;
 using SlimMessageBus;
 using JB.Infrastructure.DTOs.Subscriptions;
+using Google.Apis.Auth.OAuth2;
+using ErrorCode = JB.Infrastructure.Constants.ErrorCode;
 
 namespace JB.Notification
 {
@@ -127,6 +129,8 @@ namespace JB.Notification
 
             services.AddSingleton<ChatRedisPubSubObserver>();
             services.AddSingleton<IObserver<ChatMessageModel>, ChatRedisPubSubObserver>(p => p.GetService<ChatRedisPubSubObserver>());
+            services.AddSingleton<ChatFirebaseObserver>();
+            services.AddSingleton<IObserver<ChatMessageModel>, ChatFirebaseObserver>(p => p.GetService<ChatFirebaseObserver>());
 
             services.AddSingleton<INotificationSubscriptionsService, NotificationSubscriptionsService>();
             services.AddSingleton<IChatSubscriptionsService, ChatSubscriptionsService>();

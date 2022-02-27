@@ -19,7 +19,8 @@ namespace JB.Authentication.AutoMapper
                .ForMember(vm => vm.LockoutEnd, o => o.MapFrom(m => DateTimeOffsetToDateTime(m.LockoutEnd)));
 
             CreateMap<UserModel, UserDocument>();
-            CreateMap<UserModel, JB.gRPC.User.User>();
+            CreateMap<UserModel, JB.gRPC.User.User>()
+               .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
 
         private static DateTime? DateTimeOffsetToDateTime(DateTimeOffset? dts)

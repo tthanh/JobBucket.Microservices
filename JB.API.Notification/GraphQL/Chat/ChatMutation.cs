@@ -28,6 +28,47 @@ namespace JB.Notification.GraphQL.Chat
             _chatService = chatService;
         }
 
+        public async Task<ConversationResponse> AddOrGet(IResolverContext context, [GraphQLName("conversation")] AddConversationRequest convRequest)
+        {
+            Status status = new();
+            ChatConversationModel conv = null;
+            ChatMessageModel message = null;
+            ConversationResponse result = null;
+
+            do
+            {
+                if (_claims.Id <= 0)
+                {
+                    status.ErrorCode = ErrorCode.Unauthorized;
+                    break;
+                }
+
+                if (convRequest.ReceiverId > 0)
+                {
+                    // Get or create new conversation
+                    (status, conv) = await _chatService.GetConversationByUserIds(_claims.Id, convRequest.ReceiverId);
+                    if (!status.IsSuccess)
+                    {
+                        break;
+                    }
+
+                    result = _mapper.Map<ChatConversationModel, ConversationResponse>(conv);
+                }
+                else
+                {
+                    status.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return result;
+        }
         public async Task<MessageResponse> AddMessage(IResolverContext context, [GraphQLName("message")] AddMessageRequest messageRequest)
         {
             Status status = new();

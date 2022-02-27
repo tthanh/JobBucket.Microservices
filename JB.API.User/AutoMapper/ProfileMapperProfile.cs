@@ -40,19 +40,6 @@ namespace JB.User.AutoMapper
 
             CreateMap<UserProfileModel, gRPC.Profile.Profile>()
                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-                //.ForMember(x => x.Name, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.AvatarUrl, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.PhoneNumber, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.Email, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.UserName, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.Address, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.City, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.Country, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.Introduction, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.Website, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.Gender, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.Phone, x=> x.Condition(x => x != null))
-                //.ForMember(x => x.Reference, x=> x.Condition(x => x != null));
 
             CreateMap<UserSkillModel, gRPC.Profile.UserSkill>();
             CreateMap<UserEducationModel, gRPC.Profile.UserEducation>();

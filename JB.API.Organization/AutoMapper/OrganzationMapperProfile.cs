@@ -46,7 +46,9 @@ namespace JB.Organization.AutoMapper
 
             // for gRPC Server
             CreateMap<DateTime, Timestamp>().ConvertUsing(x => Timestamp.FromDateTime(x.ToUniversalTime()));
-            CreateMap<OrganizationModel, JB.gRPC.Organization.Organization>();
+            CreateMap<OrganizationModel, JB.gRPC.Organization.Organization>()
+               .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
             CreateMap<UserModel, JB.gRPC.User.User>();
         }
     }

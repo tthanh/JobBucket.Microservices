@@ -87,13 +87,26 @@ namespace JB.Job.AutoMapper
             CreateMap<gRPC.Profile.UserEducation, UserEducationModel>();
 
             // Map gRPC
-            CreateMap<UserModel, gRPC.User.User>();
-            CreateMap<OrganizationModel, gRPC.Organization.Organization>();
-            CreateMap<JobModel, gRPC.Job.Job>();
-            CreateMap<CategoryModel, gRPC.Job.JobCategory>();
-            CreateMap<TypeModel, gRPC.Job.JobType>();
-            CreateMap<SkillModel, gRPC.Job.JobSkill>();
-            CreateMap<PositionModel, gRPC.Job.JobPosition>();
+            CreateMap<UserModel, gRPC.User.User>()
+               .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<OrganizationModel, gRPC.Organization.Organization>()
+               .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<JobModel, gRPC.Job.Job>()
+               .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<CategoryModel, gRPC.Job.JobCategory>()
+               .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<TypeModel, gRPC.Job.JobType>()
+               .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<SkillModel, gRPC.Job.JobSkill>()
+               .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<PositionModel, gRPC.Job.JobPosition>()
+               .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 

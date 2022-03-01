@@ -306,7 +306,7 @@ namespace JB.Notification.Services
                         break;
                     }
 
-                    conv = await _chatDbContext.Conversations.FirstOrDefaultAsync(x => x.UserIds.All(x => userIds.Any(u => u == x)));
+                    conv = await _chatDbContext.Conversations.FirstOrDefaultAsync(x => x.UserIds.All(x => userIds.Contains(x)));
                     if (conv == null)
                     {
                         conv = new ChatConversationModel

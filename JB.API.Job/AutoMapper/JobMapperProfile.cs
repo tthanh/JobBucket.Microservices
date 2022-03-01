@@ -85,6 +85,11 @@ namespace JB.Job.AutoMapper
             CreateMap<gRPC.Profile.UserSkill, UserSkillModel>();
             CreateMap<gRPC.Profile.UserExperience, UserExperienceModel>();
             CreateMap<gRPC.Profile.UserEducation, UserEducationModel>();
+            
+            CreateMap<gRPC.CV.CV, CVModel>();
+            CreateMap<gRPC.CV.CVSkill, UserSkillModel>();
+            CreateMap<gRPC.CV.CVExperience, UserExperienceModel>();
+            CreateMap<gRPC.CV.CVEducation, UserEducationModel>();
 
             // Map gRPC
             CreateMap<UserModel, gRPC.User.User>()

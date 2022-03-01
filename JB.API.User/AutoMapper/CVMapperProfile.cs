@@ -18,6 +18,13 @@ namespace JB.User.AutoMapper
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<AddCVRequest, CVModel>()
                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<CVModel, gRPC.CV.CV>()
+               .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<UserSkillModel, gRPC.CV.CVSkill>();
+            CreateMap<UserEducationModel, gRPC.CV.CVEducation>();
+            CreateMap<UserExperienceModel, gRPC.CV.CVExperience>();
         }
     }
 }

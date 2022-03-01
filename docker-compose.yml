@@ -80,6 +80,7 @@ services:
       - GrpcServices:User=http://jb.api.authentication:6002
       - GrpcServices:Organization=http://jb.api.organization:6005
       - GrpcServices:Profile=http://jb.api.user:6004
+      - GrpcServices:CV=http://jb.api.user:6004
     depends_on:
       - jb.db
       - jb.redis

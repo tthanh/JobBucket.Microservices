@@ -200,6 +200,11 @@ namespace JB.Job
             {
                 c.Address = new Uri(Configuration["GrpcServices:Profile"]);
             });
+            
+            services.AddGrpcClient<JB.gRPC.CV.CVRPC.CVRPCClient>(c =>
+            {
+                c.Address = new Uri(Configuration["GrpcServices:CV"]);
+            });
             #endregion
 
             #region PubSub

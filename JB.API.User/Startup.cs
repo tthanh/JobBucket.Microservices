@@ -182,6 +182,7 @@ namespace JB.User
             {
                 endpoints.MapGraphQL();
                 endpoints.MapGrpcService<ProfileGRPCHandler>();
+                endpoints.MapGrpcService<CVGRPCHandler>();
             });
         }
     }

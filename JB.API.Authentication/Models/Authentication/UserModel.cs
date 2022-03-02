@@ -29,5 +29,6 @@ namespace JB.Authentication.Models.User
 
         public int? DefaultCVId { get; set; }
         
+        public int IsLocked { get; set; }
     }
 }

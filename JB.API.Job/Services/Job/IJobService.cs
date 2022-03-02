@@ -39,5 +39,10 @@ namespace JB.Job.Services
         #region
         Task<Status> UpdateExpiredJobStatus();
         #endregion
+
+        #region Admin
+        Task<Status> Lock(int id);
+        Task<Status> Unlock(int id);
+        #endregion
     }
 }

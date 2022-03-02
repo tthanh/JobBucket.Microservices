@@ -50,6 +50,32 @@
       ],
       "UpstreamPathTemplate": "/api/job",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/userManagement/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/api/userManagement/{everything}",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ],
+      "SwaggerKey": "userManagement"
+    },
+    {
+      "DownstreamPathTemplate": "/api/userManagement",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/api/userManagement",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ]
     }
   ],
   "SwaggerEndPoints": [
@@ -70,6 +96,16 @@
           "Name": "Job",
           "Version": "v1",
           "Url": "http://localhost:5003/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "userManagement",
+      "Config": [
+        {
+          "Name": "UserManagement",
+          "Version": "v1",
+          "Url": "http://localhost:5002/swagger/v1/swagger.json"
         }
       ]
     }

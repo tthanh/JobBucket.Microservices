@@ -936,6 +936,7 @@ namespace JB.Job.Services
             => await _searchService.Search(keyword, filter, sort, size, offset, isDescending);
         public async Task<(Status, List<JobModel>)> GetRecommendations(int[] entityIds = null, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
             => await _searchService.Search(entityIds, filter, sort, size, offset, isDescending);
+
         #region
         private async Task AddDocument(JobModel job)
         {
@@ -1015,6 +1016,87 @@ namespace JB.Job.Services
                     }
 
                     _jobDbContext.Jobs.UpdateRange(jobs);
+                    await _jobDbContext.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return result;
+        }
+
+        public async Task<Status> Lock(int id)
+        {
+            Status result = new Status();
+
+            do
+            {
+                if (id <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+
+                try
+                {
+                    var job = await _jobDbContext.Jobs.FirstOrDefaultAsync(x => x.Id == id);
+                    if (job == null)
+                    {
+                        result.ErrorCode = ErrorCode.JobNull;
+                        break;
+                    }
+
+                    job.ActiveStatus = (int)JobActiveStatus.LOCKED;
+                    _jobDbContext.Update(job);
+
+                    await _jobDbContext.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return result;
+        }
+
+        public async Task<Status> Unlock(int id)
+        {
+            Status result = new Status();
+
+            do
+            {
+                if (id <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+
+                try
+                {
+                    var job = await _jobDbContext.Jobs.FirstOrDefaultAsync(x => x.Id == id);
+                    if (job == null)
+                    {
+                        result.ErrorCode = ErrorCode.JobNull;
+                        break;
+                    }
+
+                    if (job.ExpireDate < DateTime.UtcNow)
+                    {
+                        job.ActiveStatus = (int)JobActiveStatus.EXPIRED;
+                    }
+                    else
+                    {
+                        job.ActiveStatus = (int)JobActiveStatus.HIRING;
+                    }
+
+                    _jobDbContext.Update(job);
                     await _jobDbContext.SaveChangesAsync();
                 }
                 catch (Exception e)

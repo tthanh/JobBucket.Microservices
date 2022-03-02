@@ -165,6 +165,7 @@ namespace JB.Organization.Services
             Status result = new Status();
             OrganizationModel org = null;
             bool isSetCache = false;
+
             do
             {
                 if (organizationId <= 0)

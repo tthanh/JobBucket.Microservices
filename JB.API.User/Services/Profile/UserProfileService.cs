@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using JB.gRPC.CV;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Elasticsearch.User;
 using JB.Infrastructure.Helpers;
@@ -9,6 +10,7 @@ using JB.User.Data;
 using JB.User.Models.Profile;
 using JB.User.Models.User;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -28,6 +30,7 @@ namespace JB.User.Services
         private readonly IUserClaimsModel _claims;
         private readonly ISearchService<UserProfileModel> _searchService;
         private readonly Nest.IElasticClient _elasticClient;
+        private readonly IDistributedCache _cache;
 
         public UserProfileService(
             ProfileDbContext profileDbContext,
@@ -37,7 +40,8 @@ namespace JB.User.Services
             ILogger<UserProfileService> logger,
             IUserClaimsModel claims,
             ISearchService<UserProfileModel> searchService,
-            Nest.IElasticClient elasticClient
+            Nest.IElasticClient elasticClient,
+            IDistributedCache cache
             )
         {
             _profileDbContext = profileDbContext;
@@ -48,6 +52,7 @@ namespace JB.User.Services
             _claims = claims;
             _searchService = searchService;
             _elasticClient = elasticClient;
+            _cache = cache;
         }
 
         public async Task<Status> Add(UserProfileModel entity)
@@ -101,16 +106,36 @@ namespace JB.User.Services
         {
             Status result = new Status();
             UserProfileModel profile = null;
+            bool isSetCache = false;
 
             do
             {
                 try
-                {
+{
+                    profile = await _cache.GetAsync<UserProfileModel>($"profile-{id}");
+                    if (profile != null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        isSetCache = true;
+                    }
+
                     profile = await _profileDbContext.Profiles.Where(x => x.Id == id).FirstOrDefaultAsync();
                     if (profile == null)
                     {
                         result.ErrorCode = ErrorCode.cvNull;
                         break;
+                    }
+
+                    if (isSetCache)
+                    {
+                        await _cache.SetAsync<UserProfileModel>($"profile-{id}", profile, new DistributedCacheEntryOptions
+                        {
+                            AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1),
+                            SlidingExpiration = TimeSpan.FromHours(1),
+                        });
                     }
                 }
                 catch (Exception e)

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using JB.API.User.Constants;
+using JB.gRPC.Organization;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Models;
@@ -8,6 +9,7 @@ using JB.User.Data;
 using JB.User.Models.CV;
 using JB.User.Models.User;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -25,13 +27,15 @@ namespace JB.User.Services
         private readonly IUserClaimsModel _claims;
 
         private readonly IUserManagementService _userService;
+        private readonly IDistributedCache _cache;
 
         public CVService(
            CVDbContext cvDbContext,
            IMapper mapper,
            ILogger<CVService> logger,
            IUserClaimsModel claims,
-           IUserManagementService userService
+           IUserManagementService userService,
+           IDistributedCache cache
        )
         {
             _cvDbContext = cvDbContext;
@@ -39,6 +43,7 @@ namespace JB.User.Services
             _logger = logger;
             _claims = claims;
             _userService = userService;
+            _cache = cache;
         }
 
        
@@ -178,11 +183,22 @@ namespace JB.User.Services
         {
             Status result = new Status();
             CVModel cv = null;
+            bool isSetCache = false;
 
             do
             {
                 try
                 {
+                    cv = await _cache.GetAsync<CVModel>($"cv-{cvId}");
+                    if (cv != null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        isSetCache = true;
+                    }
+
                     cv = await _cvDbContext.CVs.Where(x => x.Id == cvId).FirstOrDefaultAsync();
                     if (cv == null)
                     {
@@ -197,6 +213,15 @@ namespace JB.User.Services
                         {
                             cv.User = user;
                         }
+                    }
+
+                    if (isSetCache)
+{
+                        await _cache.SetAsync<CVModel>($"cv-{cvId}", cv, new DistributedCacheEntryOptions
+                        {
+                            AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1),
+                            SlidingExpiration = TimeSpan.FromHours(1),
+                        });
                     }
 
                 }

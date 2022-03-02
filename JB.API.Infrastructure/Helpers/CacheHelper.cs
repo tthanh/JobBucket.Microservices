@@ -81,5 +81,17 @@ namespace JB.Infrastructure.Helpers
 
         public static byte[] SerializeObject<T>(T value) => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value));
         public static T DeserializeObject<T>(byte[] bytes) => JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(bytes));
+
+        public static T Get<T>(this IDistributedCache cache, string key, int id, ILogger logger = null) where T : class
+            => Get<T>(cache, $"{key}-{id}", logger);
+
+        public static async Task<T> GetAsync<T>(this IDistributedCache cache, string key, int id, CancellationToken token = default, ILogger logger = null) where T : class
+            => await GetAsync<T>(cache, $"{key}-{id}", token, logger);
+
+        public static void Set<T>(this IDistributedCache cache, string key, int id, T value, DistributedCacheEntryOptions options, ILogger logger = null) where T : class
+            => Set<T>(cache, $"{key}-{id}", value, options, logger);
+
+        public static async Task SetAsync<T>(this IDistributedCache cache, string key, int id, T value, DistributedCacheEntryOptions options, CancellationToken token = default, ILogger logger = null) where T : class
+            => await SetAsync<T>(cache, $"{key}-{id}", value, options, token, logger);
     }
 }

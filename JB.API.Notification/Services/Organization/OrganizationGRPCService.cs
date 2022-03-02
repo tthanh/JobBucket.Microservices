@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using JB.API.Infrastructure.Constants;
 
 namespace JB.Notification.Services
 {
@@ -66,7 +67,8 @@ namespace JB.Notification.Services
         public async Task<(Status, OrganizationModel)> GetById(int id)
         {
             Status status = new Status();
-            var org = await _cache.GetAsync<OrganizationModel>($"organization-{id}");
+            var org = await _cache.GetAsync<OrganizationModel>(CacheKeys.ORGANIZATION, id);
+            //var org = await _cache.GetAsync<OrganizationModel>($"organization-{id}");
 
             if (org == null)
             {

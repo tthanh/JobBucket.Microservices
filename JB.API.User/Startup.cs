@@ -25,6 +25,9 @@ using JB.API.Infrastructure.Middlewares;
 using JB.User.Models.Profile;
 using JB.Infrastructure.Services;
 using JB.User.GRPC;
+using JB.Infrastructure.Filters;
+using Newtonsoft.Json;
+using Microsoft.OpenApi.Models;
 
 namespace JB.User
 {
@@ -132,6 +135,45 @@ namespace JB.User
                        .AllowAnyMethod()
                        .AllowAnyHeader();
             }));
+
+            services.AddControllers(config =>
+            {
+                config.Filters.Add(new ModelValidationActionFilter());
+            })
+                .ConfigureApiBehaviorOptions(options =>
+                {
+                    options.SuppressModelStateInvalidFilter = true;
+                })
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
+                });
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "JB.API.Authentication", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please insert JWT with Bearer into field",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                {
+                 new OpenApiSecurityScheme
+                 {
+                   Reference = new OpenApiReference
+                   {
+                     Type = ReferenceType.SecurityScheme,
+                     Id = "Bearer"
+                   }
+                  },
+                  new string[] { }
+                }
+                });
+            });
+            services.AddSwaggerGenNewtonsoftSupport();
             #endregion
 
             #region gRPC services
@@ -178,8 +220,15 @@ namespace JB.User
             app.UseMiddleware<JwtMiddleware>();
             app.UseWebSockets();
 
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("v1/swagger.json", "Authentication");
+            });
+
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllers();
                 endpoints.MapGraphQL();
                 endpoints.MapGrpcService<ProfileGRPCHandler>();
                 endpoints.MapGrpcService<CVGRPCHandler>();

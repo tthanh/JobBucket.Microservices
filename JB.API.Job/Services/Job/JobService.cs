@@ -1109,6 +1109,23 @@ namespace JB.Job.Services
 
             return result;
         }
+
+        public async Task<Status> Reindex()
+        {
+            await _elasticClient.Indices.DeleteAsync("job");
+
+            (var status, var jobs) = await List(j => true, j => j.Id, int.MaxValue, 1, false);
+            if (status.IsSuccess)
+            {
+                foreach (var data in jobs)
+                {
+                    var dataJson = _mapper.Map<JobDocument>(data);
+                    await _elasticClient.IndexAsync(dataJson, r => r.Index("job"));
+                }
+            }
+
+            return new Status();
+        }
         #endregion
     }
 }

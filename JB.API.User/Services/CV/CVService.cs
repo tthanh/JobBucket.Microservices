@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using JB.API.Infrastructure.Constants;
 using JB.API.User.Constants;
 using JB.gRPC.Organization;
 using JB.Infrastructure.Constants;
@@ -60,7 +61,6 @@ namespace JB.User.Services
             count = await _cvDbContext.CVs.Where(c => c.UserId == UserId).CountAsync();
             return count;
         }
-
 
         public async Task<Status> Add(CVModel model)
         {
@@ -167,6 +167,8 @@ namespace JB.User.Services
 
                     _cvDbContext.CVs.Remove(cvModel);
                     await _cvDbContext.SaveChangesAsync();
+                 
+                    await _cache.RemoveAsync(CacheKeys.CV, cvId);
                 }
                 catch (Exception e)
                 {
@@ -189,7 +191,8 @@ namespace JB.User.Services
             {
                 try
                 {
-                    cv = await _cache.GetAsync<CVModel>($"cv-{cvId}");
+                    cv = await _cache.GetAsync<CVModel>(CacheKeys.CV, cvId);
+                    //cv = await _cache.GetAsync<CVModel>($"cv-{cvId}");
                     if (cv != null)
                     {
                         break;
@@ -299,7 +302,7 @@ namespace JB.User.Services
                     _cvDbContext.Update(cv);
                     await _cvDbContext.SaveChangesAsync();
 
-
+                    await _cache.RemoveAsync(CacheKeys.CV, cvModel.Id);
                 }
                 catch (Exception e)
                 {

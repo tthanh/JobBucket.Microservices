@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using JB.Infrastructure.Helpers;
 using JB.Job.Models.Profile;
+using JB.API.Infrastructure.Constants;
 
 namespace JB.Job.Services
 {
@@ -37,7 +38,8 @@ namespace JB.Job.Services
         public async Task<(Status, UserProfileModel)> GetById(int id)
         {
             Status status = new Status();
-            var profile = await _cache.GetAsync<UserProfileModel>($"profile-{id}");
+            var profile = await _cache.GetAsync<UserProfileModel>(CacheKeys.PROFILE, id);
+            //var profile = await _cache.GetAsync<UserProfileModel>($"profile-{id}");
 
             if (profile == null)
             {

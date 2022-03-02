@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using JB.API.Infrastructure.Constants;
 using JB.Blog.Models.User;
 using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Models;
@@ -34,7 +35,8 @@ namespace JB.Blog.Services
         public async Task<(Status, UserModel)> GetUser(int userId)
         {
             Status status = new Status();
-            var user = await _cache.GetAsync<UserModel>($"user-{userId}");
+            var user = await _cache.GetAsync<UserModel>(CacheKeys.USER, userId);
+            //var user = await _cache.GetAsync<UserModel>($"user-{userId}");
 
             if (user == null)
             {

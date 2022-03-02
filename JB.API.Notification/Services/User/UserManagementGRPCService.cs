@@ -9,6 +9,7 @@ using AutoMapper;
 using JB.Notification.Models.User;
 using JB.Notification.Services;
 using JB.Infrastructure.Helpers;
+using JB.API.Infrastructure.Constants;
 
 namespace JB.Notification.Services
 {
@@ -65,7 +66,8 @@ namespace JB.Notification.Services
         public async Task<(Status, UserModel)> GetUser(int userId)
         {
             Status status = new Status();
-            var user = await _cache.GetAsync<UserModel>($"user-{userId}");
+            var user = await _cache.GetAsync<UserModel>(CacheKeys.USER, userId);
+            //var user = await _cache.GetAsync<UserModel>($"user-{userId}");
 
             if (user == null)
             {
@@ -96,7 +98,8 @@ namespace JB.Notification.Services
             List<int> notCachedIds = new();
             foreach (var id in userIds)
             {
-                var user = await _cache.GetAsync<UserModel>($"user-{id}");
+                var user = await _cache.GetAsync<UserModel>(CacheKeys.USER, id);
+                //var user = await _cache.GetAsync<UserModel>($"user-{id}");
 
                 if (user != null)
                 {

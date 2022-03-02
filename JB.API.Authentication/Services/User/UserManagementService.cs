@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Helpers;
+using JB.API.Infrastructure.Constants;
+using JB.gRPC.Organization;
+using JB.gRPC.User;
 
 namespace JB.Authentication.Services
 {
@@ -74,7 +77,9 @@ namespace JB.Authentication.Services
                     if (!identityResult.Succeeded)
                     {
                         result.SetStatusMessage(ErrorCode.InvalidVerifyCode, string.Join(',', identityResult.Errors.Select(x => x.Description)));
-                    }
+}
+
+                    await _cache.RemoveAsync(CacheKeys.USER, userId);
                 }
                 catch (Exception e)
                 {
@@ -128,6 +133,8 @@ namespace JB.Authentication.Services
                     {
                         result.SetStatusMessage(ErrorCode.InvalidVerifyCode, string.Join(',', identityResult.Errors.Select(x => x.Description)));
                     }
+                 
+                    await _cache.RemoveAsync(CacheKeys.USER, userId);
                 }
                 catch (Exception e)
                 {
@@ -202,7 +209,8 @@ namespace JB.Authentication.Services
                         break;
                     }
 
-                    user = await _cache.GetAsync<UserModel>($"user-{userId}");
+                    user = await _cache.GetAsync<UserModel>(CacheKeys.USER, userId);
+                    //user = await _cache.GetAsync<UserModel>($"user-{userId}");
                     if (user != null)
                     {
                         break;
@@ -314,6 +322,8 @@ namespace JB.Authentication.Services
                     user.RoleId = roleId;
                     _authenticationdbContext.Update(user);
                     await _authenticationdbContext.SaveChangesAsync();
+                 
+                    await _cache.RemoveAsync(CacheKeys.USER, userId);
                 }
                 catch (Exception e)
                 {
@@ -400,6 +410,8 @@ namespace JB.Authentication.Services
                     user.DefaultCVId = cvId;
                     _authenticationdbContext.Update(user);
                     await _authenticationdbContext.SaveChangesAsync();
+
+                    await _cache.RemoveAsync(CacheKeys.USER, userId);
                 }
                 catch (Exception e)
                 {
@@ -439,6 +451,8 @@ namespace JB.Authentication.Services
                     user.DefaultCVId = null;
                     _authenticationdbContext.Update(user);
                     await _authenticationdbContext.SaveChangesAsync();
+                 
+                    await _cache.RemoveAsync(CacheKeys.USER, userId);
                 }
                 catch (Exception e)
                 {
@@ -500,7 +514,8 @@ namespace JB.Authentication.Services
 
                     foreach (var id in userIds)
                     {
-                        var user = await _cache.GetAsync<UserModel>($"user-{id}");
+                        var user = await _cache.GetAsync<UserModel>(CacheKeys.USER, id);
+                        //var user = await _cache.GetAsync<UserModel>($"user-{id}");
                         if (user == null)
                         {
                             notCachedIds.Add(id);
@@ -667,6 +682,8 @@ namespace JB.Authentication.Services
 
                     _authenticationdbContext.Users.Remove(user);
                     await _authenticationdbContext.SaveChangesAsync();
+                 
+                    await _cache.RemoveAsync(CacheKeys.USER, user.Id);
                 }
                 catch (Exception e)
                 {
@@ -705,6 +722,8 @@ namespace JB.Authentication.Services
 
                     _authenticationdbContext.Users.Remove(user);
                     await _authenticationdbContext.SaveChangesAsync();
+
+                    await _cache.RemoveAsync(CacheKeys.USER, userId);
                 }
                 catch (Exception e)
                 {
@@ -742,6 +761,8 @@ namespace JB.Authentication.Services
                     PropertyHelper.InjectNonNull<UserModel>(userFromDb, user);
                     _authenticationdbContext.Update(userFromDb);
                     await _authenticationdbContext.SaveChangesAsync();
+
+                    await _cache.RemoveAsync(CacheKeys.USER, user.Id);
                 }
                 catch (Exception e)
                 {

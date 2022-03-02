@@ -28,6 +28,7 @@ namespace JB.Job.GRPC
         {
             JobResponse jobResponse = new JobResponse();
             Expression<Func<JobModel, bool>> filter = _ => false;
+            bool isSetCache = false;
 
             if (request.Id.Count > 0)
             {

@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using JB.API.Infrastructure.Constants;
 
 namespace JB.Organization.Services
 {
@@ -148,6 +149,7 @@ namespace JB.Organization.Services
                     _organizationDbContext.Organizations.Remove(org);
                     await _organizationDbContext.SaveChangesAsync();
 
+                    await _cache.RemoveAsync(CacheKeys.ORGANIZATION, orgId);
                 }
                 catch (Exception e)
                 {
@@ -175,7 +177,8 @@ namespace JB.Organization.Services
                 }
                 try
                 {
-                    org = await _cache.GetAsync<OrganizationModel>($"organization-{organizationId}");
+                    org = await _cache.GetAsync<OrganizationModel>(CacheKeys.ORGANIZATION, organizationId);
+                    //org = await _cache.GetAsync<OrganizationModel>($"organization-{organizationId}");
                     if (org != null)
                     {
                         break;
@@ -230,7 +233,8 @@ namespace JB.Organization.Services
                 {
                     foreach (var id in organizationIds)
                     {
-                        var org = await _cache.GetAsync<OrganizationModel>($"organization-{id}");
+                        var org = await _cache.GetAsync<OrganizationModel>(CacheKeys.ORGANIZATION, id);
+                        //var org = await _cache.GetAsync<OrganizationModel>($"organization-{id}");
                         if (org == null)
                         {
                             notCachedIds.Add(id);
@@ -392,6 +396,8 @@ namespace JB.Organization.Services
                     PropertyHelper.InjectNonNull<OrganizationModel>(organization, entity);
                     _organizationDbContext.Update(organization);
                     await _organizationDbContext.SaveChangesAsync();
+
+                    await _cache.RemoveAsync(CacheKeys.ORGANIZATION, organization.Id);
                 }
                 catch (Exception e)
                 {
@@ -453,6 +459,8 @@ namespace JB.Organization.Services
                     organization.EmployerIds = organization.EmployerIds.Append(userResult.Id).ToArray();
                     _organizationDbContext.Update(organization);
                     await _organizationDbContext.SaveChangesAsync();
+
+                    await _cache.RemoveAsync(CacheKeys.ORGANIZATION, organization.Id);
                 }
                 catch (Exception e)
                 {
@@ -504,6 +512,8 @@ namespace JB.Organization.Services
 
                     _organizationDbContext.Update(organization);
                     await _organizationDbContext.SaveChangesAsync();
+
+                    await _cache.RemoveAsync(CacheKeys.ORGANIZATION, organization.Id);
                 }
                 catch (Exception e)
                 {
@@ -599,6 +609,8 @@ namespace JB.Organization.Services
 
                     _organizationDbContext.Update(organization);
                     await _organizationDbContext.SaveChangesAsync();
+                    
+                    await _cache.RemoveAsync(CacheKeys.ORGANIZATION, organization.Id);
 
                     Status userStatus = null;
                     (userStatus, employer) = await _userService.PromoteTo(employerId, organization.Id, (int)RoleType.OrganizationManager);
@@ -651,6 +663,8 @@ namespace JB.Organization.Services
                     _organizationDbContext.Update(organization);
                     await _organizationDbContext.SaveChangesAsync();
 
+                    await _cache.RemoveAsync(CacheKeys.ORGANIZATION, organization.Id);
+                    
                     Status userStatus = null;
                     (userStatus, employer) = await _userService.PromoteTo(employerId, organization.Id, (int)RoleType.Recruiter);
                 }
@@ -746,12 +760,8 @@ namespace JB.Organization.Services
                     org.RatingWorkspace = ratingWorkspace;
 
                     await _organizationDbContext.SaveChangesAsync();
-
-                    await _cache.SetAsync<OrganizationModel>($"organization-{organizationId}", org, new DistributedCacheEntryOptions
-                    {
-                        AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1),
-                        SlidingExpiration = TimeSpan.FromHours(1),
-                    });
+                 
+                    await _cache.RemoveAsync(CacheKeys.ORGANIZATION, organizationId);
                 }
                 catch (Exception e)
                 {

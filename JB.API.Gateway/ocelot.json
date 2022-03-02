@@ -76,6 +76,32 @@
       ],
       "UpstreamPathTemplate": "/api/userManagement",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/profile/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5004
+        }
+      ],
+      "UpstreamPathTemplate": "/api/profile/{everything}",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ],
+      "SwaggerKey": "profile"
+    },
+    {
+      "DownstreamPathTemplate": "/api/profile",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5004
+        }
+      ],
+      "UpstreamPathTemplate": "/api/profile",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET", "DELETE" ]
     }
   ],
   "SwaggerEndPoints": [
@@ -106,6 +132,16 @@
           "Name": "UserManagement",
           "Version": "v1",
           "Url": "http://localhost:5002/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "profile",
+      "Config": [
+        {
+          "Name": "Profile",
+          "Version": "v1",
+          "Url": "http://localhost:5004/swagger/v1/swagger.json"
         }
       ]
     }

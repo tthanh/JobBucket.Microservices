@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JB.Infrastructure.Helpers;
 using Status = JB.Infrastructure.Models.Status;
+using JB.API.Infrastructure.Constants;
 
 namespace JB.User.Services
 {
@@ -34,16 +35,13 @@ namespace JB.User.Services
         public async Task<(Status, List<JobModel>)> ListByEmployerId(int employerId)
         {
             Status status = new Status();
-            var jobs = await _cache.GetAsync<List<JobModel>>($"job-employer-{employerId}");
+            var jobs = new List<JobModel>();
 
-            if (jobs == null)
-            {
-                var req = new gRPC.Job.JobRequest();
-                req.EmployerId.Add(employerId);
-                
-                var jobResp = await _jobGrpcClient.GetAsync(req);
-                jobs = jobResp.Jobs.Select(j => _mapper.Map<JobModel>(j)).ToList();
-            }
+            var req = new gRPC.Job.JobRequest();
+            req.EmployerId.Add(employerId);
+
+            var jobResp = await _jobGrpcClient.GetAsync(req);
+            jobs = jobResp.Jobs.Select(j => _mapper.Map<JobModel>(j)).ToList();
 
             return (status, jobs);
         }

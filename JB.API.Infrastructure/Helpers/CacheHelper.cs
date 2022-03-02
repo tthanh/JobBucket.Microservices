@@ -93,5 +93,11 @@ namespace JB.Infrastructure.Helpers
 
         public static async Task SetAsync<T>(this IDistributedCache cache, string key, int id, T value, DistributedCacheEntryOptions options, CancellationToken token = default, ILogger logger = null) where T : class
             => await SetAsync<T>(cache, $"{key}-{id}", value, options, token, logger);
+
+        public static async Task RemoveAsync(this IDistributedCache cache, string key, int id, CancellationToken token = default)
+            => await cache.RemoveAsync($"{key}-{id}", token);
+
+        public static void Remove(this IDistributedCache cache, string key, int id)
+            => cache.Remove($"{key}-{id}");
     }
 }

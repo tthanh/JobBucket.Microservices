@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using JB.User.Services;
 using JB.User.Models.User;
+using JB.API.Infrastructure.Constants;
 
 namespace JB.User.Services
 {
@@ -65,7 +66,8 @@ namespace JB.User.Services
         public async Task<(Status, UserModel)> GetUser(int userId)
         {
             Status status = new Status();
-            var user = await _cache.GetAsync<UserModel>($"user-{userId}");
+            var user = await _cache.GetAsync<UserModel>(CacheKeys.USER, userId);
+            //var user = await _cache.GetAsync<UserModel>($"user-{userId}");
 
             if (user == null)
             {

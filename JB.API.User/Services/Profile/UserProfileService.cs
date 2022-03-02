@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using JB.API.Infrastructure.Constants;
 using JB.gRPC.CV;
 using JB.Infrastructure.Constants;
+using JB.Infrastructure.Elasticsearch.Job;
 using JB.Infrastructure.Elasticsearch.User;
 using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Models;
@@ -111,8 +113,9 @@ namespace JB.User.Services
             do
             {
                 try
-{
-                    profile = await _cache.GetAsync<UserProfileModel>($"profile-{id}");
+                {
+                    profile = await _cache.GetAsync<UserProfileModel>(CacheKeys.PROFILE, id);
+                    //profile = await _cache.GetAsync<UserProfileModel>($"profile-{id}");
                     if (profile != null)
                     {
                         break;
@@ -264,6 +267,8 @@ namespace JB.User.Services
                     await _userManagementService.UpdateUser(user);
 
                     await UpdateDocument(entity);
+                 
+                    await _cache.RemoveAsync(CacheKeys.PROFILE, user.Id);
                 }
                 catch (Exception e)
                 {
@@ -300,5 +305,22 @@ namespace JB.User.Services
         public async Task<(Status, List<UserProfileModel>)> GetRecommendations(int[] entityIds = null, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
             => await _searchService.Search(entityIds, filter, sort, size, offset, isDescending);
         #endregion
+
+        public async Task<Status> Reindex()
+        {
+            await _elasticClient.Indices.DeleteAsync("profile");
+
+            (var status, var jobs) = await List(j => true, j => j.Id, int.MaxValue, 1, false);
+            if (status.IsSuccess)
+            {
+                foreach (var data in jobs)
+                {
+                    var dataJson = _mapper.Map<UserProfileDocument>(data);
+                    await _elasticClient.IndexAsync(dataJson, r => r.Index("profile"));
+                }
+            }
+
+            return new Status();
+        }
     }
 }

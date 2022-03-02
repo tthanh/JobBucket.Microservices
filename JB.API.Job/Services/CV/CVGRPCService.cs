@@ -11,6 +11,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using JB.API.Infrastructure.Constants;
+using JB.gRPC.User;
+
 namespace JB.Job.Services
 {
     public class CVGRPCService : ICVService
@@ -50,7 +53,8 @@ namespace JB.Job.Services
         public async Task<(Status, CVModel)> GetById(int id)
         {
             Status status = new Status();
-            var cv = await _cache.GetAsync<CVModel>($"cv-{id}");
+            var cv = await _cache.GetAsync<CVModel>(CacheKeys.CV, id);
+            //var cv = await _cache.GetAsync<CVModel>($"cv-{id}");
 
             if (cv == null)
             {

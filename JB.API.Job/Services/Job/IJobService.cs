@@ -43,6 +43,7 @@ namespace JB.Job.Services
         #region Admin
         Task<Status> Lock(int id);
         Task<Status> Unlock(int id);
+        Task<Status> Reindex();
         #endregion
     }
 }

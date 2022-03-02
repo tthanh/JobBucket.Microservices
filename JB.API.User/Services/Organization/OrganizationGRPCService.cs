@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using JB.Infrastructure.Helpers;
+using JB.API.Infrastructure.Constants;
 
 namespace JB.User.Services
 {
@@ -65,7 +66,9 @@ namespace JB.User.Services
         public async Task<(Status, OrganizationModel)> GetById(int id)
         {
             Status status = new Status();
-            var org = await _cache.GetAsync<OrganizationModel>($"organization-{id}");
+            
+            var org = await _cache.GetAsync<OrganizationModel>(CacheKeys.ORGANIZATION, id);
+            //var org = await _cache.GetAsync<OrganizationModel>($"organization-{id}");
 
             if (org == null)
             {

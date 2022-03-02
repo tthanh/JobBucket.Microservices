@@ -9,6 +9,7 @@ using AutoMapper;
 using JB.Job.Models.User;
 using JB.Infrastructure.Helpers;
 using HotChocolate.Utilities;
+using JB.API.Infrastructure.Constants;
 
 namespace JB.Job.Services
 {
@@ -35,7 +36,8 @@ namespace JB.Job.Services
         public async Task<(Status, UserModel)> GetUser(int userId)
         {
             Status status = new Status();
-            var user = await _cache.GetAsync<UserModel>($"user-{userId}");
+            var user = await _cache.GetAsync<UserModel>(CacheKeys.USER, userId);
+            //var user = await _cache.GetAsync<UserModel>($"user-{userId}");
 
             if (user == null)
             {

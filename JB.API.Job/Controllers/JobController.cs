@@ -64,5 +64,17 @@ namespace JB.API.Job.Controllers
 
             return Ok();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Reindex()
+        {
+            var unlockUserStatus = await _jobService.Unlock(jobId);
+            if (!unlockUserStatus.IsSuccess)
+            {
+                return NotFound();
+            }
+
+            return Ok();
+        }
     }
 }

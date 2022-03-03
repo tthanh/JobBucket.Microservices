@@ -1127,15 +1127,11 @@ namespace JB.Job.Services
             return new Status();
         }
 
-        public Task<(Status, List<JobModel>)> Search(ListJobRequest filter = null)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<(Status, List<JobModel>)> Search(ListJobRequest filter = null)
+            => await _searchService.Search(filter);
 
-        public Task<(Status, List<JobModel>)> GetRecommendations(ListJobRecommendationRequest filter = null)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<(Status, List<JobModel>)> GetRecommendations(ListJobRecommendationRequest filter = null)
+            => await _searchService.Search(filter);
         #endregion
     }
 }

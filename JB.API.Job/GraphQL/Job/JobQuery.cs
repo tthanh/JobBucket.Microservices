@@ -78,6 +78,7 @@ namespace JB.Job.GraphQL.Job
                 if (!string.IsNullOrEmpty(filter?.Keyword))
                 {
                     (status, jobs) = await _jobService.Search(filter.Keyword, filterExpr, sortExpr, size, page, isDescending);
+                    (var sstatus,var jobs1) = await _jobService.Search(filter);
                     if (!status.IsSuccess)
                     {
                         break;
@@ -132,6 +133,7 @@ namespace JB.Job.GraphQL.Job
                 }
 
                 (status, jobs) = await _jobService.GetRecommendations(similarJobIds, filterExpr, sortExpr, size, page, isDescending);
+                (var status1, var jobs1) = await _jobService.GetRecommendations(filter);
                 if (!status.IsSuccess)
                 {
                     break;

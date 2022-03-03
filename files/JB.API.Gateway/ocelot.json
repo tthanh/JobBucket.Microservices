@@ -134,7 +134,7 @@
             "Url": "http://jb.api.authentication:5002/swagger/v1/swagger.json"
           }
         ]
-      }
+      },
       {
         "Key": "profile",
         "Config": [

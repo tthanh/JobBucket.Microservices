@@ -28,7 +28,5 @@ namespace JB.Authentication.Models.User
         public OrganizationModel Organization { get; set; }
 
         public int? DefaultCVId { get; set; }
-        
-        public int IsLocked { get; set; }
     }
 }

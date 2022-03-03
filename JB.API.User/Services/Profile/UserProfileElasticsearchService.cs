@@ -17,7 +17,7 @@ using Status = JB.Infrastructure.Models.Status;
 
 namespace JB.User.Services
 {
-    public class UserProfileElasticsearchService : ISearchService<UserProfileModel>
+    public class UserProfileElasticsearchService : IUserProfileSearchService
     {
         private readonly IMapper _mapper;
         private readonly ILogger<UserProfileElasticsearchService> _logger;
@@ -190,6 +190,11 @@ namespace JB.User.Services
             while (false);
 
             return (result, profiles);
+        }
+
+        public Task<(Status, List<UserProfileModel>)> Search(ListUserProfileRequest filter = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

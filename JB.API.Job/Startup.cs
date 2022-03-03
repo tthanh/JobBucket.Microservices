@@ -116,7 +116,7 @@ namespace JB.Job
                 );
 
             services.AddScoped<IJobService, JobService>();
-            services.AddScoped<ISearchService<JobModel>, JobElasticsearchService>();
+            services.AddScoped<IJobSearchService, JobElasticsearchService>();
             services.AddScoped<IInterviewService, InterviewService>();
             services.AddScoped<IOrganizationService, OrganizationGRPCService>();
             services.AddScoped<IUserManagementService, UserManagementGRPCService>();
@@ -147,6 +147,7 @@ namespace JB.Job
                 .AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
 
             services.AddSwaggerGen(c =>

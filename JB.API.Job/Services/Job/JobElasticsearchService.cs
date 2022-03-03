@@ -18,7 +18,7 @@ using Status = JB.Infrastructure.Models.Status;
 
 namespace JB.Job.Services.Job
 {
-    public class JobElasticsearchService : ISearchService<JobModel>
+    public class JobElasticsearchService : IJobSearchService
     {
         private readonly JobDbContext _jobDbContext;
         private readonly IMapper _mapper;
@@ -227,6 +227,16 @@ namespace JB.Job.Services.Job
             while (false);
 
             return (result, jobs);
+        }
+
+        public Task<(Status, List<JobModel>)> Search(ListJobRequest filter = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<(Status, List<JobModel>)> Search(ListJobRecommendationRequest filter = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

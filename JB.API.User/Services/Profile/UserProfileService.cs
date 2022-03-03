@@ -30,7 +30,7 @@ namespace JB.User.Services
         private readonly IMapper _mapper;
         private readonly ILogger<UserProfileService> _logger;
         private readonly IUserClaimsModel _claims;
-        private readonly ISearchService<UserProfileModel> _searchService;
+        private readonly IUserProfileSearchService _searchService;
         private readonly Nest.IElasticClient _elasticClient;
         private readonly IDistributedCache _cache;
 
@@ -41,7 +41,7 @@ namespace JB.User.Services
             IMapper mapper,
             ILogger<UserProfileService> logger,
             IUserClaimsModel claims,
-            ISearchService<UserProfileModel> searchService,
+            IUserProfileSearchService searchService,
             Nest.IElasticClient elasticClient,
             IDistributedCache cache
             )

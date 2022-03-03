@@ -36,7 +36,7 @@ namespace JB.Job.Services
         private readonly ICVService _cvService;
         private readonly INotificationService _notiService;
 
-        private readonly ISearchService<JobModel> _searchService;
+        private readonly IJobSearchService _searchService;
         private readonly Nest.IElasticClient _elasticClient;
 
         public JobService(
@@ -48,7 +48,7 @@ namespace JB.Job.Services
             IOrganizationService organizationService,
             ICVService cvService,
             INotificationService notiService,
-            ISearchService<JobModel> searchService,
+            IJobSearchService searchService,
             Nest.IElasticClient elasticClient
         )
         {
@@ -1125,6 +1125,16 @@ namespace JB.Job.Services
             }
 
             return new Status();
+        }
+
+        public Task<(Status, List<JobModel>)> Search(ListJobRequest filter = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<(Status, List<JobModel>)> GetRecommendations(ListJobRecommendationRequest filter = null)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

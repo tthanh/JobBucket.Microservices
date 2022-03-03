@@ -53,7 +53,7 @@ namespace JB.Authentication.User.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> List([FromQuery] int page, [FromQuery] int size)
+        public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             (var getUserStatus, var users) = await _userManagementService.ListUser(u => u.RoleId != (int)RoleType.Admin, u => u.Id, size, page);
             if (!getUserStatus.IsSuccess)
@@ -69,7 +69,7 @@ namespace JB.Authentication.User.Controllers
         [HttpPut("{userId}")]
         public async Task<IActionResult> Lock([FromRoute][Required] int userId)
         {
-            var lockUserStatus = await _userManagementService.LockUser(userId, DateTime.UtcNow.AddDays(int.MaxValue));
+            var lockUserStatus = await _userManagementService.LockUser(userId, DateTime.MaxValue);
             if (!lockUserStatus.IsSuccess)
             {
                 return NotFound();

@@ -28,7 +28,7 @@ namespace JB.API.Job.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> List([FromQuery] int page, [FromQuery] int size)
+        public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             (var getStatus, var jobs) = await _jobService.List(u => true, u => u.Id, size, page);
             if (!getStatus.IsSuccess)
@@ -68,7 +68,7 @@ namespace JB.API.Job.Controllers
         [HttpPost]
         public async Task<IActionResult> Reindex()
         {
-            var unlockUserStatus = await _jobService.Unlock(jobId);
+            var unlockUserStatus = await _jobService.Reindex();
             if (!unlockUserStatus.IsSuccess)
             {
                 return NotFound();

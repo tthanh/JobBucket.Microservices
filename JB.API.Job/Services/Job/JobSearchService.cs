@@ -5,6 +5,7 @@ using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
 using JB.Infrastructure.Services;
 using JB.Job.Data;
+using JB.Job.DTOs.Job;
 using JB.Job.Models.Job;
 using JB.Job.Models.Organization;
 using JB.Job.Models.User;
@@ -19,7 +20,7 @@ using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace JB.Job.Services.Job
 {
-    public class JobSearchService : ISearchService<JobModel>
+    public class JobSearchService : IJobSearchService
     {
         private readonly JobDbContext _jobDbContext;
         private readonly IMapper _mapper;
@@ -159,6 +160,16 @@ namespace JB.Job.Services.Job
             while (false);
 
             return (result, jobs);
+        }
+
+        public Task<(Status, List<JobModel>)> Search(ListJobRequest filter = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<(Status, List<JobModel>)> Search(ListJobRecommendationRequest filter = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

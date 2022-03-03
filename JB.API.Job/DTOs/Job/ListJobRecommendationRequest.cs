@@ -10,12 +10,14 @@ namespace JB.Job.DTOs.Job
         public int[] Salary { get; set; }
         public int[] Position { get; set; }
         public int[] Skill { get; set; }
+        public int[] ActiveStatus { get; set; }
         public int[] Category { get; set; }
         public int[] Type { get; set; }
         public string[] Cities { get; set; }
         public DateTime[] ExpireDate { get; set; }
         public DateTime[] CreatedDate { get; set; }
         public int[] OrganizationId { get; set; }
+        public int[] EmployerId { get; set; }
         public bool? IsInterested { get; set; }
     }
 }

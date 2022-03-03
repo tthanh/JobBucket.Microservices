@@ -15,6 +15,7 @@ namespace JB.User.DTOs.Profile
         public string[] Country { get; set; }
         public string[] Gender { get; set; }
         public string[] Skills { get; set; }
+        public int? UserId { get; set; }
 
         public override Expression<Func<UserProfileModel, bool>> GetFilterExpression()
         {

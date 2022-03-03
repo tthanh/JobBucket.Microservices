@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using JB.gRPC.Profile;
 using JB.Infrastructure.Constants;
+using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
 using JB.Infrastructure.Services;
@@ -194,112 +195,127 @@ namespace JB.User.Services
 
         public async Task<(Status, List<UserProfileModel>)> Search(ListUserProfileRequest filter = null)
         {
-            //Status result = new Status();
-            //var profiles = new List<UserProfileModel>();
-            //int userId = _claims?.Id ?? 0;
-            //List<string> likeTerms = new List<string>();
-            //ISearchResponse<UserProfileModel> searchResponse = null;
+            Status result = new Status();
+            var profiles = new List<UserProfileModel>();
+            int userId = _claims?.Id ?? 0;
+            List<string> likeTerms = new List<string>();
+            ISearchResponse<UserProfileModel> searchResponse = null;
+            List<int> similarUserIds = new List<int>();
+            do
+            {
+                try
+                {
+                    if (filter == null)
+                    {
+                        filter = new ListUserProfileRequest
+                        {
+                            Size = 10,
+                            Page = 1,
+                        };
+                    }
 
-            //do
-            //{
-            //    try
-            //    {
-            //        userId = _claims?.Id ?? userId;
+                    userId = _claims?.Id ?? userId;
 
-            //        // Get Job skills, type, category, city, salary range
-            //        (var getJobtatus, var jobs) = await _jobService.ListByEmployerId(_claims.Id);
-            //        if (getJobtatus.IsSuccess)
-            //        {
-            //            foreach (var job in jobs)
-            //            {
-            //                likeTerms.AddRange(job.Skills?.Select(x => x.Name) ?? Enumerable.Empty<string>());
-            //                likeTerms.AddRange(job.Types?.Select(x => x.Name) ?? Enumerable.Empty<string>());
-            //                likeTerms.AddRange(job.Categories?.Select(x => x.Name) ?? Enumerable.Empty<string>());
-            //                likeTerms.AddRange(job.Cities ?? Enumerable.Empty<string>());
-            //                likeTerms.AddRange(job.Positions?.Select(x => x.Name) ?? Enumerable.Empty<string>());
-            //            }
-            //        }
+                    if (filter?.UserId > 0)
+                    {
+                        similarUserIds.Add(filter.UserId.Value);
+                    }
 
-            //        if (entityIds == null || entityIds.Count() == 0)
-            //        {
-            //            searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(r => r
-            //            .Index("profile")
-            //            .From(offset * size)
-            //            .Size(size)
-            //            .Query(q => q.MultiMatch(mm => mm
-            //               .Query(string.Join(' ', likeTerms))
-            //               .Fields(f => f
-            //                   .Fields(
-            //                       "city",
-            //                       "country",
-            //                       "introduction",
-            //                       "certifications",
-            //                       "awards",
-            //                       "skills.skillName",
-            //                       "educations.major",
-            //                       "educations.profession",
-            //                       "experiences.position"
-            //                   )
-            //               ))
-            //            ));
-            //        }
-            //        else
-            //        {
-            //            searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(r => r
-            //            .Index("job")
-            //            .From(offset * size)
-            //            .Size(size)
-            //            .Query(q => q.MoreLikeThis(mlt => mlt
-            //                .Like(l => l
-            //                    .Document(ld =>
-            //                    {
-            //                        ld = ld.Index("job");
+                    // Get Job skills, type, category, city, salary range
+                    (var getJobtatus, var jobs) = await _jobService.ListByEmployerId(_claims.Id);
+                    if (getJobtatus.IsSuccess)
+                    {
+                        foreach (var job in jobs)
+                        {
+                            likeTerms.AddRange(job.Skills?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+                            likeTerms.AddRange(job.Types?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+                            likeTerms.AddRange(job.Categories?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+                            likeTerms.AddRange(job.Cities ?? Enumerable.Empty<string>());
+                            likeTerms.AddRange(job.Positions?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+                        }
+                    }
 
-            //                        foreach (var id in entityIds)
-            //                        {
-            //                            ld = ld.Id(id);
-            //                        }
+                    var boolQuery = new BoolQuery
+                    {
+                        Must = Array.Empty<QueryContainer>()
+                    };
 
-            //                        return ld;
-            //                    })
-            //                    //Like user skill, position, type, category
-            //                    .Text(string.Join(' ', likeTerms))
-            //                )
-            //                .Fields(f => f
-            //                    .Fields(
-            //                        "city",
-            //                       "country",
-            //                       "introduction",
-            //                       "certifications",
-            //                       "awards",
-            //                       "skills.skillName",
-            //                       "educations.major",
-            //                       "educations.profession",
-            //                       "experiences.position"
-            //                       ))
-            //                .MaxQueryTerms(12)
-            //                .MinTermFrequency(1)
-            //            )));
-            //        }
+                    boolQuery = boolQuery
+                        .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("skills.skillName", filter?.Skills))
+                        .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("city", filter?.City))
+                        .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("country", filter?.Country))
+                        .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("gender", filter?.Gender));
 
-            //        if (!searchResponse.IsValid)
-            //        {
-            //            result.ErrorCode = ErrorCode.InvalidData;
-            //            break;
-            //        }
+                    if (similarUserIds == null || similarUserIds.Count == 0)
+                    {
+                        boolQuery = boolQuery.AppendToMustQuery(new MultiMatchQuery
+                        {
+                            Query = string.Join(' ', likeTerms),
+                            Fields = new Field[]
+                            {
+                                "city",
+                                "country",
+                                "introduction",
+                                "certifications",
+                                "awards",
+                                "skills.skillName",
+                                "educations.major",
+                                "educations.profession",
+                                "experiences.position"
+                            }
+                        });
+                    }
+                    else
+                    {
+                        var mlt = new MoreLikeThisQuery
+                        {
+                            Like = new Like[]
+                            {
+                                new Like(string.Join(' ', likeTerms)),
+                            },
+                            MinTermFrequency = 1,
+                            MaxQueryTerms = 12,
+                            Fields = new Field[]
+                            {
+                                "city",
+                                "country",
+                                "introduction",
+                                "certifications",
+                                "awards",
+                                "skills.skillName",
+                                "educations.major",
+                                "educations.profession",
+                                "experiences.position"
+                            }
+                        };
+                        mlt.Like = mlt.Like.Concat(similarUserIds.Select(x => new Like(new LikeDocument<UserProfileModel>(x))));
 
-            //        profiles = searchResponse.Hits.Select(r => _mapper.Map<UserProfileModel>(r.Source)).ToList();
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        result.ErrorCode = ErrorCode.Unknown;
-            //        _logger.LogError(e, e.Message);
-            //    }
-            //}
-            //while (false);
+                        boolQuery = boolQuery.AppendToMustQuery(mlt);
+                    }
 
-            //return (result, profiles);
-            return (null, null);
+                    searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(new SearchRequest<UserProfileModel>
+                    {
+                        From = (filter.Page - 1) * filter.Size,
+                        Size = filter.Size,
+                        Query = boolQuery,
+                    });
+
+                    if (!searchResponse.IsValid)
+                    {
+                        result.ErrorCode = ErrorCode.InvalidData;
+                        break;
+                    }
+                    profiles = searchResponse.Hits.Select(r => _mapper.Map<UserProfileModel>(r.Source)).ToList();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return (result, profiles);
         }
     }
 }

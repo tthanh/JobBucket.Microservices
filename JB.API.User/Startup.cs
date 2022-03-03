@@ -69,7 +69,7 @@ namespace JB.User
             #endregion
 
             #region Elasticsearch
-            var connectionSettings = new ConnectionSettings(new Uri(Configuration["Elasticsearch:Url"]));
+            var connectionSettings = new ConnectionSettings(new Uri(Configuration["Elasticsearch:Url"])).DefaultIndex("profile");
             var client = new ElasticClient(connectionSettings);
             services.AddSingleton<IElasticClient>(client);
             #endregion

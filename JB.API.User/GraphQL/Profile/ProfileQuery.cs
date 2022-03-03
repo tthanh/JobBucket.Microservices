@@ -106,6 +106,7 @@ namespace JB.User.GraphQL.Profile
                 bool isDescending = filter?.IsDescending ?? false;
 
                 (status, profiles) = await _profileService.GetRecommendations(null, j => true, j => j.Id, size, page, isDescending);
+                (status, profiles) = await _profileService.GetRecommendations(filter);
 
                 if (!status.IsSuccess)
                 {

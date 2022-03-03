@@ -17,10 +17,13 @@ namespace JB.Infrastructure.Helpers
                     Should = values.Select(x => new QueryContainer(new TermQuery
                     {
                         Field = field,
-                        Value = x,
+                        Value = x switch
+                        {
+                            string s => s.ToLower(),
+                            _ => x,
+                        },
                     }))
                 };
-
         public static BoolQuery AppendToMustQuery(this BoolQuery boolQuery, QueryBase childBoolQuery)
         {
             if (childBoolQuery != null)

@@ -9,6 +9,7 @@ using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
 using JB.Infrastructure.Services;
 using JB.User.Data;
+using JB.User.DTOs.Profile;
 using JB.User.Models.Profile;
 using JB.User.Models.User;
 using Microsoft.EntityFrameworkCore;
@@ -304,6 +305,9 @@ namespace JB.User.Services
 
         public async Task<(Status, List<UserProfileModel>)> GetRecommendations(int[] entityIds = null, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
             => await _searchService.Search(entityIds, filter, sort, size, offset, isDescending);
+
+        public async Task<(Status, List<UserProfileModel>)> GetRecommendations(ListUserProfileRequest filter = null)
+            => await _searchService.Search(filter);
         #endregion
 
         public async Task<Status> Reindex()

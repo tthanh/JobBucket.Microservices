@@ -77,7 +77,7 @@ namespace JB.Job
 
             #region Elasticsearch
             var connectionSettings = new ConnectionSettings(new Uri(Configuration["Elasticsearch:Url"]));
-            connectionSettings = connectionSettings.DefaultIndex("job").EnableDebugMode();
+            connectionSettings = connectionSettings.DefaultIndex("job");
             var client = new ElasticClient(connectionSettings);
             services.AddSingleton<IElasticClient>(client);
             #endregion

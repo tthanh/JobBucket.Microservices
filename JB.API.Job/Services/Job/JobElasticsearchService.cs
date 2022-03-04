@@ -69,6 +69,9 @@ namespace JB.Job.Services.Job
 
                     var searchResponse = await _elasticClient.SearchAsync<JobModel>(r => r
                         .Index("job")
+                        .Sort(ss => ss
+                            .Ascending(sort)
+                            )
                         .From((offset - 1) * size)
                         .Size(size)
                         .Query(q => q
@@ -150,6 +153,9 @@ namespace JB.Job.Services.Job
                         .Index("job")
                         .From(offset * size)
                         .Size(size)
+                        .Sort(ss => ss
+                            .Ascending(sort)
+                            )
                         .Query(q => q.MultiMatch(mm => mm
                            .Query(string.Join(' ', likeTerms))
                            .Fields(f => f
@@ -176,6 +182,9 @@ namespace JB.Job.Services.Job
                         .Index("job")
                         .From(offset * size)
                         .Size(size)
+                        .Sort(ss => ss
+                            .Ascending(sort)
+                            )
                         .Query(q => q.MoreLikeThis(mlt => mlt
                             .Like(l => l
                                 .Document(ld =>
@@ -275,6 +284,17 @@ namespace JB.Job.Services.Job
                         Size = filter.Size,
                         Query = boolQuery,
                     };
+
+                    if (!string.IsNullOrEmpty(filter.SortBy))
+                    {
+                        searchRequest.Sort = new ISort[] {
+                            new FieldSort()
+                            {
+                                Field = PropertyHelper.ToCamelCase(filter.SortBy),
+                                Order = filter.IsDescending == true ? SortOrder.Descending : SortOrder.Ascending,
+                            },
+                        };
+                    }
 
                     var json = _elasticClient.RequestResponseSerializer.SerializeToString(searchRequest);
 
@@ -418,6 +438,17 @@ namespace JB.Job.Services.Job
                         Size = filter.Size,
                         Query = boolQuery,
                     };
+
+                    if (!string.IsNullOrEmpty(filter.SortBy))
+                    {
+                        searchRequest.Sort = new ISort[] {
+                            new FieldSort()
+                            {
+                                Field = PropertyHelper.ToCamelCase(filter.SortBy),
+                                Order = filter.IsDescending == true ? SortOrder.Descending : SortOrder.Ascending,
+                            },
+                        };
+                    }
 
                     var json = _elasticClient.RequestResponseSerializer.SerializeToString(searchRequest);
 

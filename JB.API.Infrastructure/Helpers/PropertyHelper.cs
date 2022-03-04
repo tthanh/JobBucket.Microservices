@@ -95,5 +95,19 @@ namespace JB.Infrastructure.Helpers
 
             return isValid;
         }
+
+        public static bool HasProperty(Type type, string propertyName)
+        {
+            return type.GetProperty(propertyName) != null;
+        }
+
+        public static string ToCamelCase(string str)
+        {
+            if (!string.IsNullOrEmpty(str) && str.Length > 1)
+            {
+                return char.ToLowerInvariant(str[0]) + str.Substring(1);
+            }
+            return str;
+        }
     }
 }

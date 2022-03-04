@@ -11,6 +11,11 @@ namespace JB.Infrastructure.Helpers
     {
         public static string GetDescriptionFromEnumValue(Enum value)
         {
+            if (value == null)
+            {
+                return null;
+            }
+
             DescriptionAttribute attribute = value.GetType()
                 .GetField(value.ToString())
                 .GetCustomAttributes(typeof(DescriptionAttribute), false)

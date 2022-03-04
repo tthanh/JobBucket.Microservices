@@ -4,7 +4,6 @@ using JB.Infrastructure.Elasticsearch.Job;
 using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
-using JB.Infrastructure.Services;
 using JB.Job.Constants;
 using JB.Job.Data;
 using JB.Job.DTOs.Job;
@@ -18,10 +17,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+
 namespace JB.Job.Services
 {
     public class JobService : IJobService
@@ -643,7 +642,13 @@ namespace JB.Job.Services
                         break;
                     }
 
-                    if (job.ExpireDate < DateTime.UtcNow)
+                    if (job.ActiveStatus == (int)JobActiveStatus.LOCKED)
+                    {
+                        result.ErrorCode = ErrorCode.JobNull;
+                        break;
+                    }
+
+                    if (job.ExpireDate < DateTime.UtcNow || job.ActiveStatus == (int)JobActiveStatus.EXPIRED)
                     {
                         result.ErrorCode = ErrorCode.JobExpired;
                         break;
@@ -1017,6 +1022,29 @@ namespace JB.Job.Services
 
                     _jobDbContext.Jobs.UpdateRange(jobs);
                     await _jobDbContext.SaveChangesAsync();
+
+                    foreach (var job in jobs)
+                    {
+                        (var getOrgstatus, var organization) = await _organizationService.GetById(job.OrganizationId);
+                        if (!getOrgstatus.IsSuccess)
+                        {
+                            result.ErrorCode = ErrorCode.OrganizationNull;
+                            break;
+                        }
+
+                        job.Organization = organization;
+
+                        (var getUserstatus, var user) = await _userService.GetUser(job.EmployerId);
+                        if (!getUserstatus.IsSuccess)
+                        {
+                            result.ErrorCode = ErrorCode.UserNotExist;
+                            break;
+                        }
+
+                        job.Employer = user;
+
+                        await UpdateDocument(job);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -1054,6 +1082,26 @@ namespace JB.Job.Services
                     _jobDbContext.Update(job);
 
                     await _jobDbContext.SaveChangesAsync();
+
+                    (var getOrgstatus, var organization) = await _organizationService.GetById(job.OrganizationId);
+                    if (!getOrgstatus.IsSuccess)
+                    {
+                        result.ErrorCode = ErrorCode.OrganizationNull;
+                        break;
+                    }
+
+                    job.Organization = organization;
+
+                    (var getUserstatus, var user) = await _userService.GetUser(job.EmployerId);
+                    if (!getUserstatus.IsSuccess)
+                    {
+                        result.ErrorCode = ErrorCode.UserNotExist;
+                        break;
+                    }
+
+                    job.Employer = user;
+
+                    await UpdateDocument(job);
                 }
                 catch (Exception e)
                 {
@@ -1098,6 +1146,26 @@ namespace JB.Job.Services
 
                     _jobDbContext.Update(job);
                     await _jobDbContext.SaveChangesAsync();
+
+                    (var getOrgstatus, var organization) = await _organizationService.GetById(job.OrganizationId);
+                    if (!getOrgstatus.IsSuccess)
+                    {
+                        result.ErrorCode = ErrorCode.OrganizationNull;
+                        break;
+                    }
+
+                    job.Organization = organization;
+
+                    (var getUserstatus, var user) = await _userService.GetUser(job.EmployerId);
+                    if (!getUserstatus.IsSuccess)
+                    {
+                        result.ErrorCode = ErrorCode.UserNotExist;
+                        break;
+                    }
+
+                    job.Employer = user;
+
+                    await UpdateDocument(job);
                 }
                 catch (Exception e)
                 {

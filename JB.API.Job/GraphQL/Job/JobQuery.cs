@@ -15,6 +15,7 @@ using JB.Infrastructure.Models.Authentication;
 using JB.Infrastructure.Helpers;
 using JB.Job.Helpers;
 using JB.Infrastructure.Constants;
+using JB.Job.Constants;
 
 namespace JB.Job.GraphQL.Job
 {
@@ -61,6 +62,9 @@ namespace JB.Job.GraphQL.Job
                     filterExpr = filterExpr.And(b => b.Interests.Any(x => x.UserId == _claims.Id));
                 }
 
+                // Block locked job
+                filterExpr = filterExpr.And(b => b.ActiveStatus != (int)JobActiveStatus.LOCKED);
+
                 if (id > 0)
                 {
                     (status, job) = await _jobService.GetById(id.Value);
@@ -77,6 +81,14 @@ namespace JB.Job.GraphQL.Job
 
                 if (!string.IsNullOrEmpty(filter?.Keyword))
                 {
+                    // Block locked job
+                    if (filter.ActiveStatus == null || filter.ActiveStatus.Length == 0)
+                    {
+                        filter.ActiveStatus = Enum.GetValues(typeof(JobActiveStatus)).Cast<int>().ToArray();
+                    }
+
+                    filter.ActiveStatus = filter.ActiveStatus.Where(x => x != (int)JobActiveStatus.EXPIRED).ToArray();
+
                     //(status, jobs) = await _jobService.Search(filter.Keyword, filterExpr, sortExpr, size, page, isDescending);
                     (status, jobs) = await _jobService.Search(filter);
                     if (!status.IsSuccess)
@@ -132,6 +144,14 @@ namespace JB.Job.GraphQL.Job
                     similarJobIds = new int[] { filter.JobId.Value };
                 }
 
+                // Block locked job
+                if (filter.ActiveStatus == null || filter.ActiveStatus.Length == 0)
+                {
+                    filter.ActiveStatus = Enum.GetValues(typeof(JobActiveStatus)).Cast<int>().ToArray();
+                }
+
+                filter.ActiveStatus = filter.ActiveStatus.Where(x => x != (int)JobActiveStatus.EXPIRED).ToArray();
+
                 //(status, jobs) = await _jobService.GetRecommendations(similarJobIds, filterExpr, sortExpr, size, page, isDescending);
                 (status, jobs) = await _jobService.GetRecommendations(filter);
                 if (!status.IsSuccess)
@@ -153,12 +173,6 @@ namespace JB.Job.GraphQL.Job
 
         [GraphQLName("jobSearchSuggestions")]
         public async Task<List<JobSearchSuggestionResponse>> JobSearchSuggestions(IResolverContext context, int? id, JobSearchSuggestionRequest search)
-        {
-            return null;
-        }
-
-        [GraphQLName("jobTops")]
-        public async Task<List<JobTopResponse>> JobTops(IResolverContext context, ListJobRequest filter)
         {
             return null;
         }

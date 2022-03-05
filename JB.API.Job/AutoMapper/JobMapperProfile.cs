@@ -52,6 +52,11 @@ namespace JB.Job.AutoMapper
                 .ForMember(m => m.Types, vm => vm.MapFrom(j => j.TypeIds))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
+            CreateMap<JobModel, JobAdminResponse>()
+                .ForMember(vm => vm.ApplicationCount, m => m.MapFrom(j => j.Applications.Count))
+                .ForMember(vm => vm.InterestCount, m => m.MapFrom(j => j.Interests.Count))
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
             CreateMap<JobModel, JobResponse>()
                 .ForMember(vm => vm.ApplicationCount, m => m.MapFrom(j => j.Applications.Count))
                 .ForMember(vm => vm.InterestCount, m => m.MapFrom(j => j.Interests.Count))

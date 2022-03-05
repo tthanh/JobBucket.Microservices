@@ -36,7 +36,7 @@ namespace JB.API.Job.Controllers
                 return NotFound(getStatus.Message);
             }
 
-            var results = _mapper.Map<List<JobResponse>>(jobs);
+            var results = _mapper.Map<List<JobAdminResponse>>(jobs);
 
             return Ok(results);
         }

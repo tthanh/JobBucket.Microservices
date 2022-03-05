@@ -245,6 +245,16 @@ namespace JB.User.Services
                         .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("city", filter?.City))
                         .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("country", filter?.Country))
                         .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("gender", filter?.Gender));
+                    
+                    if (filter?.RoleId > 0)
+                    {
+                        boolQuery = boolQuery
+                            .AppendToMustQuery(new TermQuery
+                            {
+                                Field = "roleId",
+                                Value = filter.RoleId.Value
+                            });
+                    }
 
                     if (similarUserIds == null || similarUserIds.Count == 0)
                     {

@@ -22,7 +22,7 @@ using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using Status = JB.Infrastructure.Models.Status;
 using JB.Infrastructure.Helpers;
 
-namespace JB.Job.Services.Job
+namespace JB.Job.Services
 {
     public class JobElasticsearchService : IJobSearchService
     {

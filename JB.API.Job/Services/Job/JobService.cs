@@ -36,7 +36,7 @@ namespace JB.Job.Services
         private readonly INotificationService _notiService;
 
         private readonly IJobSearchService _searchService;
-        private readonly Nest.IElasticClient _elasticClient;
+        private readonly IJobDocumentElasticsearchService _documentClient;
 
         public JobService(
             JobDbContext jobDbContext,
@@ -48,8 +48,7 @@ namespace JB.Job.Services
             ICVService cvService,
             INotificationService notiService,
             IJobSearchService searchService,
-            Nest.IElasticClient elasticClient
-        )
+            IJobDocumentElasticsearchService documentClient)
         {
             _jobDbContext = jobDbContext;
             _mapper = mapper;
@@ -60,7 +59,7 @@ namespace JB.Job.Services
             _cvService = cvService;
             _notiService = notiService;
             _searchService = searchService;
-            _elasticClient = elasticClient;
+            _documentClient = documentClient;
         }
 
         #region Job
@@ -114,7 +113,7 @@ namespace JB.Job.Services
                         entity.Organization = organization;
                     }
 
-                    await AddDocument(entity);
+                    await _documentClient.AddAsync(entity);
                 }
                 catch (Exception e)
                 {
@@ -190,7 +189,7 @@ namespace JB.Job.Services
                     _jobDbContext.Jobs.Remove(job);
                     await _jobDbContext.SaveChangesAsync();
 
-                    await DeleteDocument(jobId);
+                    await _documentClient.DeleteAsync(jobId);
                 }
                 catch (Exception e)
                 {
@@ -422,7 +421,7 @@ namespace JB.Job.Services
                         entity.Organization = organization;
                     }
                     
-                    await UpdateDocument(entity);
+                    await _documentClient.UpdateAsync(entity);
                 }
                 catch (Exception e)
                 {
@@ -943,23 +942,6 @@ namespace JB.Job.Services
             => await _searchService.Search(entityIds, filter, sort, size, offset, isDescending);
 
         #region
-        private async Task AddDocument(JobModel job)
-        {
-            JobDocument doc = _mapper.Map<JobDocument>(job);
-            await _elasticClient.IndexAsync(doc, r => r.Index("job"));
-        }
-
-        private async Task UpdateDocument(JobModel job)
-        {
-            JobDocument doc = _mapper.Map<JobDocument>(job);
-            await _elasticClient.UpdateAsync<JobDocument>(job.Id, u => u.Index("job").Doc(doc));
-        }
-
-        private async Task DeleteDocument(int id)
-        {
-            await _elasticClient.DeleteAsync<JobModel>(id, r => r.Index("job"));
-        }
-
         public async Task<(Status, JobCountsResponse)> GetJobCountsByCategory(int count)
         {
             Status result = new Status();
@@ -1043,7 +1025,7 @@ namespace JB.Job.Services
 
                         job.Employer = user;
 
-                        await UpdateDocument(job);
+                        await _documentClient.UpdateAsync(job);
                     }
                 }
                 catch (Exception e)
@@ -1101,7 +1083,7 @@ namespace JB.Job.Services
 
                     job.Employer = user;
 
-                    await UpdateDocument(job);
+                    await _documentClient.UpdateAsync(job);
                 }
                 catch (Exception e)
                 {
@@ -1165,7 +1147,7 @@ namespace JB.Job.Services
 
                     job.Employer = user;
 
-                    await UpdateDocument(job);
+                    await _documentClient.UpdateAsync(job);
                 }
                 catch (Exception e)
                 {
@@ -1180,15 +1162,14 @@ namespace JB.Job.Services
 
         public async Task<Status> Reindex()
         {
-            await _elasticClient.Indices.DeleteAsync("job");
+            await _documentClient.DeleteIndiceAsync();
 
             (var status, var jobs) = await List(j => true, j => j.Id, int.MaxValue, 1, false);
             if (status.IsSuccess)
             {
                 foreach (var data in jobs)
                 {
-                    var dataJson = _mapper.Map<JobDocument>(data);
-                    await _elasticClient.IndexAsync(dataJson, r => r.Index("job"));
+                    await _documentClient.AddAsync(data);
                 }
             }
 

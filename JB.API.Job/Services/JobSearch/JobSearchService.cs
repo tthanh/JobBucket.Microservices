@@ -18,7 +18,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
-namespace JB.Job.Services.Job
+namespace JB.Job.Services
 {
     public class JobSearchService : IJobSearchService
     {

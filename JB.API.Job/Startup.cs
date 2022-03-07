@@ -19,8 +19,6 @@ using System.Threading.Tasks;
 using Npgsql;
 using JB.Job.GraphQL.Interview;
 using JB.Job.GraphQL.Job;
-using JB.Job.Models.Job;
-using JB.Job.Services.Job;
 using Nest;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Helpers;
@@ -33,7 +31,6 @@ using JB.Infrastructure.Messages;
 using SlimMessageBus.Host.Redis;
 using SlimMessageBus.Host.Serialization.Json;
 using SlimMessageBus.Host.MsDependencyInjection;
-using JB.Infrastructure.Services;
 using JB.Job.GRPC;
 
 namespace JB.Job
@@ -118,6 +115,7 @@ namespace JB.Job
 
             services.AddScoped<IJobService, JobService>();
             services.AddScoped<IJobSearchService, JobElasticsearchService>();
+            services.AddScoped<IJobDocumentElasticsearchService, JobDocumentElasticsearchService>();
             services.AddScoped<IInterviewService, InterviewService>();
             services.AddScoped<IOrganizationService, OrganizationGRPCService>();
             services.AddScoped<IUserManagementService, UserManagementGRPCService>();

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using JB.gRPC.Profile;
 using JB.Infrastructure.Constants;
+using JB.Infrastructure.Elasticsearch.User;
 using JB.Infrastructure.Helpers;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;

@@ -114,6 +114,7 @@ namespace JB.User
             services.AddScoped<IJobService, JobGRPCService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<IUserProfileSearchService, UserProfileElasticsearchService>();
+            services.AddScoped<IUserProfileDocumentElasticsearchService, UserProfileDocumentElasticsearchService>();
             services.AddScoped<ICVService, CVService>();
             #endregion
 

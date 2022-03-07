@@ -32,7 +32,7 @@ namespace JB.User.Services
         private readonly ILogger<UserProfileService> _logger;
         private readonly IUserClaimsModel _claims;
         private readonly IUserProfileSearchService _searchService;
-        private readonly Nest.IElasticClient _elasticClient;
+        private readonly IUserProfileDocumentElasticsearchService _documentService;
         private readonly IDistributedCache _cache;
 
         public UserProfileService(
@@ -44,8 +44,8 @@ namespace JB.User.Services
             IUserClaimsModel claims,
             IUserProfileSearchService searchService,
             Nest.IElasticClient elasticClient,
-            IDistributedCache cache
-            )
+            IDistributedCache cache,
+            IUserProfileDocumentElasticsearchService documentService)
         {
             _profileDbContext = profileDbContext;
             _userManagementService = userManagementService;
@@ -54,8 +54,8 @@ namespace JB.User.Services
             _logger = logger;
             _claims = claims;
             _searchService = searchService;
-            _elasticClient = elasticClient;
             _cache = cache;
+            _documentService = documentService;
         }
 
         public async Task<Status> Add(UserProfileModel entity)
@@ -82,7 +82,7 @@ namespace JB.User.Services
                     await _profileDbContext.Profiles.AddAsync(entity);
                     await _profileDbContext.SaveChangesAsync();
 
-                    await AddDocument(entity);
+                    await _documentService.AddAsync(entity);
                 }
                 catch (Exception e)
                 {
@@ -185,7 +185,7 @@ namespace JB.User.Services
                         await _profileDbContext.Profiles.AddAsync(profile);
                         await _profileDbContext.SaveChangesAsync();
 
-                        await AddDocument(profile);
+                        await _documentService.AddAsync(profile);
                     }
 
                     if (profile.OrganizationId > 0)
@@ -267,7 +267,7 @@ namespace JB.User.Services
                     var user = _mapper.Map<UserModel>(entity);
                     await _userManagementService.UpdateUser(user);
 
-                    await UpdateDocument(entity);
+                    await _documentService.UpdateAsync(entity);
                  
                     await _cache.RemoveAsync(CacheKeys.PROFILE, user.Id);
                 }
@@ -283,23 +283,6 @@ namespace JB.User.Services
         }
 
         #region
-        private async Task AddDocument(UserProfileModel profile)
-        {
-            UserProfileDocument doc = _mapper.Map<UserProfileDocument>(profile);
-            await _elasticClient.IndexAsync(doc, r => r.Index("profile"));
-        }
-
-        private async Task UpdateDocument(UserProfileModel profile)
-        {
-            UserProfileDocument doc = _mapper.Map<UserProfileDocument>(profile);
-            await _elasticClient.UpdateAsync<UserProfileDocument>(profile.Id, u => u.Index("profile").Doc(doc));
-        }
-
-        private async Task DeleteDocument(int id)
-        {
-            await _elasticClient.DeleteAsync<UserProfileModel>(id, r => r.Index("profile"));
-        }
-
         public async Task<(Status, List<UserProfileModel>)> Search(string keyword, Expression<Func<UserProfileModel, bool>> filter = null, Expression<Func<UserProfileModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
             => await _searchService.Search(keyword, filter, sort, size, offset, isDescending);
 
@@ -312,15 +295,14 @@ namespace JB.User.Services
 
         public async Task<Status> Reindex()
         {
-            await _elasticClient.Indices.DeleteAsync("profile");
+            await _documentService.DeleteIndiceAsync();
 
             (var status, var jobs) = await List(j => true, j => j.Id, int.MaxValue, 1, false);
             if (status.IsSuccess)
             {
                 foreach (var data in jobs)
                 {
-                    var dataJson = _mapper.Map<UserProfileDocument>(data);
-                    await _elasticClient.IndexAsync(dataJson, r => r.Index("profile"));
+                    await _documentService.AddAsync(data);
                 }
             }
 

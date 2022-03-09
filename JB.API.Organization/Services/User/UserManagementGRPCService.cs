@@ -14,6 +14,9 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using JB.API.Infrastructure.Constants;
+using SlimMessageBus;
+using JB.Infrastructure.Messages;
+using static Grpc.Core.Metadata;
 
 namespace JB.Organization.Services
 {
@@ -23,8 +26,10 @@ namespace JB.Organization.Services
         private readonly IDistributedCache _cache;
         private readonly IMapper _mapper;
         private readonly gRPC.User.UserRPC.UserRPCClient _userGrpcClient;
+        private readonly IMessageBus _messageBus;
 
         public UserManagementGRPCService(
+            IMessageBus messageBus,
             ILogger<UserManagementGRPCService> logger,
             IDistributedCache cache,
             IMapper mapper,
@@ -35,6 +40,7 @@ namespace JB.Organization.Services
             _cache = cache;
             _mapper = mapper;
             _userGrpcClient = userGrpcClient;
+            _messageBus = messageBus;
         }
 
         public Task<(Status, int)> CountUser(Expression<Func<UserModel, bool>> filters)
@@ -110,9 +116,16 @@ namespace JB.Organization.Services
             throw new NotImplementedException();
         }
 
-        public Task<(Status, UserModel)> PromoteTo(int userId, int ogId, int roleId)
+        public async Task<(Status, UserModel)> PromoteTo(int userId, int ogId, int roleId)
         {
-            throw new NotImplementedException();
+            await _messageBus.Publish(new PromoteUserMessage 
+            {
+                UserId = userId,
+                OrganizationId = ogId,
+                RoleId = roleId,
+            });
+
+            return (new Status(), null);
         }
 
         public Task<Status> UnlockUser(int userId)

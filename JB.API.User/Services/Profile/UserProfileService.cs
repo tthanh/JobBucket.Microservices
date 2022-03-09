@@ -43,7 +43,6 @@ namespace JB.User.Services
             ILogger<UserProfileService> logger,
             IUserClaimsModel claims,
             IUserProfileSearchService searchService,
-            Nest.IElasticClient elasticClient,
             IDistributedCache cache,
             IUserProfileDocumentElasticsearchService documentService)
         {
@@ -53,9 +52,9 @@ namespace JB.User.Services
             _mapper = mapper;
             _logger = logger;
             _claims = claims;
-            _searchService = searchService;
             _cache = cache;
             _documentService = documentService;
+            _searchService = searchService;
         }
 
         public async Task<Status> Add(UserProfileModel entity)

@@ -15,6 +15,8 @@ namespace JB.Organization.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasDefaultSchema("Organization");
+            
+            builder.Entity<OrganizationModel>().Property(x => x.Id).HasIdentityOptions(startValue: 100);
 
             base.OnModelCreating(builder);
         }

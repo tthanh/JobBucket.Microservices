@@ -26,6 +26,12 @@ using Microsoft.AspNetCore.Identity;
 using JB.Authentication.GRPC;
 using JB.API.Infrastructure.Middlewares;
 using JB.Infrastructure.Filters;
+using SlimMessageBus.Host.MsDependencyInjection;
+using JB.Authentication.MessageBus.Consumers;
+using JB.Infrastructure.Messages;
+using SlimMessageBus.Host.Redis;
+using SlimMessageBus.Host.Serialization.Json;
+using SlimMessageBus;
 
 namespace JB.Authentication
 {
@@ -175,6 +181,21 @@ namespace JB.Authentication
             #region gRPC services
             services.AddGrpc();
             #endregion
+
+            #region PubSub
+            services.AddSingleton<PromoteUserMessageConsumer>();
+
+            services.AddSlimMessageBus((mbb, svp) =>
+            {
+                mbb
+                    .Consume<PromoteUserMessage>(x =>
+                    {
+                        x.Topic("user-promote").WithConsumer<PromoteUserMessageConsumer>();
+                    })
+                    .WithProviderRedis(new RedisMessageBusSettings(Configuration["Redis:Url"]))
+                    .WithSerializer(new JsonMessageSerializer());
+            });
+            #endregion
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -208,6 +229,8 @@ namespace JB.Authentication
             {
                 c.SwaggerEndpoint("v1/swagger.json", "Authentication");
             });
+
+            app.ApplicationServices.GetRequiredService<IMessageBus>();
 
             app.UseEndpoints(endpoints =>
             {

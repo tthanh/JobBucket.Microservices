@@ -24,6 +24,10 @@ using JB.Infrastructure.Constants;
 using JB.Infrastructure.Models.Authentication;
 using JB.Authentication.GRPC;
 using JB.API.Infrastructure.Middlewares;
+using SlimMessageBus.Host.MsDependencyInjection;
+using JB.Infrastructure.Messages;
+using SlimMessageBus.Host.Redis;
+using SlimMessageBus.Host.Serialization.Json;
 
 namespace JB.Organization
 {
@@ -135,6 +139,20 @@ namespace JB.Organization
             services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
             {
                 c.Address = new Uri(Configuration["GrpcServices:User"]);
+            });
+            #endregion
+
+            #region PubSub
+            services.AddSlimMessageBus((mbb, svp) =>
+            {
+                mbb
+                    .Produce<PromoteUserMessage>(x =>
+                    {
+                        x.DefaultTopic("user-promote");
+                    })
+                    .WithProviderRedis(new RedisMessageBusSettings(Configuration["Redis:Url"]))
+                    .WithSerializer(new JsonMessageSerializer());
+
             });
             #endregion
         }

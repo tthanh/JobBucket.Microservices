@@ -125,7 +125,6 @@ namespace JB.Job.Services
 
             return result;
         }
-
         public async Task<(Status, long)> Count(Expression<Func<JobModel, bool>> predicate)
         {
             Status result = new Status();
@@ -152,7 +151,6 @@ namespace JB.Job.Services
 
             return (result, jobsCount);
         }
-
         public async Task<Status> Delete(int jobId)
         {
             Status result = new Status();
@@ -201,7 +199,6 @@ namespace JB.Job.Services
 
             return result;
         }
-
         public async Task<(Status, JobModel)> GetById(int jobId)
         {
             Status result = new Status();
@@ -255,7 +252,6 @@ namespace JB.Job.Services
 
             return (result, job);
         }
-
         public async Task<(Status, List<JobModel>)> List(Expression<Func<JobModel, bool>> filter, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending = false)
         {
             Status result = new Status();
@@ -311,7 +307,6 @@ namespace JB.Job.Services
 
             return (result, jobs);
         }
-
         public async Task<(Status, List<JobModel>)> ListJobByOrganization(int organizationId, Expression<Func<JobModel, object>> sort, int size, int offset, bool isDescending = false)
         {
             Status result = new Status();
@@ -373,7 +368,6 @@ namespace JB.Job.Services
 
             return (result, jobs);
         }
-
         public async Task<Status> Update(JobModel entity)
         {
             Status result = new Status();
@@ -433,6 +427,194 @@ namespace JB.Job.Services
 
             return result;
         }
+        public async Task<Status> UpdateExpiredJobStatus()
+        {
+            Status result = new Status();
+
+            do
+            {
+                try
+                {
+                    var jobs = await _jobDbContext.Jobs.ToListAsync();
+
+                    foreach (var job in jobs)
+                    {
+                        if (job.ActiveStatus == (int)JobActiveStatus.HIRING)
+                        {
+                            if (job.ExpireDate < DateTime.UtcNow)
+                            {
+                                job.ActiveStatus = (int)JobActiveStatus.EXPIRED;
+                            }
+                        }
+                        else if (job.ActiveStatus == (int)JobActiveStatus.NEW)
+                        {
+                            if (job.ExpireDate < DateTime.UtcNow)
+                            {
+                                job.ActiveStatus = (int)JobActiveStatus.EXPIRED;
+                            }
+                            else if (DateTime.UtcNow - job.CreatedDate > TimeSpan.FromDays(3))
+                            {
+                                job.ActiveStatus = (int)JobActiveStatus.HIRING;
+                            }
+                        }
+                    }
+
+                    _jobDbContext.Jobs.UpdateRange(jobs);
+                    await _jobDbContext.SaveChangesAsync();
+
+                    foreach (var job in jobs)
+                    {
+                        (var getOrgstatus, var organization) = await _organizationService.GetById(job.OrganizationId);
+                        if (!getOrgstatus.IsSuccess)
+                        {
+                            result.ErrorCode = ErrorCode.OrganizationNull;
+                            break;
+                        }
+
+                        job.Organization = organization;
+
+                        (var getUserstatus, var user) = await _userService.GetUser(job.EmployerId);
+                        if (!getUserstatus.IsSuccess)
+                        {
+                            result.ErrorCode = ErrorCode.UserNotExist;
+                            break;
+                        }
+
+                        job.Employer = user;
+
+                        await _documentClient.UpdateAsync(job);
+                    }
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return result;
+        }
+        public async Task<Status> Lock(int id)
+        {
+            Status result = new Status();
+
+            do
+            {
+                if (id <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+
+                try
+                {
+                    var job = await _jobDbContext.Jobs.FirstOrDefaultAsync(x => x.Id == id);
+                    if (job == null)
+                    {
+                        result.ErrorCode = ErrorCode.JobNull;
+                        break;
+                    }
+
+                    job.ActiveStatus = (int)JobActiveStatus.LOCKED;
+                    _jobDbContext.Update(job);
+
+                    await _jobDbContext.SaveChangesAsync();
+
+                    (var getOrgstatus, var organization) = await _organizationService.GetById(job.OrganizationId);
+                    if (!getOrgstatus.IsSuccess)
+                    {
+                        result.ErrorCode = ErrorCode.OrganizationNull;
+                        break;
+                    }
+
+                    job.Organization = organization;
+
+                    (var getUserstatus, var user) = await _userService.GetUser(job.EmployerId);
+                    if (!getUserstatus.IsSuccess)
+                    {
+                        result.ErrorCode = ErrorCode.UserNotExist;
+                        break;
+                    }
+
+                    job.Employer = user;
+
+                    await _documentClient.UpdateAsync(job);
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return result;
+        }
+        public async Task<Status> Unlock(int id)
+        {
+            Status result = new Status();
+
+            do
+            {
+                if (id <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+
+                try
+                {
+                    var job = await _jobDbContext.Jobs.FirstOrDefaultAsync(x => x.Id == id);
+                    if (job == null)
+                    {
+                        result.ErrorCode = ErrorCode.JobNull;
+                        break;
+                    }
+
+                    if (job.ExpireDate < DateTime.UtcNow)
+                    {
+                        job.ActiveStatus = (int)JobActiveStatus.EXPIRED;
+                    }
+                    else
+                    {
+                        job.ActiveStatus = (int)JobActiveStatus.HIRING;
+                    }
+
+                    _jobDbContext.Update(job);
+                    await _jobDbContext.SaveChangesAsync();
+
+                    (var getOrgstatus, var organization) = await _organizationService.GetById(job.OrganizationId);
+                    if (!getOrgstatus.IsSuccess)
+                    {
+                        result.ErrorCode = ErrorCode.OrganizationNull;
+                        break;
+                    }
+
+                    job.Organization = organization;
+
+                    (var getUserstatus, var user) = await _userService.GetUser(job.EmployerId);
+                    if (!getUserstatus.IsSuccess)
+                    {
+                        result.ErrorCode = ErrorCode.UserNotExist;
+                        break;
+                    }
+
+                    job.Employer = user;
+
+                    await _documentClient.UpdateAsync(job);
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return result;
+        }
+
         #endregion
 
         #region Interest
@@ -692,7 +874,6 @@ namespace JB.Job.Services
 
             return (result, applyForm);
         }
-
         public async Task<(Status, ApplicationModel)> Unapply(int jobId)
         {
             Status result = new Status();
@@ -740,7 +921,6 @@ namespace JB.Job.Services
 
             return (result, applyForm);
         }
-
         public async Task<(Status, List<ApplicationModel>)> ListApply(Expression<Func<ApplicationModel, bool>> filter, Expression<Func<ApplicationModel, object>> sort, int size, int offset, bool isDescending = false)
         {
             Status result = new Status();
@@ -834,7 +1014,6 @@ namespace JB.Job.Services
 
             return (result, applications);
         }
-
         public async Task<(Status, List<ApplicationModel>)> GetAppliedUsersByJob(int jobId, Expression<Func<ApplicationModel, bool>> filter = null, Expression<Func<ApplicationModel, object>> sort = null, int size = 30, int offset = 1, bool isDescending = false)
         {
             Status result = new();
@@ -934,14 +1113,6 @@ namespace JB.Job.Services
 
             return (result, properties);
         }
-        #endregion
-
-        public async Task<(Status, List<JobModel>)> Search(string keyword, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 0, int offset = 0, bool isDescending = false)
-            => await _searchService.Search(keyword, filter, sort, size, offset, isDescending);
-        public async Task<(Status, List<JobModel>)> GetRecommendations(int[] entityIds = null, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
-            => await _searchService.Search(entityIds, filter, sort, size, offset, isDescending);
-
-        #region
         public async Task<(Status, JobCountsResponse)> GetJobCountsByCategory(int count)
         {
             Status result = new Status();
@@ -969,197 +1140,20 @@ namespace JB.Job.Services
 
             return (result, counts);
         }
+        #endregion
 
-        public async Task<Status> UpdateExpiredJobStatus()
-        {
-            Status result = new Status();
+        #region Search
+        public async Task<(Status, List<JobModel>)> Search(string keyword, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 0, int offset = 0, bool isDescending = false)
+            => await _searchService.Search(keyword, filter, sort, size, offset, isDescending);
+        public async Task<(Status, List<JobModel>)> GetRecommendations(int[] entityIds = null, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false)
+            => await _searchService.Search(entityIds, filter, sort, size, offset, isDescending);
+        public async Task<(Status, List<JobModel>)> Search(ListJobRequest filter = null)
+            => await _searchService.Search(filter);
+        public async Task<(Status, List<JobModel>)> GetRecommendations(ListJobRecommendationRequest filter = null)
+            => await _searchService.Search(filter);
+        #endregion
 
-            do
-            {
-                try
-                {
-                    var jobs = await _jobDbContext.Jobs.ToListAsync();
-
-                    foreach (var job in jobs)
-                    {
-                        if (job.ActiveStatus == (int)JobActiveStatus.HIRING)
-                        {
-                            if (job.ExpireDate < DateTime.UtcNow)
-                            {
-                                job.ActiveStatus = (int)JobActiveStatus.EXPIRED;
-                            }
-                        }
-                        else if (job.ActiveStatus == (int)JobActiveStatus.NEW)
-                        {
-                            if (job.ExpireDate < DateTime.UtcNow)
-                            {
-                                job.ActiveStatus = (int)JobActiveStatus.EXPIRED;
-                            }
-                            else if (DateTime.UtcNow - job.CreatedDate > TimeSpan.FromDays(3))
-                            {
-                                job.ActiveStatus = (int)JobActiveStatus.HIRING;
-                            }
-                        }
-                    }
-
-                    _jobDbContext.Jobs.UpdateRange(jobs);
-                    await _jobDbContext.SaveChangesAsync();
-
-                    foreach (var job in jobs)
-                    {
-                        (var getOrgstatus, var organization) = await _organizationService.GetById(job.OrganizationId);
-                        if (!getOrgstatus.IsSuccess)
-                        {
-                            result.ErrorCode = ErrorCode.OrganizationNull;
-                            break;
-                        }
-
-                        job.Organization = organization;
-
-                        (var getUserstatus, var user) = await _userService.GetUser(job.EmployerId);
-                        if (!getUserstatus.IsSuccess)
-                        {
-                            result.ErrorCode = ErrorCode.UserNotExist;
-                            break;
-                        }
-
-                        job.Employer = user;
-
-                        await _documentClient.UpdateAsync(job);
-                    }
-                }
-                catch (Exception e)
-                {
-                    result.ErrorCode = ErrorCode.Unknown;
-                    _logger.LogError(e, e.Message);
-                }
-            }
-            while (false);
-
-            return result;
-        }
-
-        public async Task<Status> Lock(int id)
-        {
-            Status result = new Status();
-
-            do
-            {
-                if (id <= 0)
-                {
-                    result.ErrorCode = ErrorCode.InvalidArgument;
-                    break;
-                }
-
-                try
-                {
-                    var job = await _jobDbContext.Jobs.FirstOrDefaultAsync(x => x.Id == id);
-                    if (job == null)
-                    {
-                        result.ErrorCode = ErrorCode.JobNull;
-                        break;
-                    }
-
-                    job.ActiveStatus = (int)JobActiveStatus.LOCKED;
-                    _jobDbContext.Update(job);
-
-                    await _jobDbContext.SaveChangesAsync();
-
-                    (var getOrgstatus, var organization) = await _organizationService.GetById(job.OrganizationId);
-                    if (!getOrgstatus.IsSuccess)
-                    {
-                        result.ErrorCode = ErrorCode.OrganizationNull;
-                        break;
-                    }
-
-                    job.Organization = organization;
-
-                    (var getUserstatus, var user) = await _userService.GetUser(job.EmployerId);
-                    if (!getUserstatus.IsSuccess)
-                    {
-                        result.ErrorCode = ErrorCode.UserNotExist;
-                        break;
-                    }
-
-                    job.Employer = user;
-
-                    await _documentClient.UpdateAsync(job);
-                }
-                catch (Exception e)
-                {
-                    result.ErrorCode = ErrorCode.Unknown;
-                    _logger.LogError(e, e.Message);
-                }
-            }
-            while (false);
-
-            return result;
-        }
-
-        public async Task<Status> Unlock(int id)
-        {
-            Status result = new Status();
-
-            do
-            {
-                if (id <= 0)
-                {
-                    result.ErrorCode = ErrorCode.InvalidArgument;
-                    break;
-                }
-
-                try
-                {
-                    var job = await _jobDbContext.Jobs.FirstOrDefaultAsync(x => x.Id == id);
-                    if (job == null)
-                    {
-                        result.ErrorCode = ErrorCode.JobNull;
-                        break;
-                    }
-
-                    if (job.ExpireDate < DateTime.UtcNow)
-                    {
-                        job.ActiveStatus = (int)JobActiveStatus.EXPIRED;
-                    }
-                    else
-                    {
-                        job.ActiveStatus = (int)JobActiveStatus.HIRING;
-                    }
-
-                    _jobDbContext.Update(job);
-                    await _jobDbContext.SaveChangesAsync();
-
-                    (var getOrgstatus, var organization) = await _organizationService.GetById(job.OrganizationId);
-                    if (!getOrgstatus.IsSuccess)
-                    {
-                        result.ErrorCode = ErrorCode.OrganizationNull;
-                        break;
-                    }
-
-                    job.Organization = organization;
-
-                    (var getUserstatus, var user) = await _userService.GetUser(job.EmployerId);
-                    if (!getUserstatus.IsSuccess)
-                    {
-                        result.ErrorCode = ErrorCode.UserNotExist;
-                        break;
-                    }
-
-                    job.Employer = user;
-
-                    await _documentClient.UpdateAsync(job);
-                }
-                catch (Exception e)
-                {
-                    result.ErrorCode = ErrorCode.Unknown;
-                    _logger.LogError(e, e.Message);
-                }
-            }
-            while (false);
-
-            return result;
-        }
-
+        #region Document
         public async Task<Status> Reindex()
         {
             await _documentClient.DeleteIndiceAsync();
@@ -1175,12 +1169,6 @@ namespace JB.Job.Services
 
             return new Status();
         }
-
-        public async Task<(Status, List<JobModel>)> Search(ListJobRequest filter = null)
-            => await _searchService.Search(filter);
-
-        public async Task<(Status, List<JobModel>)> GetRecommendations(ListJobRecommendationRequest filter = null)
-            => await _searchService.Search(filter);
         #endregion
     }
 }

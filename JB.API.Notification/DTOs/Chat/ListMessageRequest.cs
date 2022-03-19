@@ -8,6 +8,7 @@ namespace JB.Notification.DTOs.Chat
     public class ListMessageRequest : ListVM<ChatMessageModel>
     {
         public int? Type { get; set; }
+        public int? OlderThanMessageId { get; set; }
 
         public Expression<Func<ChatMessageModel, object>> GetSortExpression()
         {

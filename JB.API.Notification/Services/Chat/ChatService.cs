@@ -226,6 +226,12 @@ namespace JB.Notification.Services
                     await _chatDbContext.Messages.AddAsync(chat);
                     await _chatDbContext.SaveChangesAsync();
 
+                    (var getUserStatus, var user) = await _userService.GetUser(chat.SenderId);
+                    if (getUserStatus.IsSuccess)
+                    {
+                        chat.Sender = user;
+                    }
+
                     Task.Run(() => _chatSubscriptionsService.Add(chat));
                 }
                 catch (Exception e)

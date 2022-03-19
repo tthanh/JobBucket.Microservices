@@ -126,6 +126,8 @@ namespace JB.Notification
 
             services.AddSingleton<NotificationRedisPubSubObserver>();
             services.AddSingleton<IObserver<NotificationModel>, NotificationRedisPubSubObserver>(p => p.GetService<NotificationRedisPubSubObserver>());
+            services.AddSingleton<NotificationFirebaseObserver>();
+            services.AddSingleton<IObserver<NotificationModel>, NotificationFirebaseObserver>(p => p.GetService<NotificationFirebaseObserver>());
 
             services.AddSingleton<ChatRedisPubSubObserver>();
             services.AddSingleton<IObserver<ChatMessageModel>, ChatRedisPubSubObserver>(p => p.GetService<ChatRedisPubSubObserver>());

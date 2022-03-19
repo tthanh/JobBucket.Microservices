@@ -103,6 +103,11 @@ namespace JB.Notification.GraphQL.Chat
                 int page = filterRequest?.Page > 0 ? filterRequest.Page.Value : 1;
                 bool isDescending = filterRequest?.IsDescending ?? true;
 
+                if (filterRequest?.OlderThanMessageId > 0)
+                {
+                    filter = filter.And(x => x.Id < filterRequest.OlderThanMessageId.Value);
+                }
+
                 (status, messages) = await _chatService.ListMessages(conversationId, filter, sort, size, page, isDescending);
                 if (!status.IsSuccess)
                 {

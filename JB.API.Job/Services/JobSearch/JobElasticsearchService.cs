@@ -379,7 +379,7 @@ namespace JB.Job.Services
                         .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("activeStatus", filter.ActiveStatus))
                         .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("cities", filter.Cities));
 
-                    if (likedAndAppliedJobIds.Count == 0)
+                    if (/*likedAndAppliedJobIds.Count == 0*/true)
                     {
                         boolQuery = boolQuery.AppendToMustQuery(new MultiMatchQuery
                         {

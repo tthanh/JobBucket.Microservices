@@ -24,6 +24,11 @@ namespace JB.Organization.DTOs.Organization
                 filter = filter.And(o => o.Country.Contains(Country));
             }
 
+            if (string.IsNullOrEmpty(Keyword))
+            {
+                filter = filter.And(b => b.Name.Contains(Keyword) || b.Bio.Contains(Keyword));
+            }
+
             return filter;
         }
 

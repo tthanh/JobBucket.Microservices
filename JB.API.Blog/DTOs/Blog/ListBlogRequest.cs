@@ -29,6 +29,11 @@ namespace JB.Blog.DTOs.Blog
                 filter = filter.And(b => b.AuthorId == AuthorId);
             }
 
+            if (string.IsNullOrEmpty(Keyword))
+            {
+                filter = filter.And(b => b.Title.Contains(Keyword));
+            }
+
             if (CreatedDate != null)
             {
                 Array.Sort(CreatedDate);

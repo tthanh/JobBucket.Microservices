@@ -172,6 +172,7 @@ namespace JB.User.Services
                                    ))
                             .MaxQueryTerms(12)
                             .MinTermFrequency(1)
+                            .MinDocumentFrequency(1)
                         )));
                     }
 
@@ -236,16 +237,31 @@ namespace JB.User.Services
                         }
                     }
 
+                    if (filter?.JobId > 0)
+                    {
+                        (getJobtatus, jobs) = await _jobService.ListByIds(new int[] { filter.JobId.Value });
+                        if (getJobtatus.IsSuccess)
+                        {
+                            foreach (var job in jobs)
+                            {
+                                likeTerms.AddRange(job.Skills?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+                                likeTerms.AddRange(job.Types?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+                                likeTerms.AddRange(job.Categories?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+                                likeTerms.AddRange(job.Cities ?? Enumerable.Empty<string>());
+                                likeTerms.AddRange(job.Positions?.Select(x => x.Name) ?? Enumerable.Empty<string>());
+                            }
+                        }
+                    }
+
                     var boolQuery = new BoolQuery
                     {
-                        Must = Array.Empty<QueryContainer>()
+                        Must = Array.Empty<QueryContainer>(),
+                        Should = Array.Empty<QueryContainer>(),
                     };
 
                     boolQuery = boolQuery
                         .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("skills.skillName", filter?.Skills))
-                        .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("city", filter?.City))
-                        .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("country", filter?.Country))
-                        .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("gender", filter?.Gender));
+                        .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("city", filter?.City));
                     
                     if (filter?.RoleId > 0)
                     {
@@ -259,7 +275,7 @@ namespace JB.User.Services
 
                     if (similarUserIds == null || similarUserIds.Count == 0)
                     {
-                        boolQuery = boolQuery.AppendToMustQuery(new MultiMatchQuery
+                        boolQuery = boolQuery.AppendToShouldQuery(new MultiMatchQuery
                         {
                             Query = string.Join(' ', likeTerms),
                             Fields = new Field[]
@@ -284,7 +300,8 @@ namespace JB.User.Services
                             {
                                 new Like(string.Join(' ', likeTerms)),
                             },
-                            MinTermFrequency = 1,
+                            MinDocumentFrequency = 1,
+                            MinTermFrequency = 0,
                             MaxQueryTerms = 12,
                             Fields = new Field[]
                             {
@@ -301,7 +318,7 @@ namespace JB.User.Services
                         };
                         mlt.Like = mlt.Like.Concat(similarUserIds.Select(x => new Like(new LikeDocument<UserProfileModel>(x))));
 
-                        boolQuery = boolQuery.AppendToMustQuery(mlt);
+                        boolQuery = boolQuery.AppendToShouldQuery(mlt);
                     }
 
                     searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(new SearchRequest<UserProfileModel>

@@ -38,5 +38,20 @@ namespace JB.Infrastructure.Helpers
 
             return boolQuery;
         }
+
+        public static BoolQuery AppendToShouldQuery(this BoolQuery boolQuery, QueryBase childBoolQuery)
+        {
+            if (childBoolQuery != null)
+            {
+                boolQuery.Should = boolQuery.Should
+                            .Append(
+                                new QueryContainer(
+                                    childBoolQuery
+                                )
+                            );
+            }
+
+            return boolQuery;
+        }
     }
 }

@@ -215,6 +215,7 @@ namespace JB.Job.Services
                                     "responsibilities",
                                     "requirements"))
                             .MaxQueryTerms(12)
+                            .MinDocumentFrequency(1)
                             .MinTermFrequency(1)
                         )));
                     }
@@ -368,7 +369,8 @@ namespace JB.Job.Services
 
                     var boolQuery = new BoolQuery
                     {
-                        Must = Array.Empty<QueryContainer>()
+                        Must = Array.Empty<QueryContainer>(),
+                        Should = Array.Empty<QueryContainer>(),
                     };
 
                     boolQuery = boolQuery
@@ -379,9 +381,9 @@ namespace JB.Job.Services
                         .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("activeStatus", filter.ActiveStatus))
                         .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("cities", filter.Cities));
 
-                    if (/*likedAndAppliedJobIds.Count == 0*/true)
+                    if (likedAndAppliedJobIds.Count == 0)
                     {
-                        boolQuery = boolQuery.AppendToMustQuery(new MultiMatchQuery
+                        boolQuery = boolQuery.AppendToShouldQuery(new MultiMatchQuery
                         {
                             Query = string.Join(' ', likeTerms),
                             Fields = new Field[]
@@ -409,27 +411,28 @@ namespace JB.Job.Services
                             {
                                 new Like(string.Join(' ', likeTerms)),
                             },
-                            MinTermFrequency = 1,
+                            MinDocumentFrequency = 1,
+                            MinTermFrequency = 0,
                             MaxQueryTerms = 12,
                             Fields = new Field[]
                             {
                                 "skills.name",
-                            "organization.name",
-                            "positions.name",
-                            "categories.name",
-                            "title",
-                            "description",
-                            "types",
-                            "cities",
-                            "benefits",
-                            "experiences",
-                            "responsibilities",
-                            "requirements"
+                                "organization.name",
+                                "positions.name",
+                                "categories.name",
+                                "title",
+                                "description",
+                                "types",
+                                "cities",
+                                "benefits",
+                                "experiences",
+                                "responsibilities",
+                                "requirements"
                             }
                         };
                         mlt.Like = mlt.Like.Concat(likedAndAppliedJobIds.Select(x => new Like(new LikeDocument<JobModel>(x))));
 
-                        boolQuery = boolQuery.AppendToMustQuery(mlt);
+                        boolQuery = boolQuery.AppendToShouldQuery(mlt);
                     }
 
                     var searchRequest = new SearchRequest<JobModel>

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Elasticsearch.Net;
 using JB.gRPC.Profile;
 using JB.Infrastructure.Constants;
 using JB.Infrastructure.Elasticsearch.User;
@@ -256,7 +257,11 @@ namespace JB.User.Services
                     var boolQuery = new BoolQuery
                     {
                         Must = Array.Empty<QueryContainer>(),
-                        Should = Array.Empty<QueryContainer>(),
+                        //Should = Array.Empty<QueryContainer>(),
+                        Should = new QueryContainer[]
+                        {
+                            new MatchAllQuery(),
+                        },
                     };
 
                     boolQuery = boolQuery
@@ -275,7 +280,7 @@ namespace JB.User.Services
 
                     if (similarUserIds == null || similarUserIds.Count == 0)
                     {
-                        boolQuery = boolQuery.AppendToShouldQuery(new MultiMatchQuery
+                        boolQuery = boolQuery.AppendToShouldQuery(new SimpleQueryStringQuery
                         {
                             Query = string.Join(' ', likeTerms),
                             Fields = new Field[]
@@ -289,7 +294,7 @@ namespace JB.User.Services
                                 "educations.major",
                                 "educations.profession",
                                 "experiences.position"
-                            }
+                            },
                         });
                     }
                     else
@@ -321,12 +326,16 @@ namespace JB.User.Services
                         boolQuery = boolQuery.AppendToShouldQuery(mlt);
                     }
 
-                    searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(new SearchRequest<UserProfileModel>
+                    var searchRequest = new SearchRequest<UserProfileModel>
                     {
                         From = (filter.Page - 1) * filter.Size,
                         Size = filter.Size,
                         Query = boolQuery,
-                    });
+                    };
+
+                    searchResponse = await _elasticClient.SearchAsync<UserProfileModel>(searchRequest);
+                    
+                    var json = _elasticClient.RequestResponseSerializer.SerializeToString(searchRequest);
 
                     if (!searchResponse.IsValid)
                     {

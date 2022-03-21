@@ -1,6 +1,7 @@
 ﻿using JB.Blog.Blog.Models;
 using JB.Infrastructure.DTOs;
 using JB.Infrastructure.Helpers;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -29,9 +30,9 @@ namespace JB.Blog.DTOs.Blog
                 filter = filter.And(b => b.AuthorId == AuthorId);
             }
 
-            if (string.IsNullOrEmpty(Keyword))
+            if (!string.IsNullOrEmpty(Keyword))
             {
-                filter = filter.And(b => b.Title.Contains(Keyword));
+                filter = filter.And(b => !string.IsNullOrEmpty(b.Title) && b.Title.ToLower().Contains(Keyword.ToLower()));
             }
 
             if (CreatedDate != null)

@@ -24,9 +24,9 @@ namespace JB.Organization.DTOs.Organization
                 filter = filter.And(o => o.Country.Contains(Country));
             }
 
-            if (string.IsNullOrEmpty(Keyword))
+            if (!string.IsNullOrEmpty(Keyword))
             {
-                filter = filter.And(b => b.Name.Contains(Keyword) || b.Bio.Contains(Keyword));
+                filter = filter.And(b => !string.IsNullOrEmpty(b.Name) && b.Name.ToLower().Contains(Keyword.ToLower()));
             }
 
             return filter;

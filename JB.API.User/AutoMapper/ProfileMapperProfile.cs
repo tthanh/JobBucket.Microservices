@@ -10,6 +10,7 @@ using JB.Infrastructure.Elasticsearch.User;
 using Google.Protobuf.WellKnownTypes;
 using System;
 using JB.User.Models.Organization;
+using JB.API.User.Models.Job;
 
 namespace JB.User.AutoMapper
 {
@@ -47,6 +48,18 @@ namespace JB.User.AutoMapper
 
             CreateMap<gRPC.User.User, UserModel>();
             CreateMap<gRPC.Organization.Organization, OrganizationModel>();
+
+            CreateMap<UserModel, gRPC.User.User>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<OrganizationModel, gRPC.Organization.Organization>()
+               .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<gRPC.Job.Job,JobModel>();
+            CreateMap<gRPC.Job.JobCategory,JobCategoryModel>();
+            CreateMap<gRPC.Job.JobType, JobTypeModel>();
+            CreateMap<gRPC.Job.JobSkill,JobSkillModel>();
+            CreateMap<gRPC.Job.JobPosition, JobPositionModel>();
         }
     }
 }

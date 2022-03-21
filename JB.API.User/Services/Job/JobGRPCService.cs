@@ -48,7 +48,16 @@ namespace JB.User.Services
 
         public async Task<(Status, List<JobModel>)> ListByIds(int[] ids)
         {
-            throw new NotImplementedException();
+            Status status = new Status();
+            var jobs = new List<JobModel>();
+
+            var req = new gRPC.Job.JobRequest();
+            req.Id.AddRange(ids);
+
+            var jobResp = await _jobGrpcClient.GetAsync(req);
+            jobs = jobResp.Jobs.Select(j => _mapper.Map<JobModel>(j)).ToList();
+
+            return (status, jobs);
         }
     }
 }

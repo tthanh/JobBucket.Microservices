@@ -141,7 +141,7 @@
           {
             "Name": "Profile",
             "Version": "v1",
-            "Url": "http://jb.api.profile:5004/swagger/v1/swagger.json"
+            "Url": "http://jb.api.user:5004/swagger/v1/swagger.json"
           }
         ]
       }

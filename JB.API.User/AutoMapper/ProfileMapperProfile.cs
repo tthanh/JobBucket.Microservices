@@ -11,6 +11,7 @@ using Google.Protobuf.WellKnownTypes;
 using System;
 using JB.User.Models.Organization;
 using JB.API.User.Models.Job;
+using JB.Infrastructure.Models.Elasticsearch.User.Property;
 
 namespace JB.User.AutoMapper
 {
@@ -35,6 +36,9 @@ namespace JB.User.AutoMapper
                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<UserProfileModel, UserProfileDocument>();
+            CreateMap<UserSkillModel, UserSkillDocument>();
+            CreateMap<UserEducationModel, UserEducationDocument>();
+            CreateMap<UserExperienceModel, UserExprerienceDocument>();
 
             CreateMap<DateTime, Timestamp>().ConvertUsing(x => Timestamp.FromDateTime(x.ToUniversalTime()));
             CreateMap<Timestamp, DateTime>().ConvertUsing(x => x.ToDateTime());

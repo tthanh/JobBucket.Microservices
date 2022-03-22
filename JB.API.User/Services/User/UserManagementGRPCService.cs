@@ -118,8 +118,6 @@ namespace JB.User.Services
 
         public async Task<(Status, UserModel)> UpdateUser(UserModel user)
         {
-            throw new NotImplementedException();
-
             Status status = new Status();
             
             if (user == null)

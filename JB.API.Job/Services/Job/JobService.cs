@@ -1003,6 +1003,11 @@ namespace JB.Job.Services
                         break;
                     }
 
+                    foreach (var a in applications)
+                    {
+                        if (a.Job != null)
+                            a.Job.IsJobApplied = true;
+                    }
                 }
                 catch (Exception e)
                 {

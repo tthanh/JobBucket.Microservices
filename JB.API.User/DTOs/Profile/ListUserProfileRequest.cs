@@ -14,10 +14,23 @@ namespace JB.User.DTOs.Profile
         public string[] Skills { get; set; }
         public int? UserId { get; set; }
         public int? JobId { get; set; }
-
+        public int? OrganizationId { get; set; }
+        
         public override Expression<Func<UserProfileModel, bool>> GetFilterExpression()
         {
-            return ExpressionHelper.True<UserProfileModel>();
+            Expression<Func<UserProfileModel, bool>> filter = ExpressionHelper.True<UserProfileModel>();
+
+            if (OrganizationId > 0)
+            {
+                filter = filter.And(b => b.OrganizationId == OrganizationId);
+            }
+
+            if (RoleId > 0)
+            {
+                filter = filter.And(b => b.RoleId == RoleId);
+            }
+
+            return filter;
         }
 
         protected override string[] GetAllowedSortFields()

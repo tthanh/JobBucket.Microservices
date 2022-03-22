@@ -82,6 +82,15 @@ namespace JB.Organization.Services
                     _reviewDbContext.Entry(entity).State = EntityState.Detached;
                     entity = await _reviewDbContext.Reviews.FindAsync(entity.Id);
 
+                    if (entity.UserId > 0)
+                    {
+                        UserModel reviewer = _userService.GetUser(entity.UserId).Result.Item2;
+                        if (reviewer != null)
+                        {
+                            entity.User = reviewer;
+                        }
+                    }
+
                     await UpdateOrganizationRating(entity.OrganizationId);
                 }
                 catch (Exception e)
@@ -321,7 +330,16 @@ namespace JB.Organization.Services
                     PropertyHelper.InjectNonNull<ReviewModel>(review, entity);
                     _reviewDbContext.Update(review);
                     await _reviewDbContext.SaveChangesAsync();
-                    
+
+                    if (review.UserId > 0)
+                    {
+                        UserModel reviewer = _userService.GetUser(review.UserId).Result.Item2;
+                        if (reviewer != null)
+                        {
+                            review.User = reviewer;
+                        }
+                    }
+
                     await UpdateOrganizationRating(review.OrganizationId);
                 }
                 catch (Exception e)

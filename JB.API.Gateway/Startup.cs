@@ -1,14 +1,19 @@
 using System;
 using System.Net.Http.Headers;
+using System.Text;
+using JB.API.Infrastructure.Middlewares;
 using JB.Gateway.GraphQL.Subscriptions;
 using JB.Gateway.MessageBus.Consumers;
 using JB.Gateway.Services;
 using JB.Infrastructure.DTOs.Subscriptions;
+using JB.Infrastructure.Models.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
@@ -77,6 +82,27 @@ namespace JB.Gateway
                        .AllowAnyHeader();
             }));
 
+            #region Authentication
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = Configuration["Jwt:Issuer"],
+                        ValidAudience = Configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                    };
+                });
+
+            services.AddAuthorization();
+
+            services.AddScoped<IUserClaimsModel, UserClaimsModel>();
+            #endregion
+
             services.AddTransient<IJwtService, JwtService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -133,6 +159,8 @@ namespace JB.Gateway
             app.UseCors("LowCorsPolicy");
             app.UseRouting();
             app.UseAuthorization();
+            
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseSwagger();
             app.UseSwaggerForOcelotUI(opt =>

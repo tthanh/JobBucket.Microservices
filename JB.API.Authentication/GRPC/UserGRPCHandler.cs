@@ -2,7 +2,10 @@
 using Grpc.Core;
 using JB.Authentication.Models.User;
 using JB.Authentication.Services;
+using JB.gRPC.Organization;
 using JB.gRPC.User;
+using JB.Infrastructure.Constants;
+using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,6 +65,27 @@ namespace JB.Authentication.GRPC
             }
 
             (status, user) = await _userManagementService.UpdateUser(user);
+
+            return userResponse;
+        }
+
+        public override async Task<gRPC.User.User> Create(CreateUserRequest request, ServerCallContext context)
+        {
+            gRPC.User.User userResponse = new gRPC.User.User();
+
+            var user = new UserModel()
+            {
+                Name = request.Name,
+                UserName = request.UserName,
+                Email = request.Email,
+                RoleId = request.RoleId,
+                OrganizationId = request.OrganizationId,
+                PasswordPlain = request.PasswordPlain
+            };
+
+            (var status,var userResult) = await _userManagementService.CreateUser(user);
+
+            userResponse = _mapper.Map<UserModel, gRPC.User.User>(userResult);
 
             return userResponse;
         }

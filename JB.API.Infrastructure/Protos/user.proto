@@ -10,6 +10,7 @@ option csharp_namespace = "JB.gRPC.User";
 service UserRPC {
   rpc Get (UserRequest) returns (UserResponse);
   rpc Update (UpdateUserRequest) returns (User);
+  rpc Create (CreateUserRequest) returns (User);
 }
 
 message UserRequest {
@@ -43,4 +44,13 @@ message UpdateUserRequest {
 	optional string avatarUrl = 2;
 	optional google.protobuf.Int32Value defaultCVId = 3;
 	int32 id = 4;
+}
+
+message CreateUserRequest {
+	optional string name = 1;
+	optional string userName = 2;
+	optional string email = 3;
+	optional int32 roleId = 4;
+	optional int32 organizationId = 5;
+	optional string passwordPlain = 6;
 }

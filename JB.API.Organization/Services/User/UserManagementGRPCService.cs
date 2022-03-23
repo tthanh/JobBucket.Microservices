@@ -17,6 +17,7 @@ using JB.API.Infrastructure.Constants;
 using SlimMessageBus;
 using JB.Infrastructure.Messages;
 using static Grpc.Core.Metadata;
+using JB.gRPC.User;
 
 namespace JB.Organization.Services
 {
@@ -48,9 +49,27 @@ namespace JB.Organization.Services
             throw new NotImplementedException();
         }
 
-        public Task<(Status, UserModel)> CreateUser(UserModel user)
+        public async Task<(Status, UserModel)> CreateUser(UserModel user)
         {
-            throw new NotImplementedException();
+            Status status = new Status();
+
+            if (user != null)
+            {
+                var req = new gRPC.User.CreateUserRequest
+                {
+                    Email = user.Email,
+                    UserName = user.UserName,
+                    RoleId = user.RoleId,
+                    PasswordPlain = user.PasswordPlain,
+                    OrganizationId = user.OrganizationId.Value,
+                    Name = user.Name,
+                };
+
+                var userResp = await _userGrpcClient.CreateAsync(req);
+                user = _mapper.Map<User, UserModel>(userResp);
+            }
+
+            return (status, user);
         }
 
         public Task<Status> DeleteUser(UserModel user)

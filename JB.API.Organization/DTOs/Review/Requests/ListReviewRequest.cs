@@ -2,6 +2,7 @@
 using JB.Infrastructure.Helpers;
 using JB.Organization.Models.Review;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace JB.Organization.DTOs.Review.Requests
@@ -15,7 +16,10 @@ namespace JB.Organization.DTOs.Review.Requests
         {
             Expression<Func<ReviewModel, bool>> filter = ExpressionHelper.True<ReviewModel>();
 
-         
+            if (OrganizationId?.Length > 0)
+            {
+                filter = filter.And(x => OrganizationId.Contains(x.OrganizationId));
+            }
 
             return filter;
         }

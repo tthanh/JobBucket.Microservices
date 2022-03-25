@@ -79,8 +79,8 @@ namespace JB.Organization.Services
                     await _reviewDbContext.Reviews.AddAsync(entity);
                     await _reviewDbContext.SaveChangesAsync();
 
-                    _reviewDbContext.Entry(entity).State = EntityState.Detached;
-                    entity = await _reviewDbContext.Reviews.FindAsync(entity.Id);
+                    //_reviewDbContext.Entry(entity).State = EntityState.Detached;
+                    //entity = await _reviewDbContext.Reviews.FindAsync(entity.Id);
 
                     if (entity.UserId > 0)
                     {
@@ -88,6 +88,15 @@ namespace JB.Organization.Services
                         if (reviewer != null)
                         {
                             entity.User = reviewer;
+                        }
+                    }
+
+                    if (entity.OrganizationId > 0)
+                    {
+                        OrganizationModel reviewee = _orgService.GetById(entity.OrganizationId).Result.Item2;
+                        if (reviewee != null)
+                        {
+                            entity.Organization = reviewee;
                         }
                     }
 
@@ -337,6 +346,15 @@ namespace JB.Organization.Services
                         if (reviewer != null)
                         {
                             review.User = reviewer;
+                        }
+                    }
+
+                    if (review.OrganizationId > 0)
+                    {
+                        OrganizationModel reviewee = _orgService.GetById(review.OrganizationId).Result.Item2;
+                        if (reviewee != null)
+                        {
+                            review.Organization = reviewee;
                         }
                     }
 

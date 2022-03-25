@@ -962,6 +962,11 @@ namespace JB.Job.Services
                             UserModel user = _userService.GetUser(app.UserId).Result.Item2;
                             app.User = user ?? app.Job.Employer;
                         }
+
+                        if (app.Job != null)
+                        {
+                            app.Job.IsJobApplied = app.UserId == _claims.Id;
+                        }
                     }
                 }
                 catch (Exception e)
@@ -1001,12 +1006,6 @@ namespace JB.Job.Services
                     {
                         result.ErrorCode = ErrorCode.InvalidData;
                         break;
-                    }
-
-                    foreach (var a in applications)
-                    {
-                        if (a.Job != null)
-                            a.Job.IsJobApplied = true;
                     }
                 }
                 catch (Exception e)

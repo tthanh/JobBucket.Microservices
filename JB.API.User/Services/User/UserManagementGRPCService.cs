@@ -120,7 +120,7 @@ namespace JB.User.Services
         {
             Status status = new Status();
             
-            if (user == null)
+            if (user != null)
             {
                 var req = new gRPC.User.UpdateUserRequest();
                 req.Id = user.Id;

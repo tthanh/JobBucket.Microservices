@@ -217,6 +217,16 @@ namespace JB.User.Services
                         };
                     }
 
+                    if (filter.Page  == null || filter.Page <= 0)
+                    {
+                        filter.Page = 1;
+                    }
+
+                    if (filter.Size == null || filter.Size <= 0)
+                    {
+                        filter.Size = 10;
+                    }
+
                     userId = _claims?.Id ?? userId;
 
                     if (filter?.UserId > 0)
@@ -274,7 +284,7 @@ namespace JB.User.Services
                             .AppendToMustQuery(new TermQuery
                             {
                                 Field = "roleId",
-                                Value = filter.RoleId.Value
+                                Value = filter.RoleId.Value.ToString(),
                             });
                     }
 

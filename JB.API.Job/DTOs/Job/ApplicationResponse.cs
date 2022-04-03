@@ -16,5 +16,7 @@ namespace JB.Job.DTOs.Job
         public string StatusDisplay { get => EnumHelper.GetDescriptionFromEnumValue((ApplicationStatus)Status); }
         public int CVId { get; set; }
         public string CVPDFUrl { get; set; }
+        public string[] Attachments { get; set; }
+        public string Introdution { get; set; }
     }
 }

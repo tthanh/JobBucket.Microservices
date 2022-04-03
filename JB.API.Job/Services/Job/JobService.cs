@@ -874,7 +874,7 @@ namespace JB.Job.Services
 
             return (result, applyForm);
         }
-        public async Task<(Status, ApplicationModel)> Unapply(int jobId)
+        public async Task<Status> Unapply(int jobId)
         {
             Status result = new Status();
             var userId = _claims?.Id ?? 0;
@@ -908,6 +908,7 @@ namespace JB.Job.Services
                         break;
                     }
 
+
                     _jobDbContext.Application.Remove(applyForm);
                     await _jobDbContext.SaveChangesAsync();
                 }
@@ -919,7 +920,191 @@ namespace JB.Job.Services
             }
             while (false);
 
-            return (result, applyForm);
+            return result;
+        }
+        public async Task<Status> ProcessingApplication(int jobId, int userId)
+        {
+            Status result = new Status();
+            var hrId = _claims?.Id ?? 0;
+            ApplicationModel application = null;
+            do
+            {
+                if (userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserNotExist;
+                    break;
+                }
+                if (jobId <= 0 || userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+                int organizationId = _userService.GetUser(hrId).Result.Item2?.OrganizationId ?? 0;
+                if (organizationId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserIsNotRecruiter;
+                    break;
+                }
+
+
+                try
+                {
+                    var job = await _jobDbContext.Jobs.FirstOrDefaultAsync(j => j.Id == jobId);
+                    if (job == null)
+                    {
+                        result.ErrorCode = ErrorCode.JobNull;
+                        break;
+                    }
+                    if (job.OrganizationId != organizationId)
+                    {
+                        result.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+
+                    application = await _jobDbContext.Application.FirstOrDefaultAsync(i => i.UserId == userId && i.JobId == jobId);
+                    if (application == null)
+                    {
+                        result.ErrorCode = ErrorCode.JobNotApplied;
+                        break;
+                    }
+
+                    application.Status = (int)ApplicationStatus.PROCESSING;
+                    _jobDbContext.Application.Update(application);
+                    await _jobDbContext.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return result;
+
+        }
+
+        public async Task<Status> FailApplication(int jobId, int userId)
+        {
+            Status result = new Status();
+            var hrId = _claims?.Id ?? 0;
+            ApplicationModel application = null;
+            do
+            {
+                if (userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserNotExist;
+                    break;
+                }
+                if (jobId <= 0 || userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+                int organizationId = _userService.GetUser(hrId).Result.Item2?.OrganizationId ?? 0;
+                if (organizationId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserIsNotRecruiter;
+                    break;
+                }
+
+                
+                try
+                {
+                    var job = await _jobDbContext.Jobs.FirstOrDefaultAsync(j => j.Id ==jobId);
+                    if (job == null)
+                    {
+                        result.ErrorCode = ErrorCode.JobNull;
+                        break;
+                    }
+                    if(job.OrganizationId != organizationId)
+                    {
+                        result.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+
+                    application = await _jobDbContext.Application.FirstOrDefaultAsync(i => i.UserId == userId && i.JobId == jobId);
+                    if (application == null)
+                    {
+                        result.ErrorCode = ErrorCode.JobNotApplied;
+                        break;
+                    }
+
+                    application.Status =(int) ApplicationStatus.FAILED;
+                    _jobDbContext.Application.Update(application);
+                    await _jobDbContext.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return result;
+
+        }
+        public async Task<Status> PassApplication(int jobId, int userId)
+        {
+            Status result = new Status();
+            var hrId = _claims?.Id ?? 0;
+            ApplicationModel application = null;
+            do
+            {
+                if (userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserNotExist;
+                    break;
+                }
+                if (jobId <= 0 || userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+                int organizationId = _userService.GetUser(hrId).Result.Item2?.OrganizationId ?? 0;
+                if (organizationId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserIsNotRecruiter;
+                    break;
+                }
+
+
+                try
+                {
+                    var job = await _jobDbContext.Jobs.FirstOrDefaultAsync(j => j.Id == jobId);
+                    if (job == null)
+                    {
+                        result.ErrorCode = ErrorCode.JobNull;
+                        break;
+                    }
+                    if (job.OrganizationId != organizationId)
+                    {
+                        result.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+
+                    application = await _jobDbContext.Application.FirstOrDefaultAsync(i => i.UserId == userId && i.JobId == jobId);
+                    if (application == null)
+                    {
+                        result.ErrorCode = ErrorCode.JobNotApplied;
+                        break;
+                    }
+
+                    application.Status = (int)ApplicationStatus.PASSED;
+                    _jobDbContext.Application.Update(application);
+                    await _jobDbContext.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return result;
+
         }
         public async Task<(Status, List<ApplicationModel>)> ListApply(Expression<Func<ApplicationModel, bool>> filter, Expression<Func<ApplicationModel, object>> sort, int size, int offset, bool isDescending = false)
         {
@@ -1173,6 +1358,8 @@ namespace JB.Job.Services
 
             return new Status();
         }
+
+       
         #endregion
     }
 }

@@ -9,6 +9,7 @@ using JB.Infrastructure.Constants;
 using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
 using JB.Infrastructure.Helpers;
+using System;
 
 namespace JB.Job.GraphQL.Interview
 {
@@ -25,6 +26,186 @@ namespace JB.Job.GraphQL.Interview
             _mapper = mapper;
             _claims = claims;
             _interviewService = interviewService;
+        }
+
+        public async Task<InterviewResponse> NextInterview(IResolverContext context, int interviewId, DateTime newDateTime)
+        {
+            Status status = new();
+            InterviewResponse result = null;
+            InterviewModel model = null;
+
+            do
+            {
+                if (_claims.Id <= 0)
+                {
+                    status.ErrorCode = ErrorCode.Unauthorized;
+                    break;
+                }
+
+                (status, model) = await _interviewService.NextInterview(interviewId, newDateTime);
+                if (!status.IsSuccess)
+                {
+                    break;
+                }
+                result = _mapper.Map<InterviewResponse>(model);
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return result;
+        }
+
+        public async Task<InterviewResponse> AcceptInterview(IResolverContext context, int interviewId)
+        {
+            Status status = new();
+
+            do
+            {
+                if (_claims.Id <= 0)
+                {
+                    status.ErrorCode = ErrorCode.Unauthorized;
+                    break;
+                }
+
+                status = await _interviewService.AcceptInterview(interviewId);
+                if (!status.IsSuccess)
+                {
+                    break;
+                }
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return null;
+        }
+
+        public async Task<InterviewResponse> DenyInterview(IResolverContext context, int interviewId)
+        {
+            Status status = new();
+
+            do
+            {
+                if (_claims.Id <= 0)
+                {
+                    status.ErrorCode = ErrorCode.Unauthorized;
+                    break;
+                }
+
+                status = await _interviewService.DenyInterview(interviewId);
+                if (!status.IsSuccess)
+                {
+                    break;
+                }
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return null;
+        }
+
+        public async Task<InterviewResponse> Reschedule(IResolverContext context, int interviewId, DateTime newDateTime)
+        {
+            Status status = new();
+            InterviewResponse result = null;
+            InterviewModel model = null;
+
+            do
+            {
+                if (_claims.Id <= 0)
+                {
+                    status.ErrorCode = ErrorCode.Unauthorized;
+                    break;
+                }
+
+                (status, model) = await _interviewService.RescheduleInterview(interviewId, newDateTime);
+                if (!status.IsSuccess)
+                {
+                    break;
+                }
+                result = _mapper.Map<InterviewResponse>(model);
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return result;
+        }
+
+        public async Task<InterviewResponse> PassAplication(IResolverContext context, int interviewId)
+        {
+            Status status = new();
+            InterviewResponse result = null;
+            InterviewModel model = null;
+
+            do
+            {
+                if (_claims.Id <= 0)
+                {
+                    status.ErrorCode = ErrorCode.Unauthorized;
+                    break;
+                }
+
+                (status, model) = await _interviewService.PassInterview(interviewId);
+                if (!status.IsSuccess)
+                {
+                    break;
+                }
+                result = _mapper.Map<InterviewResponse>(model);
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return result;
+        }
+
+        public async Task<InterviewResponse> FailAplication(IResolverContext context, int interviewId)
+        {
+            Status status = new();
+            InterviewResponse result = null;
+            InterviewModel model = null;
+
+            do
+            {
+                if (_claims.Id <= 0)
+                {
+                    status.ErrorCode = ErrorCode.Unauthorized;
+                    break;
+                }
+
+                (status, model) = await _interviewService.FailInterview(interviewId);
+                if (!status.IsSuccess)
+                {
+                    break;
+                }
+                result = _mapper.Map<InterviewResponse>(model);
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return result;
         }
 
         public async Task<InterviewResponse> Add(IResolverContext context, [GraphQLName("interview")] AddInterviewRequest interviewRequest)

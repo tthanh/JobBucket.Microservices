@@ -9,6 +9,7 @@ namespace JB.Job.DTOs.Interview
         public int JobId { get; set; }
         public int IntervieweeId { get; set; }
         public int InterviewerId { get; set; }
-        public int IntervieweeCVId { get; set; }
+        public int? IntervieweeCVId { get; set; }
+        public int TotalInterviewRound { get; set; }
     }
 }

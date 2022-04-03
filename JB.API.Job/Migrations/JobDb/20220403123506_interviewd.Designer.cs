@@ -3,15 +3,17 @@ using System;
 using JB.Job.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace JB.Job.Migrations
 {
     [DbContext(typeof(JobDbContext))]
-    partial class JobDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220403123506_interviewd")]
+    partial class interviewd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,9 +45,6 @@ namespace JB.Job.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.Property<string[]>("Attachments")
-                        .HasColumnType("text[]");
-
                     b.Property<int>("CVId")
                         .HasColumnType("integer");
 
@@ -54,9 +53,6 @@ namespace JB.Job.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Introdution")
-                        .HasColumnType("text");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");

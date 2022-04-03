@@ -241,8 +241,6 @@ namespace JB.Job.GraphQL.Job
         public async Task<ApplicationResponse> Unapply(IResolverContext context, int id)
         {
             Status status = new();
-            ApplicationModel applyForm = null;
-            ApplicationResponse result = null;
 
             do
             {
@@ -252,13 +250,12 @@ namespace JB.Job.GraphQL.Job
                     break;
                 }
 
-                (status, applyForm) = await _jobService.Unapply(id);
+                status = await _jobService.Unapply(id);
                 if (!status.IsSuccess)
                 {
                     break;
                 }
 
-                result = _mapper.Map<ApplicationResponse>(applyForm);
             }
             while (false);
 
@@ -267,7 +264,63 @@ namespace JB.Job.GraphQL.Job
                 context.ReportError(status.Message);
             }
 
-            return result;
+            return null;
+        }
+        public async Task<ApplicationResponse> FailAplication(IResolverContext context, int jobId, int userId)
+        {
+            Status status = new();
+
+            do
+            {
+                if (_claims.Id <= 0)
+                {
+                    status.ErrorCode = ErrorCode.Unauthorized;
+                    break;
+                }
+
+                status = await _jobService.FailApplication(jobId, userId);
+                if (!status.IsSuccess)
+                {
+                    break;
+                }
+
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return null;
+        }
+        public async Task<ApplicationResponse> PassAplication(IResolverContext context, int jobId, int userId)
+        {
+            Status status = new();
+
+            do
+            {
+                if (_claims.Id <= 0)
+                {
+                    status.ErrorCode = ErrorCode.Unauthorized;
+                    break;
+                }
+
+                status = await _jobService.PassApplication(jobId, userId);
+                if (!status.IsSuccess)
+                {
+                    break;
+                }
+
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return null;
         }
     }
 }

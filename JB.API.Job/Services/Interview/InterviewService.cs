@@ -54,6 +54,337 @@ namespace JB.Job.Services
             _notiService = notiService;
         }
 
+        public async Task<(Status, InterviewModel)> PassInterview(int interviewId)
+        {
+            Status result = new Status();
+            int userId = _claims?.Id ?? 0;
+            InterviewModel interview = null;
+            do
+            {
+                if (userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserNotExist;
+                    break;
+                }
+                if (interviewId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+               
+
+                try
+                {
+                    interview = await _interviewDbContext.Interviews.FirstOrDefaultAsync(x => x.Id == interviewId);
+                    if (interview == null)
+                    {
+                        result.ErrorCode = ErrorCode.InterviewNull;
+                        break;
+                    }
+                    (var status, var organization) = await _organizationService.GetById(interview.OrganizationId);
+                    if (status.ErrorCode != ErrorCode.Success)
+                    {
+                        result.ErrorCode = ErrorCode.OrganizationNull;
+                        break;
+                    }
+                    if (!UserHelper.IsManager(userId, organization) &&
+                        userId != interview.InterviewerId)
+                    {
+                        result.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+
+
+                    interview.Status = (int)InterviewStatus.Passed;
+                    _interviewDbContext.Interviews.Update(interview);
+                    await _interviewDbContext.SaveChangesAsync();
+                    await _jobService.PassApplication(interview.JobId, interview.IntervieweeId);
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return (result, interview);
+        }
+
+        public async Task<(Status, InterviewModel)> FailInterview(int interviewId)
+        {
+            Status result = new Status();
+            int userId = _claims?.Id ?? 0;
+            InterviewModel interview = null;
+            do
+            {
+                if (userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserNotExist;
+                    break;
+                }
+                if (interviewId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+
+
+                try
+                {
+                    interview = await _interviewDbContext.Interviews.FirstOrDefaultAsync(x => x.Id == interviewId);
+                    if (interview == null)
+                    {
+                        result.ErrorCode = ErrorCode.InterviewNull;
+                        break;
+                    }
+                    (var status, var organization) = await _organizationService.GetById(interview.OrganizationId);
+                    if (status.ErrorCode != ErrorCode.Success)
+                    {
+                        result.ErrorCode = ErrorCode.OrganizationNull;
+                        break;
+                    }
+                    if (!UserHelper.IsManager(userId, organization) &&
+                        userId != interview.InterviewerId)
+                    {
+                        result.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+
+
+                    interview.Status = (int)InterviewStatus.Failed;
+                    _interviewDbContext.Interviews.Update(interview);
+                    await _interviewDbContext.SaveChangesAsync();
+                    await _jobService.FailApplication(interview.JobId, interview.IntervieweeId);
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return (result, interview);
+        }
+
+        public async Task<(Status, InterviewModel)> NextInterview(int interviewId, DateTime newDate)
+        {
+            Status result = new Status();
+            int userId = _claims?.Id ?? 0;
+            InterviewModel interview = null;
+            do
+            {
+                if (userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserNotExist;
+                    break;
+                }
+                if (interviewId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+
+
+                try
+                {
+                    interview = await _interviewDbContext.Interviews.FirstOrDefaultAsync(x => x.Id == interviewId);
+                    if (interview == null)
+                    {
+                        result.ErrorCode = ErrorCode.InterviewNull;
+                        break;
+                    }
+
+                    (var status, var organization) = await _organizationService.GetById(interview.OrganizationId);
+                    if (status.ErrorCode != ErrorCode.Success)
+                    {
+                        result.ErrorCode = ErrorCode.OrganizationNull;
+                        break;
+                    }
+                    if (!UserHelper.IsManager(userId, organization) &&
+                        userId != interview.InterviewerId)
+                    {
+                        result.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+
+
+                    interview.Status = (int)InterviewStatus.Unverified;
+                    interview.InterviewTime = newDate;
+                    interview.CurrentInterviewRound += 1;
+                    _interviewDbContext.Interviews.Update(interview);
+                    await _interviewDbContext.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return (result, interview);
+        }
+
+        public async Task<Status> AcceptInterview(int interviewId)
+        {
+            Status result = new Status();
+            int userId = _claims?.Id ?? 0;
+            InterviewModel interview = null;
+            do
+            {
+                if (userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserNotExist;
+                    break;
+                }
+                if (interviewId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+
+
+                try
+                {
+                    interview = await _interviewDbContext.Interviews.FirstOrDefaultAsync(x => x.Id == interviewId);
+                    if (interview == null)
+                    {
+                        result.ErrorCode = ErrorCode.InterviewNull;
+                        break;
+                    }
+                    if(interview.IntervieweeId != userId)
+                    {
+                        result.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+
+                    interview.Status = (int)InterviewStatus.Accepted;
+                    _interviewDbContext.Interviews.Update(interview);
+                    await _interviewDbContext.SaveChangesAsync();
+
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return result;
+        }
+
+        public async Task<Status> DenyInterview(int interviewId)
+        {
+            Status result = new Status();
+            int userId = _claims?.Id ?? 0;
+            InterviewModel interview = null;
+            do
+            {
+                if (userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserNotExist;
+                    break;
+                }
+                if (interviewId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+
+
+                try
+                {
+                    interview = await _interviewDbContext.Interviews.FirstOrDefaultAsync(x => x.Id == interviewId);
+                    if (interview == null)
+                    {
+                        result.ErrorCode = ErrorCode.InterviewNull;
+                        break;
+                    }
+                    if (interview.IntervieweeId != userId)
+                    {
+                        result.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+
+                    interview.Status = (int)InterviewStatus.Denied;
+                    _interviewDbContext.Interviews.Update(interview);
+                    await _interviewDbContext.SaveChangesAsync();
+
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return result;
+        }
+
+        public async Task<(Status, InterviewModel)> RescheduleInterview(int interviewId, DateTime newInterviewTime)
+        {
+            Status result = new Status();
+            int userId = _claims?.Id ?? 0;
+            InterviewModel interview = null;
+            do
+            {
+                if (userId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.UserNotExist;
+                    break;
+                }
+                if (interviewId <= 0)
+                {
+                    result.ErrorCode = ErrorCode.InvalidArgument;
+                    break;
+                }
+                
+
+                try
+                {
+                    interview = await _interviewDbContext.Interviews.FirstOrDefaultAsync(x => x.Id == interviewId);
+                    if (interview == null)
+                    {
+                        result.ErrorCode = ErrorCode.InterviewNull;
+                        break;
+                    }
+                    (var status, var organization) = await _organizationService.GetById(interview.OrganizationId);
+                    if (status.ErrorCode != ErrorCode.Success)
+                    {
+                        result.ErrorCode = ErrorCode.OrganizationNull;
+                        break;
+                    }
+
+                    if (!UserHelper.IsManager(userId, organization) &&
+                        userId != interview.InterviewerId) {
+                        result.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+                    //checking
+                  
+
+                    interview.Status = (int)InterviewStatus.Unverified;
+                    interview.InterviewTime = newInterviewTime;
+                    _interviewDbContext.Interviews.Update(interview);
+                    await _interviewDbContext.SaveChangesAsync();
+
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return (result, interview);
+        }
+
+
         public async Task<Status> Add(InterviewModel entity)
         {
             Status result = new Status();
@@ -79,7 +410,8 @@ namespace JB.Job.Services
                 }
 
                 entity.OrganizationId = organizationId;
-                entity.Status = (int)InterviewStatus.Open;
+                entity.Status = (int)InterviewStatus.Unverified;
+                entity.CurrentInterviewRound = 1;
                 try
                 {
 
@@ -89,9 +421,10 @@ namespace JB.Job.Services
                     _interviewDbContext.Entry(entity).State = EntityState.Detached;
                     entity = await _interviewDbContext.Interviews.FindAsync(entity.Id);
 
+                    await _jobService.ProcessingApplication(entity.JobId, entity.IntervieweeId);
                     await _notiService.Add(new NotificationModel
                     {
-                        Message = $"Interviewed scheduled",
+                        Message = $"Interviewed scheduled waiting for confirmation",
                         SenderId = userId,
                         ReceiverId = entity.IntervieweeId,
                     });
@@ -189,6 +522,8 @@ namespace JB.Job.Services
 
             return result;
         }
+
+
 
         public async Task<(Status, InterviewModel)> GetById(int id)
         {
@@ -386,6 +721,7 @@ namespace JB.Job.Services
             return (result, interviews);
         }
 
+
         public async Task<Status> Update(InterviewModel entity)
         {
             Status result = new Status();
@@ -429,5 +765,7 @@ namespace JB.Job.Services
 
             return result;
         }
+
+      
     }
 }

@@ -1,5 +1,6 @@
 ﻿using JB.Job.Models.Interview;
 using System;
+using System.Collections.Generic;
 
 namespace JB.Job.DTOs.Interview
 {
@@ -26,7 +27,9 @@ namespace JB.Job.DTOs.Interview
         public int OrganizationId { get; set; }
       
         public InterviewOrganizationResponse Organization { get; set; }
-     
-        public InterviewFormModel Form { get; set; }
+
+        public ICollection<InterviewFormModel> Forms { get; set; }
+        public int TotalInterviewRound { get; set; }
+        public int CurrentInterviewRound { get; set; }
     }
 }

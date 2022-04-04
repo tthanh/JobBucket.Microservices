@@ -1270,6 +1270,34 @@ namespace JB.Job.Services
         #endregion
 
         #region Properties
+        public async Task<(Status, bool)> IsAnyApplication(int employeeId)
+        {
+            Status result = new Status();
+            bool anyApp = false;
+
+            do
+            {
+                try
+                {
+                    if (employeeId < 0)
+                    {
+                        result.ErrorCode = ErrorCode.NoPrivilege;
+                        break;
+                    }
+
+                    anyApp = await _jobDbContext.Application.AnyAsync(x => x.UserId == employeeId && (x.Status == (int)ApplicationStatus.FAILED || x.Status == (int)ApplicationStatus.PASSED));
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return (result, anyApp);
+        }
+
         public async Task<(Status, JobPropertiesResponse)> GetJobProperties()
         {
             Status result = new Status();
@@ -1330,10 +1358,10 @@ namespace JB.Job.Services
             return (result, counts);
         }
 
-        public async Task<(Status, List<(int Status, string StatusName, int Count)>)> GetJobApplicationCounts(ApplicationCountsRequest req)
+        public async Task<(Status, List<ApplicationCountsResponse>)> GetJobApplicationCounts(ApplicationCountsRequest req)
         {
             Status result = new Status();
-            List<(int Status, string StatusName, int Count)> counts = new();
+            List<ApplicationCountsResponse> counts = new();
             var userId = _claims?.Id ?? 0;
 
             do
@@ -1365,16 +1393,14 @@ namespace JB.Job.Services
                         filter = filter.And(x => x.JobId == req.JobId);
                     }
 
-                    var appQueryResult = await _jobDbContext.Application.Where(filter)
+                    counts = await _jobDbContext.Application.Where(filter)
                         .GroupBy(x => x.Status)
-                        .Select(x => new
+                        .Select(x => new ApplicationCountsResponse
                         {
                             Status = x.Key,
                             StatusName = EnumHelper.GetDescriptionFromEnumValue((ApplicationStatus)x.Key),
                             Count = x.Count(),
                         }).ToListAsync();
-
-                    counts = appQueryResult.Select(x => (x.Status, x.StatusName, x.Count)).ToList();
                 }
                 catch (Exception e)
                 {
@@ -1416,7 +1442,12 @@ namespace JB.Job.Services
             return new Status();
         }
 
-       
+        public async Task<Status> NotifyRecommendedJob()
+        {
+
+
+            return new Status();
+        }
         #endregion
     }
 }

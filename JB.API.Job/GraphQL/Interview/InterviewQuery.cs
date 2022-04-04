@@ -82,9 +82,9 @@ namespace JB.Job.GraphQL.Interview
         }
 
         [GraphQLName("interviewCounts")]
-        public async Task<List<(int Status, string StatusName, int Count)>> InterviewCounts(IResolverContext context, InterviewCountsRequest filter)
+        public async Task<List<InterviewCountsResponse>> InterviewCounts(IResolverContext context, InterviewCountsRequest filter)
         {
-            List<(int Status, string StatusName, int Count)> result = new();
+            List<InterviewCountsResponse> result = new();
             Status status = new();
 
             do

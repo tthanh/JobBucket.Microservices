@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using System.Threading.Tasks;
 using Status = JB.Infrastructure.Models.Status;
 
@@ -273,10 +274,15 @@ namespace JB.User.Services
                             new MatchAllQuery(),
                         },
                     };
-
+                    
                     boolQuery = boolQuery
                         .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("skills.skillName", filter?.Skills))
-                        .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("city", filter?.City));
+                        .AppendToMustQuery(ElasticsearchHelper.GetContainQuery("city", filter?.City))
+                        .AppendToMustQuery(new TermQuery
+                        {
+                            Field = "profileStatus",
+                            Value = ((int)ProfileStatus.OpenToWork).ToString(),
+                        });
                     
                     if (filter?.RoleId > 0)
                     {

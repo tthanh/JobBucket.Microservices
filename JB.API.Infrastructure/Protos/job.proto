@@ -10,6 +10,7 @@ option csharp_namespace = "JB.gRPC.Job";
 
 service JobRPC {
   rpc Get (JobRequest) returns (JobResponse);
+  rpc IsAnyApplication (CheckApplicationRequest) returns (CheckApplicationResponse);
 }
 
 message JobRequest {
@@ -81,4 +82,12 @@ message JobSkill {
 message JobType {
 	int32 id = 1;
 	optional string name = 2;
+}
+
+message CheckApplicationRequest {
+	int32 id = 1;
+}
+
+message CheckApplicationResponse {
+	bool isAnyApplication = 1;
 }

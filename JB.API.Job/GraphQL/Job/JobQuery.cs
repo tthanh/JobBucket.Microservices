@@ -345,9 +345,9 @@ namespace JB.Job.GraphQL.Job
         }
 
         [GraphQLName("jobApplicationCounts")]
-        public async Task<List<(int Status, string StatusName, int Count)>> JobApplicationCounts(IResolverContext context, ApplicationCountsRequest filter)
+        public async Task<List<ApplicationCountsResponse>> JobApplicationCounts(IResolverContext context, ApplicationCountsRequest filter)
         {
-            List<(int Status, string StatusName, int Count)> result = new();
+            List<ApplicationCountsResponse> result = new();
             Status status = new();
 
             do

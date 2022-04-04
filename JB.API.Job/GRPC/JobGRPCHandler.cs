@@ -49,5 +49,16 @@ namespace JB.Job.GRPC
 
             return jobResponse;
         }
+
+        public override async Task<CheckApplicationResponse> IsAnyApplication(CheckApplicationRequest request, ServerCallContext context)
+        {
+            CheckApplicationResponse appResponse = new CheckApplicationResponse();
+
+            (var status, var app) = await _jobService.IsAnyApplication(request.Id);
+
+            appResponse.IsAnyApplication = app;
+
+            return appResponse;
+        }
     }
 }

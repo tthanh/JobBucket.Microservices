@@ -24,6 +24,7 @@ namespace JB.Organization.Services
         private readonly ILogger<OrganizationService> _logger;
         private readonly IUserClaimsModel _claims;
         private readonly IUserManagementService _userService;
+        private readonly IJobService _jobService;
         private readonly IDistributedCache _cache;
 
         public OrganizationService(
@@ -31,15 +32,15 @@ namespace JB.Organization.Services
             ILogger<OrganizationService> logger,
             IUserClaimsModel claims,
             IUserManagementService userService,
-            IDistributedCache cache
-            )
+            IDistributedCache cache,
+            IJobService jobService)
         {
             _organizationDbContext = organizationDbContext;
             _logger = logger;
             _claims = claims;
             _userService = userService;
             _cache = cache;
-            //_jobService = jobService;
+            _jobService = jobService;
         }
 
         public async Task<Status> Add(OrganizationModel org)
@@ -181,6 +182,7 @@ namespace JB.Organization.Services
                     //org = await _cache.GetAsync<OrganizationModel>($"organization-{organizationId}");
                     if (org != null)
                     {
+                        org.IsReviewAllowed = (await _jobService.IsAnyApplication(_claims.Id)).Item2;
                         break;
                     }
                     else
@@ -194,6 +196,8 @@ namespace JB.Organization.Services
                         result.ErrorCode = ErrorCode.OrganizationNull;
                         break;
                     }
+
+                    org.IsReviewAllowed = (await _jobService.IsAnyApplication(_claims.Id)).Item2;
 
                     if (isSetCache)
                     {

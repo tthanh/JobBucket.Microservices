@@ -49,5 +49,8 @@ namespace JB.Organization.Models.Organization
         public float RatingCulture { get; set; } = 0;
 
         public float RatingWorkspace { get; set; } = 0;
+        
+        [NotMapped]
+        public bool IsReviewAllowed { get; set; }
     }
 }

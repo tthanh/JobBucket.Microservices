@@ -21,5 +21,6 @@ namespace JB.Organization.DTOs.Organization
         public float RatingLearning { get; set; }
         public float RatingCulture { get; set; }
         public float RatingWorkspace { get; set; }
+        public bool IsReviewAllowed { get; set; }
     }
 }

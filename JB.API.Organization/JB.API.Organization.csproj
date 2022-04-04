@@ -41,8 +41,4 @@
   <ItemGroup>
     <ProjectReference Include="..\JB.API.Infrastructure\JB.API.Infrastructure.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Job\" />
-  </ItemGroup>
 </Project>

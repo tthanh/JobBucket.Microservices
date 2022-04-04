@@ -34,17 +34,19 @@ namespace JB.Job.Services
         Task<(Status, List<ApplicationModel>)> GetAppliedJobsByUser(Expression<Func<ApplicationModel, bool>> filter = null, Expression<Func<ApplicationModel, object>> sort = null, int size = 30, int offset = 1, bool isDescending = false);
         Task<(Status, List<ApplicationModel>)> GetAppliedUsersByJob(int jobId, Expression<Func<ApplicationModel, bool>> filter = null, Expression<Func<ApplicationModel, object>> sort = null, int size = 30, int offset = 1, bool isDescending = false);
         Task<(Status, List<ApplicationModel>)> ListApply(Expression<Func<ApplicationModel, bool>> filter, Expression<Func<ApplicationModel, object>> sort, int size, int offset, bool isDescending = false);
+        Task<(Status, bool)> IsAnyApplication(int employeeId);
         
         #endregion
 
         #region Properties
         Task<(Status, JobPropertiesResponse)> GetJobProperties();
         Task<(Status, JobCountsResponse)> GetJobCountsByCategory(int count);
-        Task<(Status, List<(int Status, string StatusName, int Count)>)> GetJobApplicationCounts(ApplicationCountsRequest req);
+        Task<(Status, List<ApplicationCountsResponse>)> GetJobApplicationCounts(ApplicationCountsRequest req);
         #endregion
 
         #region
         Task<Status> UpdateExpiredJobStatus();
+        Task<Status> NotifyRecommendedJob();
         #endregion
 
         #region Admin

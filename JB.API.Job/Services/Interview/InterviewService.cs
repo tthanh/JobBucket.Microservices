@@ -767,10 +767,10 @@ namespace JB.Job.Services
             return result;
         }
 
-        public async Task<(Status, List<(int Status, string StatusName, int Count)>)> GetInterviewCounts(InterviewCountsRequest req)
+        public async Task<(Status, List<InterviewCountsResponse>)> GetInterviewCounts(InterviewCountsRequest req)
         {
             Status result = new Status();
-            List<(int Status, string StatusName, int Count)> counts = new();
+            List<InterviewCountsResponse> counts = new();
             var userId = _claims?.Id ?? 0;
 
             do
@@ -802,16 +802,14 @@ namespace JB.Job.Services
                         filter = filter.And(x => x.JobId == req.JobId);
                     }
 
-                    var appQueryResult = await _interviewDbContext.Interviews.Where(filter)
+                    counts = await _interviewDbContext.Interviews.Where(filter)
                         .GroupBy(x => x.Status)
-                        .Select(x => new
+                        .Select(x => new InterviewCountsResponse
                         {
                             Status = x.Key,
                             StatusName = EnumHelper.GetDescriptionFromEnumValue((ApplicationStatus)x.Key),
                             Count = x.Count(),
                         }).ToListAsync();
-
-                    counts = appQueryResult.Select(x => (x.Status, x.StatusName, x.Count)).ToList();
                 }
                 catch (Exception e)
                 {

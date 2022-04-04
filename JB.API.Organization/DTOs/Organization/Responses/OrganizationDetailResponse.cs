@@ -32,5 +32,6 @@ namespace JB.Organization.DTOs.Organization
         public int[] EmployerIds { get; set; }
         public virtual ICollection<OrganizationUserResponse> Managers { get; set; }
         public virtual ICollection<OrganizationUserResponse> Employers { get; set; }
+        public bool IsReviewAllowed { get; set; }
     }
 }

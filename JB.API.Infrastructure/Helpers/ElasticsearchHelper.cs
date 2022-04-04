@@ -9,6 +9,18 @@ namespace JB.Infrastructure.Helpers
 {
     public static class ElasticsearchHelper
     {
+        public static string RemoveSpecialCharacters(this string str)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (char c in str)
+            {
+                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
+        }
         public static BoolQuery GetContainQuery<T>(string field, T[] values)
             => string.IsNullOrEmpty(field) || values == null || values.Length == 0
                 ? null
@@ -19,7 +31,7 @@ namespace JB.Infrastructure.Helpers
                         Field = field,
                         Value = x switch
                         {
-                            string s => s.ToLower(),
+                            string s => s.RemoveSpecialCharacters().ToLower(),
                             _ => x,
                         },
                     }))

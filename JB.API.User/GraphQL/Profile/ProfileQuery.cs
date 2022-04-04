@@ -73,6 +73,8 @@ namespace JB.User.GraphQL.Profile
                 int page = filterRequest?.Page > 1 ? filterRequest.Page.Value : 1;
                 bool isDescending = filterRequest?.IsDescending ?? false;
 
+                filter = filter.And(x => x.ProfileStatus == (int)ProfileStatus.OpenToWork);
+
                 (status, profiles) = await _profileService.List(filter, sort, size, page, isDescending);
                 if (!status.IsSuccess)
                 {

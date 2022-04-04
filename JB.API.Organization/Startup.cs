@@ -112,6 +112,7 @@ namespace JB.Organization
             services.AddScoped<IUserManagementService, UserManagementGRPCService>();
             services.AddScoped<IOrganizationService, OrganizationService>();
             services.AddScoped<IReviewService, ReviewService>();
+            services.AddScoped<IJobService, JobGRPCService>();
             #endregion
 
             #region REST endpoints
@@ -139,6 +140,10 @@ namespace JB.Organization
             services.AddGrpcClient<JB.gRPC.User.UserRPC.UserRPCClient>(c =>
             {
                 c.Address = new Uri(Configuration["GrpcServices:User"]);
+            });
+            services.AddGrpcClient<JB.gRPC.Job.JobRPC.JobRPCClient>(c =>
+            {
+                c.Address = new Uri(Configuration["GrpcServices:Job"]);
             });
             #endregion
 

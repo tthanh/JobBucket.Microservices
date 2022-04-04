@@ -11,6 +11,7 @@ service UserRPC {
   rpc Get (UserRequest) returns (UserResponse);
   rpc Update (UpdateUserRequest) returns (User);
   rpc Create (CreateUserRequest) returns (User);
+  rpc Delete (UserRequest) returns (UserResponse);
 }
 
 message UserRequest {

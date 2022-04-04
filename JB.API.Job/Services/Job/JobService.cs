@@ -1144,6 +1144,63 @@ namespace JB.Job.Services
 
             return (result, counts);
         }
+
+        public async Task<(Status, List<(int Status, string StatusName, int Count)>)> GetJobApplicationCounts(ApplicationCountsRequest req)
+        {
+            Status result = new Status();
+            List<(int Status, string StatusName, int Count)> counts = new();
+            var userId = _claims?.Id ?? 0;
+
+            do
+            {
+                try
+                {
+                    Expression<Func<ApplicationModel, bool>> filter = x => true;
+
+                    if (req.OrganizationId > 0) // Org manager
+                    {
+                        filter = filter.And(x => x.Job.OrganizationId == req.OrganizationId);
+                    }
+                    else if (req.EmployerId > 0) // HR
+                    {
+                        filter = filter.And(x => x.Job.EmployerId == req.EmployerId);
+                    }
+                    else
+                    {
+                        filter = filter.And(x => x.UserId == userId);
+                    }
+
+                    if (req.Status > 0)
+                    {
+                        filter = filter.And(x => x.Status == req.Status);
+                    }
+
+                    if (req.JobId > 0)
+                    {
+                        filter = filter.And(x => x.JobId == req.JobId);
+                    }
+
+                    var appQueryResult = await _jobDbContext.Application.Where(filter)
+                        .GroupBy(x => x.Status)
+                        .Select(x => new
+                        {
+                            Status = x.Key,
+                            StatusName = EnumHelper.GetDescriptionFromEnumValue((ApplicationStatus)x.Key),
+                            Count = x.Count(),
+                        }).ToListAsync();
+
+                    counts = appQueryResult.Select(x => (x.Status, x.StatusName, x.Count)).ToList();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return (result, counts);
+        }
         #endregion
 
         #region Search

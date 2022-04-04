@@ -80,5 +80,25 @@ namespace JB.Job.GraphQL.Interview
 
             return results;
         }
+
+        [GraphQLName("interviewCounts")]
+        public async Task<List<(int Status, string StatusName, int Count)>> InterviewCounts(IResolverContext context, InterviewCountsRequest filter)
+        {
+            List<(int Status, string StatusName, int Count)> result = new();
+            Status status = new();
+
+            do
+            {
+                (status, result) = await _interviewService.GetInterviewCounts(filter);
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return result;
+        }
     }
 }

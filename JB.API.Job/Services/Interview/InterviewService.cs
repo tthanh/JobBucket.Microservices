@@ -5,6 +5,7 @@ using JB.Infrastructure.Models;
 using JB.Infrastructure.Models.Authentication;
 using JB.Job.Constants;
 using JB.Job.Data;
+using JB.Job.DTOs.Job;
 using JB.Job.Helpers;
 using JB.Job.Models.Interview;
 using JB.Job.Models.Notification;
@@ -428,6 +429,63 @@ namespace JB.Job.Services
             while (false);
 
             return result;
+        }
+
+        public async Task<(Status, List<(int Status, string StatusName, int Count)>)> GetInterviewCounts(InterviewCountsRequest req)
+        {
+            Status result = new Status();
+            List<(int Status, string StatusName, int Count)> counts = new();
+            var userId = _claims?.Id ?? 0;
+
+            do
+            {
+                try
+                {
+                    Expression<Func<InterviewModel, bool>> filter = x => true;
+
+                    if (req.OrganizationId > 0) // Org manager
+                    {
+                        filter = filter.And(x => x.Job.OrganizationId == req.OrganizationId);
+                    }
+                    else if (req.InterviewerId > 0) // HR
+                    {
+                        filter = filter.And(x => x.InterviewerId == req.InterviewerId);
+                    }
+                    else
+                    {
+                        filter = filter.And(x => x.IntervieweeId == userId);
+                    }
+
+                    if (req.Status > 0)
+                    {
+                        filter = filter.And(x => x.Status == req.Status);
+                    }
+
+                    if (req.JobId > 0)
+                    {
+                        filter = filter.And(x => x.JobId == req.JobId);
+                    }
+
+                    var appQueryResult = await _interviewDbContext.Interviews.Where(filter)
+                        .GroupBy(x => x.Status)
+                        .Select(x => new
+                        {
+                            Status = x.Key,
+                            StatusName = EnumHelper.GetDescriptionFromEnumValue((ApplicationStatus)x.Key),
+                            Count = x.Count(),
+                        }).ToListAsync();
+
+                    counts = appQueryResult.Select(x => (x.Status, x.StatusName, x.Count)).ToList();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return (result, counts);
         }
     }
 }

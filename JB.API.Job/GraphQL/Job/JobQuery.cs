@@ -343,5 +343,25 @@ namespace JB.Job.GraphQL.Job
 
             return result;
         }
+
+        [GraphQLName("jobApplicationCounts")]
+        public async Task<List<(int Status, string StatusName, int Count)>> JobApplicationCounts(IResolverContext context, ApplicationCountsRequest filter)
+        {
+            List<(int Status, string StatusName, int Count)> result = new();
+            Status status = new();
+
+            do
+            {
+                (status, result) = await _jobService.GetJobApplicationCounts(filter);
+            }
+            while (false);
+
+            if (!status.IsSuccess)
+            {
+                context.ReportError(status.Message);
+            }
+
+            return result;
+        }
     }
 }

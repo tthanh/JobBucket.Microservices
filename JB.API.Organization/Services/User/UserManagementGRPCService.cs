@@ -77,9 +77,20 @@ namespace JB.Organization.Services
             throw new NotImplementedException();
         }
 
-        public Task<Status> DeleteUser(int userId)
+        public async Task<Status> DeleteUser(int userId)
         {
-            throw new NotImplementedException();
+            Status status = new Status();
+            var user = await _cache.GetAsync<UserModel>(CacheKeys.USER, userId);
+
+            if (user == null)
+            {
+                var req = new gRPC.User.UserRequest();
+                req.Id.Add(userId);
+
+                var userResp = await _userGrpcClient.DeleteAsync(req);
+            }
+
+            return status;
         }
 
         public Task<(Status, UserModel)> DeleteUserDefaultCV(int userId)

@@ -89,5 +89,17 @@ namespace JB.Authentication.GRPC
 
             return userResponse;
         }
+
+        public override async Task<UserResponse> Delete(UserRequest request, ServerCallContext context)
+        {
+            gRPC.User.UserResponse userResponse = new gRPC.User.UserResponse();
+
+            foreach (var id in request.Id)
+            {
+                var status = await _userManagementService.DeleteUser(id);
+            }
+
+            return userResponse;
+        }
     }
 }

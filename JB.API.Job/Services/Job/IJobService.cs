@@ -36,6 +36,7 @@ namespace JB.Job.Services
         #region Properties
         Task<(Status, JobPropertiesResponse)> GetJobProperties();
         Task<(Status, JobCountsResponse)> GetJobCountsByCategory(int count);
+        Task<(Status, List<(int Status, string StatusName, int Count)>)> GetJobApplicationCounts(ApplicationCountsRequest req);
         #endregion
 
         #region

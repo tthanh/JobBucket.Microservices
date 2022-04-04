@@ -71,6 +71,7 @@ namespace JB.Job.Models.Profile
         public UserExperienceModel[] Experiences { get; set; }
 
         public int Views { get; set; }
+
         public int ProfileStatus { get; set; }
     }
 }

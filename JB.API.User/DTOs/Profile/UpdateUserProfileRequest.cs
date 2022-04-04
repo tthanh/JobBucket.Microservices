@@ -48,5 +48,6 @@ namespace JB.User.DTOs.Profile
         public UserEducationModel[] Educations { get; set; }
 
         public UserExperienceModel[] Experiences { get; set; }
+        public int ProfileStatus { get; set; }
     }
 }

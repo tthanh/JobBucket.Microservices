@@ -22,5 +22,6 @@ namespace JB.User.DTOs.UserManagement
         public string FullName { get; set; }
         public DateTime? LockoutEnd { get; set; }
         public int RoleId { get; set; }
+        public int ProfileStatus { get; set; }
     }
 }

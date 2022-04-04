@@ -28,5 +28,7 @@ namespace JB.Authentication.Models.User
         public OrganizationModel Organization { get; set; }
 
         public int? DefaultCVId { get; set; }
+
+        public int ProfileStatus { get; set; }
     }
 }

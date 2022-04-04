@@ -72,7 +72,7 @@ namespace JB.Job.DTOs.Job
 
         protected override string[] GetAllowedSortFields()
         {
-            return new string[] { nameof(InterviewModel.InterviewTime), nameof(InterviewModel.CreatedDate), nameof(InterviewModel.Form.OverallRating), nameof(InterviewModel.Form.Result) };
+            return new string[] { nameof(InterviewModel.InterviewTime), nameof(InterviewModel.CreatedDate) };
         }
     }
 }

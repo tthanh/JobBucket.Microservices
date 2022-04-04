@@ -51,6 +51,7 @@ message Profile {
 	repeated UserEducation educations = 28;
 	repeated UserExperience experiences = 29;
 	int32 views = 30;
+	int32 profileStatus = 31;
 }
 
 message UserSkill {

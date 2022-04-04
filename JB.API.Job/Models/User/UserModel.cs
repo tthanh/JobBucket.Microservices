@@ -32,5 +32,6 @@ namespace JB.Job.Models.User
         public string Email { get; set; }
         public string UserName { get; set; }
         public int Id { get; set; }
+        public int ProfileStatus { get; set; }
     }
 }

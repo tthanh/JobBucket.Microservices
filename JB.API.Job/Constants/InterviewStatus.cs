@@ -2,8 +2,14 @@
 {
     public enum InterviewStatus
     {
-        Open = 0,
-        Closed = 1,
-        Pending = 2
-    }
+		Unverified = 0, // đang chờ ứng viên xác nhận lịch pv
+
+		Accepted = 1, //uv chấp nhận lịch
+		Denied = 2, //uv ko chấp nhận lịch ->  hr chọn reschedule -> Unverified
+
+
+		Passed = 3, // đậu vòng hiện tại
+		Failed = 4  // fail vòng hiện tại -> application failed
+
+	}
 }

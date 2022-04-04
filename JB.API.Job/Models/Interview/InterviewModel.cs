@@ -5,6 +5,7 @@ using JB.Job.Models.Organization;
 using JB.Job.Models.User;
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace JB.Job.Models.Interview
@@ -33,6 +34,8 @@ namespace JB.Job.Models.Interview
         [NotMapped]
         public OrganizationModel Organization { get; set; }
         [Column(TypeName = "jsonb")]
-        public InterviewFormModel Form { get; set; }
+        public ICollection<InterviewFormModel> Forms { get; set; }
+        public int TotalInterviewRound { get; set; }
+        public int CurrentInterviewRound { get; set; }
     }
 }

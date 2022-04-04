@@ -27,10 +27,14 @@ namespace JB.Job.Services
 
         #region Apply
         Task<(Status, ApplicationModel)> Apply(ApplicationModel applyForm);
-        Task<(Status, ApplicationModel)> Unapply(int jobId);
+        Task<Status> Unapply(int jobId); // uv hủy apply
+        Task<Status> FailApplication(int jobId, int userId); // hr đánh rớt uv
+        Task<Status> PassApplication(int jobId, int userId); // hr đánh đậu uv
+        Task<Status> ProcessingApplication(int jobId, int userId); // hr đã đặt lịch
         Task<(Status, List<ApplicationModel>)> GetAppliedJobsByUser(Expression<Func<ApplicationModel, bool>> filter = null, Expression<Func<ApplicationModel, object>> sort = null, int size = 30, int offset = 1, bool isDescending = false);
         Task<(Status, List<ApplicationModel>)> GetAppliedUsersByJob(int jobId, Expression<Func<ApplicationModel, bool>> filter = null, Expression<Func<ApplicationModel, object>> sort = null, int size = 30, int offset = 1, bool isDescending = false);
         Task<(Status, List<ApplicationModel>)> ListApply(Expression<Func<ApplicationModel, bool>> filter, Expression<Func<ApplicationModel, object>> sort, int size, int offset, bool isDescending = false);
+        
         #endregion
 
         #region Properties

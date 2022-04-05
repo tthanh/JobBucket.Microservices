@@ -63,6 +63,8 @@ namespace JB.Authentication.GRPC
             {
                 user.DefaultCVId = request.DefaultCVId;
             }
+            
+            user.ProfileStatus = request.ProfileStatus;
 
             (status, user) = await _userManagementService.UpdateUser(user);
 
@@ -80,7 +82,7 @@ namespace JB.Authentication.GRPC
                 Email = request.Email,
                 RoleId = request.RoleId,
                 OrganizationId = request.OrganizationId,
-                PasswordPlain = request.PasswordPlain
+                PasswordPlain = request.PasswordPlain,
             };
 
             (var status,var userResult) = await _userManagementService.CreateUser(user);

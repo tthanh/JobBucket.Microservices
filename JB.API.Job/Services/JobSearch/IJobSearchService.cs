@@ -24,5 +24,6 @@ namespace JB.Job.Services
         Task<(Status, List<JobModel>)> Search(int[] entityIds = null, Expression<Func<JobModel, bool>> filter = null, Expression<Func<JobModel, object>> sort = null, int size = 10, int offset = 1, bool isDescending = false);
         Task<(Status, List<JobModel>)> Search(ListJobRequest filter = null);
         Task<(Status, List<JobModel>)> Search(ListJobRecommendationRequest filter = null);
+        Task<(Status, List<JobModel>)> SearchUserRecommendedJobs(int userId);
     }
 }

@@ -127,6 +127,7 @@ namespace JB.User.Services
                 req.AvatarUrl = user.AvatarUrl;
                 req.DefaultCVId = user.DefaultCVId;
                 req.Name = user.Name;
+                req.ProfileStatus = user.ProfileStatus;
 
                 _ = await _userGrpcClient.UpdateAsync(req);
             }

@@ -46,7 +46,7 @@ namespace JB.Job.Services
 
         #region
         Task<Status> UpdateExpiredJobStatus();
-        Task<Status> NotifyRecommendedJob();
+        Task<Status> NotifyRecommendedJob(int frequencyDay);
         #endregion
 
         #region Admin

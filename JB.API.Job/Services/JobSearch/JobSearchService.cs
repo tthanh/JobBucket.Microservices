@@ -171,5 +171,10 @@ namespace JB.Job.Services
         {
             throw new NotImplementedException();
         }
+
+        public Task<(Status, List<JobModel>)> SearchUserRecommendedJobs(int userId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

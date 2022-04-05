@@ -256,7 +256,7 @@ namespace JB.Job
             app.UseHangfireServer();
             app.UseHangfireDashboard();
             jobManager.AddOrUpdate<IJobService>("update-expired-job", x => x.UpdateExpiredJobStatus(), "0 1 * * *", TimeZoneInfo.Utc);
-            jobManager.AddOrUpdate<IJobService>("update-expired-job", x => x.UpdateExpiredJobStatus(), "0 3 * * *", TimeZoneInfo.Utc);
+            jobManager.AddOrUpdate<IJobService>("update-expired-job", x => x.NotifyRecommendedJob(3), "0 3 * * *", TimeZoneInfo.Utc);
 
             app.UseEndpoints(endpoints =>
             {

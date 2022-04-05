@@ -1370,11 +1370,11 @@ namespace JB.Job.Services
                 {
                     Expression<Func<ApplicationModel, bool>> filter = x => true;
 
-                    if (req.OrganizationId > 0) // Org manager
+                    if (req.OrganizationId > 0 && _claims.RoleId == (int)RoleType.OrganizationManager) // Org manager
                     {
                         filter = filter.And(x => x.Job.OrganizationId == req.OrganizationId);
                     }
-                    else if (req.EmployerId > 0) // HR
+                    else if (req.EmployerId > 0 && userId == req.EmployerId) // HR
                     {
                         filter = filter.And(x => x.Job.EmployerId == req.EmployerId);
                     }
@@ -1393,14 +1393,28 @@ namespace JB.Job.Services
                         filter = filter.And(x => x.JobId == req.JobId);
                     }
 
-                    counts = await _jobDbContext.Application.Where(filter)
+                    Dictionary<int, int> countDict = Enum.GetValues(typeof(ApplicationStatus)).Cast<int>().ToDictionary(x => x, x => 0);
+
+                    var groupResult = await _jobDbContext.Application.Where(filter)
                         .GroupBy(x => x.Status)
-                        .Select(x => new ApplicationCountsResponse
+                        .Select(x => new
                         {
-                            Status = x.Key,
-                            StatusName = EnumHelper.GetDescriptionFromEnumValue((ApplicationStatus)x.Key),
+                            x.Key,
                             Count = x.Count(),
-                        }).ToListAsync();
+                        })
+                        .ToListAsync();
+                    
+                    foreach (var r in groupResult)
+                    {
+                        countDict[r.Key] = r.Count;
+                    }
+
+                    counts = countDict.Select(x => new ApplicationCountsResponse
+                    {
+                        Status = x.Key,
+                        StatusName = EnumHelper.GetDescriptionFromEnumValue((ApplicationStatus)x.Key),
+                        Count = x.Value,
+                    }).ToList();
                 }
                 catch (Exception e)
                 {
@@ -1442,10 +1456,8 @@ namespace JB.Job.Services
             return new Status();
         }
 
-        public async Task<Status> NotifyRecommendedJob()
+        public async Task<Status> NotifyRecommendedJob(int frequencyDay)
         {
-
-
             return new Status();
         }
         #endregion

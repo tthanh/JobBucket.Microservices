@@ -342,7 +342,8 @@ namespace JB.Job.Services
                     userId = _claims?.Id ?? userId;
 
                     // Get user's like & apply
-                    var appliedJobs = (await _jobDbContext.Application.Where(x => x.UserId == _claims.Id).ToListAsync()).Select(x => x.JobId);
+                    //var appliedJobs = (await _jobDbContext.Application.Where(x => x.UserId == _claims.Id).ToListAsync()).Select(x => x.JobId);
+                    var appliedJobs = new int[] { };
                     var likedJobs = (await _jobDbContext.Interests.Where(x => x.UserId == _claims.Id).ToListAsync()).Select(x => x.JobId);
                     // Get Job skills, type, category, city, salary range
                     var likedAndAppliedJobIds = appliedJobs.Concat(likedJobs).ToList();
@@ -480,6 +481,125 @@ namespace JB.Job.Services
             while (false);
 
             return (result, jobs);
+        }
+
+        public async Task<(Status, List<JobModel>)> SearchUserRecommendedJobs(int userId)
+        {
+            Status result = new Status();
+            var jobs = new List<JobModel>();
+            List<string> likeTerms = new List<string>();
+            ISearchResponse<JobModel> searchResponse = null;
+
+            do
+            {
+                try
+                {
+                    // Get user's like & apply
+                    var likedJobs = (await _jobDbContext.Interests.Where(x => x.UserId == _claims.Id).ToListAsync()).Select(x => x.JobId);
+
+                    // Get user's skills
+                    (var getProfileStatus, var profile) = await _profileService.GetById(_claims.Id);
+                    if (getProfileStatus.IsSuccess)
+                    {
+                        likeTerms.Add(profile.City);
+                        likeTerms.Add(profile.Country);
+                        likeTerms.AddRange(profile?.Skills.Select(x => x.SkillName) ?? Enumerable.Empty<string>());
+                        likeTerms.AddRange(profile?.Educations.Select(x => x.Major) ?? Enumerable.Empty<string>());
+                        likeTerms.AddRange(profile?.Educations.Select(x => x.Profession) ?? Enumerable.Empty<string>());
+                        likeTerms.AddRange(profile?.Experiences.Select(x => x.Position) ?? Enumerable.Empty<string>());
+
+                        likeTerms = likeTerms.Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
+                    }
+
+                    var boolQuery = new BoolQuery
+                    {
+                        Must = Array.Empty<QueryContainer>(),
+                        Should = Array.Empty<QueryContainer>(),
+                    };
+
+                    if (!likedJobs.Any())
+                    {
+                        boolQuery = boolQuery.AppendToShouldQuery(new MultiMatchQuery
+                        {
+                            Query = string.Join(' ', likeTerms),
+                            Fields = new Field[]
+                            {
+                                "skills.name",
+                                "organization.name",
+                                "positions.name",
+                                "categories.name",
+                                "title",
+                                "description",
+                                "types",
+                                "cities",
+                                "benefits",
+                                "experiences",
+                                "responsibilities",
+                                "requirements"
+                            }
+                        });
+                    }
+                    else
+                    {
+                        var mlt = new MoreLikeThisQuery
+                        {
+                            Like = new Like[]
+                            {
+                                new Like(string.Join(' ', likeTerms)),
+                            },
+                            MinDocumentFrequency = 1,
+                            MinTermFrequency = 0,
+                            MaxQueryTerms = 12,
+                            Fields = new Field[]
+                            {
+                                "skills.name",
+                                "organization.name",
+                                "positions.name",
+                                "categories.name",
+                                "title",
+                                "description",
+                                "types",
+                                "cities",
+                                "benefits",
+                                "experiences",
+                                "responsibilities",
+                                "requirements"
+                            }
+                        };
+                        mlt.Like = mlt.Like.Concat(likedJobs.Select(x => new Like(new LikeDocument<JobModel>(x))));
+
+                        boolQuery = boolQuery.AppendToShouldQuery(mlt);
+                    }
+
+                    var searchRequest = new SearchRequest<JobModel>
+                    {
+                        From = 0,
+                        Size = 20,
+                        Query = boolQuery,
+                    };
+
+                    searchResponse = await _elasticClient.SearchAsync<JobModel>(searchRequest);
+
+                    if (!searchResponse.IsValid)
+                    {
+                        result.ErrorCode = ErrorCode.InvalidData;
+                        break;
+                    }
+
+                    jobs = searchResponse.Hits.Select(r => _mapper.Map<JobModel>(r.Source)).ToList();
+                }
+                catch (Exception e)
+                {
+                    result.ErrorCode = ErrorCode.Unknown;
+                    _logger.LogError(e, e.Message);
+                }
+            }
+            while (false);
+
+            return (result, jobs);
+            // Search job that has high score
+
+            return (new Status(), null);
         }
     }
 }

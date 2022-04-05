@@ -802,14 +802,28 @@ namespace JB.Job.Services
                         filter = filter.And(x => x.JobId == req.JobId);
                     }
 
-                    counts = await _interviewDbContext.Interviews.Where(filter)
+                    Dictionary<int, int> countDict = Enum.GetValues(typeof(InterviewStatus)).Cast<int>().ToDictionary(x => x, x => 0);
+
+                    var groupResult = await _interviewDbContext.Interviews.Where(filter)
                         .GroupBy(x => x.Status)
-                        .Select(x => new InterviewCountsResponse
+                        .Select(x => new
                         {
-                            Status = x.Key,
-                            StatusName = EnumHelper.GetDescriptionFromEnumValue((ApplicationStatus)x.Key),
+                            x.Key,
                             Count = x.Count(),
-                        }).ToListAsync();
+                        })
+                        .ToListAsync();
+
+                    foreach (var r in groupResult)
+                    {
+                        countDict[r.Key] = r.Count;
+                    }
+
+                    counts = countDict.Select(x => new InterviewCountsResponse
+                    {
+                        Status = x.Key,
+                        StatusName = EnumHelper.GetDescriptionFromEnumValue((InterviewStatus)x.Key),
+                        Count = x.Value,
+                    }).ToList();
                 }
                 catch (Exception e)
                 {

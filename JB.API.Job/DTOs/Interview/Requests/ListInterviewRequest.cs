@@ -36,7 +36,7 @@ namespace JB.Job.DTOs.Job
                 filter = filter.And(b => b.IntervieweeId == IntervieweeId);
             }
 
-            if (Status > 0)
+            if (Status >= 0)
             {
                 filter = filter.And(b => b.Status == Status);
             }

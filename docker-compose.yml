@@ -27,9 +27,9 @@ services:
       - Redis:Url=jb.redis:6379,password=jb123
       - Elasticsearch:Url=http://103.153.75.82:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
-    depends_on:
-      - jb.db
-      - jb.redis
+    # depends_on:
+    #   - jb.db
+    #   - jb.redis
   jb.api.blog:
     image: jbapiblog
     build:
@@ -43,10 +43,10 @@ services:
       - Elasticsearch:Url=http://103.153.75.82:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
-    depends_on:
-      - jb.db
-      - jb.redis
-      - jb.api.authentication
+    # depends_on:
+    #   - jb.db
+    #   - jb.redis
+    #   - jb.api.authentication
 
   jb.api.gateway:
     image: jbapigateway
@@ -81,11 +81,11 @@ services:
       - GrpcServices:Organization=http://jb.api.organization:6005
       - GrpcServices:Profile=http://jb.api.user:6004
       - GrpcServices:CV=http://jb.api.user:6004
-    depends_on:
-      - jb.db
-      - jb.redis
-      - jb.api.authentication
-      - jb.api.organization
+    # depends_on:
+    #   - jb.db
+    #   - jb.redis
+    #   - jb.api.authentication
+    #   - jb.api.organization
 
   jb.api.notification:
     image: jbapinotification
@@ -99,11 +99,11 @@ services:
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
       - GrpcServices:Organization=http://jb.api.organization:6005
-    depends_on:
-      - jb.db
-      - jb.redis
-      - jb.api.authentication
-      - jb.api.organization
+    # depends_on:
+    #   - jb.db
+    #   - jb.redis
+    #   - jb.api.authentication
+    #   - jb.api.organization
 
   jb.api.organization:
     image: jbapiorganization
@@ -117,9 +117,10 @@ services:
       - Elasticsearch:Url=http://103.153.75.82:9200
       - ConnectionStrings:Database=Host=jb.db;Database=jobbucket;Username=postgres;Password=jb123
       - GrpcServices:User=http://jb.api.authentication:6002
-    depends_on:
-      - jb.db
-      - jb.redis
+      - GrpcServices:Job=http://jb.api.job:6003
+    # depends_on:
+    #   - jb.db
+    #   - jb.redis
 
   jb.api.user:
     image: jbapiuser
@@ -135,9 +136,9 @@ services:
       - GrpcServices:User=http://jb.api.authentication:6002
       - GrpcServices:Organization=http://jb.api.organization:6005
       - GrpcServices:Job=http://jb.api.job:6003
-    depends_on:
-      - jb.db
-      - jb.redis
-      - jb.api.authentication
-      - jb.api.organization
+    # depends_on:
+    #   - jb.db
+    #   - jb.redis
+    #   - jb.api.authentication
+    #   - jb.api.organization
 

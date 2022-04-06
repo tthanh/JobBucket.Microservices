@@ -858,7 +858,7 @@ namespace JB.Job.Services
 
                     await _notiService.Add(new NotificationModel
                     {
-                        Message = $"User applied to job:{job.Id} - {job.Title}",
+                        Message = $"User applied to job: {job.Title}",
                         OrganizationId = job.OrganizationId,
                         SenderId = userId,
                         ReceiverId = job.EmployerId,
@@ -918,7 +918,7 @@ namespace JB.Job.Services
 
                     await _notiService.Add(new NotificationModel
                     {
-                        Message = $"User canceled application to job:{user?.Name ?? "User"} - {job.Title}",
+                        Message = $"User canceled application to job :{user?.Name ?? "User"} - {job.Title}",
                         OrganizationId = job.OrganizationId,
                         SenderId = userId,
                         ReceiverId = job.EmployerId,
@@ -1048,7 +1048,7 @@ namespace JB.Job.Services
 
                     await _notiService.Add(new NotificationModel
                     {
-                        Message = $"Your aplication has been disqualified :{job.Id} - {job.Title}",
+                        Message = $"Your aplication has been disqualified :{job.Title}",
                         OrganizationId = job.OrganizationId,
                         SenderId = hrId,
                         ReceiverId = userId,
@@ -1117,7 +1117,7 @@ namespace JB.Job.Services
 
                     await _notiService.Add(new NotificationModel
                     {
-                        Message = $"Congratulation! You has passed :{job.Id} - {job.Title}",
+                        Message = $"Congratulation! You have passed :{job.Title}",
                         OrganizationId = job.OrganizationId,
                         SenderId = hrId,
                         ReceiverId = userId,

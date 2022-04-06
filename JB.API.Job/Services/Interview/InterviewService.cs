@@ -216,6 +216,14 @@ namespace JB.Job.Services
                     interview.CurrentInterviewRound += 1;
                     _interviewDbContext.Interviews.Update(interview);
                     await _interviewDbContext.SaveChangesAsync();
+
+                    await _notiService.Add(new NotificationModel
+                    {
+                        Message = $"Congratulation! You have been schedule for next round : {interview.InterviewTime.ToString("yyyy-MM-dd HH:mm:ss")}",
+                        OrganizationId = interview.OrganizationId,
+                        SenderId = userId,
+                        ReceiverId = interview.IntervieweeId,
+                    });
                 }
                 catch (Exception e)
                 {
@@ -267,7 +275,7 @@ namespace JB.Job.Services
 
                     await _notiService.Add(new NotificationModel
                     {
-                        Message = $"User appcepted interview schedule:{interview.JobId} - {interview.InterviewTime.ToString("yyyy-MM-dd HH:mm:ss")}",
+                        Message = $"User appcepted interview schedule :{interview.InterviewTime.ToString("yyyy-MM-dd HH:mm:ss")}",
                         OrganizationId = interview.OrganizationId,
                         SenderId = userId,
                         ReceiverId = interview.InterviewerId,
@@ -324,7 +332,7 @@ namespace JB.Job.Services
 
                     await _notiService.Add(new NotificationModel
                     {
-                        Message = $"User denied interview schedule:{interview.JobId} - {interview.InterviewTime.ToString("yyyy-MM-dd HH:mm:ss")}",
+                        Message = $"User denied interview schedule :{interview.InterviewTime.ToString("yyyy-MM-dd HH:mm:ss")}",
                         OrganizationId = interview.OrganizationId,
                         SenderId = userId,
                         ReceiverId = interview.InterviewerId,
@@ -391,7 +399,7 @@ namespace JB.Job.Services
 
                     await _notiService.Add(new NotificationModel
                     {
-                        Message = $"You has been reschedule: {interview.InterviewTime.ToString("yyyy-MM-dd HH:mm:ss")}",
+                        Message = $"You have been rescheduled to : {interview.InterviewTime.ToString("yyyy-MM-dd HH:mm:ss")}",
                         OrganizationId = interview.OrganizationId,
                         SenderId = userId,
                         ReceiverId = interview.IntervieweeId,

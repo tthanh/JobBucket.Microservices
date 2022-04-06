@@ -265,6 +265,14 @@ namespace JB.Job.Services
                     _interviewDbContext.Interviews.Update(interview);
                     await _interviewDbContext.SaveChangesAsync();
 
+                    await _notiService.Add(new NotificationModel
+                    {
+                        Message = $"User appcepted interview schedule:{interview.JobId} - {interview.InterviewTime.ToString("yyyy-MM-dd HH:mm:ss")}",
+                        OrganizationId = interview.OrganizationId,
+                        SenderId = userId,
+                        ReceiverId = interview.InterviewerId,
+                    });
+
                 }
                 catch (Exception e)
                 {
@@ -313,6 +321,14 @@ namespace JB.Job.Services
                     interview.Status = (int)InterviewStatus.Denied;
                     _interviewDbContext.Interviews.Update(interview);
                     await _interviewDbContext.SaveChangesAsync();
+
+                    await _notiService.Add(new NotificationModel
+                    {
+                        Message = $"User denied interview schedule:{interview.JobId} - {interview.InterviewTime.ToString("yyyy-MM-dd HH:mm:ss")}",
+                        OrganizationId = interview.OrganizationId,
+                        SenderId = userId,
+                        ReceiverId = interview.InterviewerId,
+                    });
 
                 }
                 catch (Exception e)
@@ -372,6 +388,14 @@ namespace JB.Job.Services
                     interview.InterviewTime = newInterviewTime;
                     _interviewDbContext.Interviews.Update(interview);
                     await _interviewDbContext.SaveChangesAsync();
+
+                    await _notiService.Add(new NotificationModel
+                    {
+                        Message = $"You has been reschedule: {interview.InterviewTime.ToString("yyyy-MM-dd HH:mm:ss")}",
+                        OrganizationId = interview.OrganizationId,
+                        SenderId = userId,
+                        ReceiverId = interview.IntervieweeId,
+                    });
 
                 }
                 catch (Exception e)

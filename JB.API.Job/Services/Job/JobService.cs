@@ -860,7 +860,7 @@ namespace JB.Job.Services
                     {
                         Message = $"User applied to job:{job.Id} - {job.Title}",
                         OrganizationId = job.OrganizationId,
-                        SenderId = job.EmployerId,
+                        SenderId = userId,
                         ReceiverId = job.EmployerId,
                     });
                 }
@@ -894,8 +894,8 @@ namespace JB.Job.Services
 
                 try
                 {
-                    var isJobExist = await _jobDbContext.Jobs.AnyAsync(j => j.Id == jobId);
-                    if (!isJobExist)
+                    var job = await _jobDbContext.Jobs.FirstOrDefaultAsync(j => j.Id == jobId);
+                    if (job == null)
                     {
                         result.ErrorCode = ErrorCode.JobNull;
                         break;
@@ -907,10 +907,22 @@ namespace JB.Job.Services
                         result.ErrorCode = ErrorCode.JobNotApplied;
                         break;
                     }
+                    var user = _userService.GetUser(userId).Result.Item2;
+                    //if(user == null)
+                    //{
 
+                    //}
 
                     _jobDbContext.Application.Remove(applyForm);
                     await _jobDbContext.SaveChangesAsync();
+
+                    await _notiService.Add(new NotificationModel
+                    {
+                        Message = $"User canceled application to job:{user?.Name ?? "User"} - {job.Title}",
+                        OrganizationId = job.OrganizationId,
+                        SenderId = userId,
+                        ReceiverId = job.EmployerId,
+                    });
                 }
                 catch (Exception e)
                 {
@@ -1033,6 +1045,14 @@ namespace JB.Job.Services
                     application.Status =(int) ApplicationStatus.FAILED;
                     _jobDbContext.Application.Update(application);
                     await _jobDbContext.SaveChangesAsync();
+
+                    await _notiService.Add(new NotificationModel
+                    {
+                        Message = $"Your aplication has been disqualified :{job.Id} - {job.Title}",
+                        OrganizationId = job.OrganizationId,
+                        SenderId = hrId,
+                        ReceiverId = userId,
+                    });
                 }
                 catch (Exception e)
                 {
@@ -1094,6 +1114,14 @@ namespace JB.Job.Services
                     application.Status = (int)ApplicationStatus.PASSED;
                     _jobDbContext.Application.Update(application);
                     await _jobDbContext.SaveChangesAsync();
+
+                    await _notiService.Add(new NotificationModel
+                    {
+                        Message = $"Congratulation! You has passed :{job.Id} - {job.Title}",
+                        OrganizationId = job.OrganizationId,
+                        SenderId = hrId,
+                        ReceiverId = userId,
+                    });
                 }
                 catch (Exception e)
                 {

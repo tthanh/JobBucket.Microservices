@@ -36,5 +36,6 @@ namespace JB.Infrastructure.Elasticsearch.User
         public UserEducationDocument[] Educations { get; set; }
         public UserExprerienceDocument[] Experiences { get; set; }
         public int Views { get; set; }
+        public int ProfileStatus { get; set; }
     }
 }

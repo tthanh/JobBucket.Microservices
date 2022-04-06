@@ -13,5 +13,7 @@
         public string AvatarUrl { get; set; }
 
         public int OrganizationId { get; set; }
+
+        public int ProfileStatus { get; set; }
     }
 }
